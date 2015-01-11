@@ -1,5 +1,10 @@
 package com.uttt.common;
 
+import java.util.UUID;
+
+import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
@@ -15,11 +20,17 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.google.gson.JsonObject;
+
 @Configuration
 @EnableAutoConfiguration
 public abstract class App implements CommandLineRunner {
 
+	private final static Logger log = Logger.getLogger(App.class);
+
 	private final static String queueName = "spring-boot";
+
+	private final String appId = UUID.randomUUID().toString();
 
 	@Autowired
 	protected AnnotationConfigApplicationContext context;
@@ -62,8 +73,42 @@ public abstract class App implements CommandLineRunner {
 	MessageListenerAdapter listenerAdapter(Receiver receiver) {
 		return new MessageListenerAdapter(receiver, "receive");
 	}
-	
-	protected void sendMessage(String apiVersion, MessageType messageType, String body) {
-		rabbitTemplate.convertAndSend(queueName, new Message(apiVersion, System.currentTimeMillis(), messageType, body).toString());
+
+	protected String getAppId() {
+		return appId;
+	}
+
+	protected ErrorHandler getErrorHandler() {
+		return new ErrorHandler() {
+			@Override
+			public void handleError(Message cause, Exception e) {
+				log.error("This message: " + cause + "raised exception", e);
+				try {
+				sendErrorMessage(cause, e);
+				} catch (Exception e2) {
+					log.error("Got this while try to send error message", e);
+				}
+			}
+		};
+	}
+
+	protected void sendMessage(String dest, MessageType messageType, String body) throws JSONException {
+		final JSONObject bodyJson = new JSONObject();
+		bodyJson.put("body", body);
+		final Message message = new Message(getAppId(), dest, MessageType.API_VERSION, System.currentTimeMillis(), messageType, bodyJson.toString());
+		sendMessage(message);
+	}
+
+	protected void sendErrorMessage(Message cause, Exception e) throws JSONException {
+		final JsonObject json = new JsonObject();
+		json.addProperty("cause", cause.toString());
+		json.addProperty("exception", e.toString());
+		sendMessage(cause.getSrc(), MessageType.FAILED, json.toString());
+	}
+
+	protected void sendMessage(Message message) {
+		final String payload = message.toString();
+		log.debug("Sending this: " + payload);
+		rabbitTemplate.convertAndSend(queueName, payload);
 	}
 }

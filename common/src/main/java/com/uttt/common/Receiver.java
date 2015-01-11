@@ -2,17 +2,59 @@ package com.uttt.common;
 
 import java.util.concurrent.CountDownLatch;
 
+import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.google.gson.JsonSyntaxException;
+
 public abstract class Receiver {
 
+	private final static Logger log = Logger.getLogger(Receiver.class);
+
 	private CountDownLatch latch = new CountDownLatch(1);
+
+	private final String appId;
+	private final ErrorHandler handler;
+
+	public Receiver(String appId, ErrorHandler handler) {
+		this.appId = appId;
+		this.handler = handler;
+	}
 
 	public CountDownLatch getLatch() {
 		return latch;
 	}
-	
+
 	public void receive(String payload) {
-		onReceive(payload);
+
+		log.debug("Received this: " + payload);
+
+		final Message message;
+		try {
+			message = Message.deserialize(payload);
+		} catch (JsonSyntaxException e) {
+			log.error("Bad message", e);
+			return;
+		}
+
+		if (message.getSrc().equals(appId) || (!message.getDest().equals("*") && !message.getDest().equals(appId))) {
+			log.debug("ignoring " + message);
+			return;
+		}
+
+		try {
+			onReceive(message);
+		} catch (Exception e) {
+			handler.handleError(message, e);
+			return;
+		}
+		latch.countDown();
 	}
-	
-	protected abstract void onReceive(String payload);
+
+	protected JSONObject getBody(Message message) throws JSONException {
+		return new JSONObject(new JSONObject(message.getBody()).getString("body"));
+	}
+
+	protected abstract void onReceive(Message message) throws Exception;
 }

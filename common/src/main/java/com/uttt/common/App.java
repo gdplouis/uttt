@@ -60,6 +60,10 @@ public abstract class App implements CommandLineRunner {
 
 	@Bean
 	MessageListenerAdapter listenerAdapter(Receiver receiver) {
-		return new MessageListenerAdapter(receiver, "onReceive");
+		return new MessageListenerAdapter(receiver, "receive");
+	}
+	
+	protected void sendMessage(String apiVersion, MessageType messageType, String body) {
+		rabbitTemplate.convertAndSend(queueName, new Message(apiVersion, System.currentTimeMillis(), messageType, body).toString());
 	}
 }

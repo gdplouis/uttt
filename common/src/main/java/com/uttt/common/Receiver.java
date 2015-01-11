@@ -1,6 +1,18 @@
 package com.uttt.common;
 
-public interface Receiver {
+import java.util.concurrent.CountDownLatch;
 
-	void onReceive(String payload);
+public abstract class Receiver {
+
+	private CountDownLatch latch = new CountDownLatch(1);
+
+	public CountDownLatch getLatch() {
+		return latch;
+	}
+	
+	public void receive(String payload) {
+		onReceive(payload);
+	}
+	
+	protected abstract void onReceive(String payload);
 }

@@ -1,4 +1,7 @@
-package com.uttt.platform;
+package com.uttt.player;
+
+
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -13,9 +16,9 @@ import com.uttt.common.Message;
 import com.uttt.common.MessageType;
 import com.uttt.common.Receiver;
 
-public class PlatformApp extends App {
+public class PlayerApp extends App {
 
-	private final static Logger log = Logger.getLogger(PlatformApp.class);
+	private final static Logger log = Logger.getLogger(PlayerApp.class);
 
 	@Autowired
 	AnnotationConfigApplicationContext context;
@@ -45,9 +48,8 @@ public class PlatformApp extends App {
 
 				final MessageType type = message.getMessageType();
 				switch(type) {
-				case PLATFORM_TEST:
+				case PLAYER_TEST:
 					log.info("Got this: " + message);
-					sendMessage(MessageType.API_VERSION, MessageType.PLAYER_TEST, "Hey Player");
 					break;
 				default:
 					log.info("ignoring "+ type);
@@ -59,11 +61,13 @@ public class PlatformApp extends App {
 
 	@Override
 	public void run(String... args) throws Exception {
-		log.info("Started Ultimate Tic-Tac-Toe Platform");
-		while(true) {}
+		log.info("Starting dummy player 1");
+		sendMessage(MessageType.API_VERSION, MessageType.PLATFORM_TEST, "Hey Platform");
+		receiver().getLatch().await(10, TimeUnit.SECONDS);
+		context.close();
 	}
 
 	public static void main(String[] args) throws InterruptedException {
-		SpringApplication.run(PlatformApp.class, args);
+		SpringApplication.run(PlayerApp.class, args);
 	}
 }

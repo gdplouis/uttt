@@ -6,13 +6,15 @@ import com.google.gson.JsonSyntaxException;
 public class Message {
 
 	private String apiVersion;
+	private long time;
 	private MessageType messageType;
 	private String body;
 
-	public Message(String apiVersion, MessageType messageType, String body) {
-		this.setApiVersion(apiVersion);
-		this.setMessageType(messageType);
-		this.setBody(body);
+	public Message(String apiVersion, long time, MessageType messageType, String body) {
+		this.apiVersion = apiVersion;
+		this.time = time;
+		this.messageType = messageType;
+		this.body = body;
 	}
 
 	@Override
@@ -30,6 +32,14 @@ public class Message {
 
 	public void setApiVersion(String apiVersion) {
 		this.apiVersion = apiVersion;
+	}
+
+	public long getTime() {
+		return time;
+	}
+
+	public void setTime(long time) {
+		this.time = time;
 	}
 
 	public MessageType getMessageType() {

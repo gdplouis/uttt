@@ -1,39 +1,56 @@
 package com.uttt.platform.game;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 class Board {
 
-	public enum Result {
-		VALID_MOVE,
-		INVALID_MOVE,
-		WIN_1,
-		WIN_2,
-		TIE;
-	}
+	public enum SpaceState {
+		X(1),
+		O(-1),
+		BLANK(0);
 
-	private final Map<Integer, String> board;
-	private final Map<Integer, String> moves;
+		private final int value;
 
-	public Board() {
-		board = new HashMap<>(81);
-		moves = new HashMap<>(81);
-		for (int i = 0; i < 81; i++) {
-			board.put(i, "");
+		private SpaceState(int value) {
+			this.value = value;
+		}
+
+		public int getValue() {
+			return value;
 		}
 	}
 
-	public Result addMove(String playerId, int spot) {
-		if (!board.get(spot).isEmpty()) {
-			return Result.INVALID_MOVE;
+	private final List<SpaceState> states;
+	private final List<SpaceState> moves;
+
+	Board() {
+		states = new ArrayList<>(9);
+		moves = new ArrayList<>(9);
+		for (int i = 0; i < 9; i++) {
+			states.add(SpaceState.BLANK);
 		}
-		board.put(spot, playerId);
-		moves.put(moves.size(), playerId);
-				
-		if (moves.size() < 81) {
-			return Result.VALID_MOVE;
+	}
+
+	void addMove(int spot, SpaceState move) {
+		states.set(spot, move);
+		moves.add(move);
+	}
+
+	List<SpaceState> getMoves() {
+		return Collections.unmodifiableList(moves);
+	}
+
+	List<SpaceState> getBoardState() {
+		return Collections.unmodifiableList(states);
+	}
+
+	List<Integer> getRawBoardState() {
+		final List<Integer> stateValues = new ArrayList<>(states.size());
+		for (SpaceState state : states) {
+			stateValues.add(state.getValue());
 		}
-		return Result.WIN_1;
+		return stateValues;
 	}
 }

@@ -16,6 +16,8 @@ import com.uttt.common.Message;
 import com.uttt.common.MessageType;
 import com.uttt.common.Receiver;
 import com.uttt.platform.game.GameManager;
+import com.uttt.platform.game.GameSession.GameState;
+import com.uttt.platform.game.GameSession.MoveResult;
 
 public class PlatformApp extends App {
 
@@ -32,7 +34,7 @@ public class PlatformApp extends App {
 	@Bean
 	@Override
 	protected Receiver receiver() {
-		return new Receiver(getAppId(), getErrorHandler()) {
+		return new Receiver(getErrorHandler()) {
 
 			@Override
 			public void onReceive(Message message) throws Exception {
@@ -46,9 +48,7 @@ public class PlatformApp extends App {
 
 				case PLATFORM_DISCOVERY_REQUEST:
 					log.info(message.getSrc() + ": Looking for us");
-					final JSONObject appIdJson = new JSONObject();
-					appIdJson.put("platform_app_id", getAppId());
-					sendMessage(message.getSrc(), MessageType.PLATFORM_DISCOVERY_RESPONSE, appIdJson.toString());
+					sendMessage(message.getSrc(), MessageType.PLATFORM_DISCOVERY_RESPONSE, "Hello");
 					break;
 
 				case GET_OPEN_GAMES_REQUEST:
@@ -72,12 +72,56 @@ public class PlatformApp extends App {
 				case JOIN_GAME_REQUEST:
 					final String existingGameId = getBody(message).getString("game_id");
 					log.info(message.getSrc() + ": Joining game " + existingGameId);
-					final String result = gameManager.addPlayerToGame(existingGameId, message.getSrc()).name();
+					final GameState gameState = gameManager.addPlayerToGame(existingGameId, message.getSrc());
 					final JSONObject resultJson = new JSONObject();
-					resultJson.put("result", result);
+					resultJson.put("result", gameState.name());
 					resultJson.put("game_id", existingGameId);
 					sendMessage(message.getSrc(), MessageType.JOIN_GAME_RESPONSE, resultJson.toString());
+					if (gameState == GameState.WAITING_FOR_PLAYER_TO_MOVE) {
+						final String turnAppId = gameManager.getTurn(existingGameId);
+						final JSONObject yourTurnJson = new JSONObject();
+						final JSONArray state = new JSONArray(gameManager.getRawBoardState(existingGameId).toArray(new Integer[]{}));
+						yourTurnJson.put("i_am", gameManager.getTurnPiece(existingGameId).getValue());
+						yourTurnJson.put("game_state", state);
+						yourTurnJson.put("game_id", existingGameId);
+						sendMessage(turnAppId, MessageType.GET_MOVE_REQUEST, yourTurnJson.toString());
+					}
 					break;
+
+				case GET_MOVE_REPONSE:
+					final int move = getBody(message).getInt("move");
+					final String playingGameId = getBody(message).getString("game_id");
+					log.info(message.getSrc() + " is try to move to " + move);
+					final MoveResult moveResult = gameManager.addMove(playingGameId, message.getSrc(), move);
+					final JSONArray state = new JSONArray(gameManager.getRawBoardState(playingGameId).toArray(new Integer[]{}));
+					if (moveResult == MoveResult.VALID_MOVE) {
+						final String turnAppId = gameManager.getTurn(playingGameId);
+						final JSONObject yourTurnJson = new JSONObject();
+						yourTurnJson.put("i_am", gameManager.getTurnPiece(playingGameId).getValue());
+						yourTurnJson.put("game_state", state);
+						yourTurnJson.put("game_id", playingGameId);
+						sendMessage(turnAppId, MessageType.GET_MOVE_REQUEST, yourTurnJson.toString());
+					} else if (moveResult ==  MoveResult.INVALID_MOVE || moveResult ==  MoveResult.NOT_YOUR_TURN) {
+						throw new RuntimeException("Whoa, move result=" + moveResult.name());
+					} else if (moveResult == MoveResult.WIN_1) {
+						log.info("PLAYER 1 WON");
+						final JSONObject player1WonFinalGameStateJson = new JSONObject();
+						player1WonFinalGameStateJson.put("game_state", state);
+						sendMessage(gameManager.getFirstPlayer(playingGameId), MessageType.WINNER_REQUEST, player1WonFinalGameStateJson.toString());
+						sendMessage(gameManager.getSecondPlayer(playingGameId), MessageType.LOSER_REQUEST, player1WonFinalGameStateJson.toString());
+					} else if (moveResult == MoveResult.WIN_2) {
+						log.info("PLAYER 2 WON");
+						final JSONObject player2WonFinalGameStateJson = new JSONObject();
+						player2WonFinalGameStateJson.put("game_state", state);
+						sendMessage(gameManager.getSecondPlayer(playingGameId), MessageType.WINNER_REQUEST, player2WonFinalGameStateJson.toString());
+						sendMessage(gameManager.getFirstPlayer(playingGameId), MessageType.LOSER_REQUEST, player2WonFinalGameStateJson.toString());
+					} else {
+						log.info("TIE");
+						final JSONObject playersTiedFinalGameStateJson = new JSONObject();
+						playersTiedFinalGameStateJson.put("game_state", state);
+						sendMessage(gameManager.getFirstPlayer(playingGameId), MessageType.TIE_REQUEST, playersTiedFinalGameStateJson.toString());
+						sendMessage(gameManager.getSecondPlayer(playingGameId), MessageType.TIE_REQUEST, playersTiedFinalGameStateJson.toString());
+					}
 
 				default:
 					log.info("ignoring "+ message);

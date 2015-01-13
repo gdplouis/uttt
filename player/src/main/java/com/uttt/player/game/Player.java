@@ -1,20 +1,7 @@
 package com.uttt.player.game;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
-public abstract class Player {
-
-	private final Set<String> games = new HashSet<>();
-
-
-	public void addNewGame(String gameId) {
-		games.add(gameId);
-	}
-
-	public void removeGame(String gameId) {
-		games.remove(gameId);
-	}
-
-	public abstract int makeMove(String gameId);
+public interface Player {
+	int makeMove(int iAm, List<Integer> statw);
 }

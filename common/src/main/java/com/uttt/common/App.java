@@ -30,7 +30,7 @@ public abstract class App implements CommandLineRunner {
 
 	private final static Logger log = Logger.getLogger(App.class);
 
-	private final static String PLATFORM_QUEUE = "platform-queue";
+	protected final static String PLATFORM_QUEUE = "platform-queue";
 	private final static String PLAYER_QUEUE = "player-queue-";
 
 	private final String appId = UUID.randomUUID().toString();
@@ -59,7 +59,7 @@ public abstract class App implements CommandLineRunner {
 
 	@Bean
 	TopicExchange exchange() {
-		return new TopicExchange("uttt-exchange");
+		return new TopicExchange("spring-boot-exchange");
 	}
 
 	@Bean
@@ -89,25 +89,16 @@ public abstract class App implements CommandLineRunner {
 			log.info("Starting player " + getAppId());
 		}
 		log.info("My route =" + getThisQueueName());
-		running = new AtomicBoolean(false);
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					onRun(args);
-				} catch (Exception e) {
-					log.error("No idea what happened", e);
-				}
-			}
-		}).start();
+		running = new AtomicBoolean(true);
+		onRun(args);
 		while (running.get()) {
 			Thread.sleep(1000l);
 		}
+		receiver().getLatch().await(1, TimeUnit.SECONDS);
+		context.close();
 	}
 
 	protected void close() throws InterruptedException {
-		receiver().getLatch().await(10, TimeUnit.SECONDS);
-		context.close();
 		running.set(false);
 	}
 

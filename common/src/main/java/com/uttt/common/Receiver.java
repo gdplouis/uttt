@@ -14,11 +14,9 @@ public abstract class Receiver {
 
 	private CountDownLatch latch = new CountDownLatch(1);
 
-	private final String appId;
 	private final ErrorHandler handler;
 
-	public Receiver(String appId, ErrorHandler handler) {
-		this.appId = appId;
+	public Receiver(ErrorHandler handler) {
 		this.handler = handler;
 	}
 

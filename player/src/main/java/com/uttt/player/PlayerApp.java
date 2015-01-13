@@ -1,5 +1,9 @@
 package com.uttt.player;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -30,7 +34,7 @@ public class PlayerApp extends App {
 	@Bean
 	@Override
 	protected Receiver receiver() {
-		return new Receiver(getAppId(), getErrorHandler()) {
+		return new Receiver(getErrorHandler()) {
 
 			@Override
 			public void onReceive(Message message) throws Exception {
@@ -43,8 +47,7 @@ public class PlayerApp extends App {
 
 				case PLATFORM_DISCOVERY_RESPONSE:
 					log.info("Found platform");
-					final String platformId = getBody(message).getString("platform_app_id");
-					sendMessage(platformId, MessageType.GET_OPEN_GAMES_REQUEST, "Give me an open game");
+					sendMessage(message.getSrc(), MessageType.GET_OPEN_GAMES_REQUEST, "Give me an open game");
 					break;
 
 				case GET_OPEN_GAMES_RESPONSE:
@@ -62,14 +65,59 @@ public class PlayerApp extends App {
 
 				case START_NEW_GAME_RESPONSE:
 					final String newGameId = getBody(message).getString("game_id");
-					log.info("Adding game " + newGameId +", waiting for platform");
-					player.addNewGame(newGameId);
+					log.info("Found game " + newGameId +", waiting for platform");
 					break;
 
 				case JOIN_GAME_RESPONSE:
 					final String existingGameId = getBody(message).getString("game_id");
 					log.info("Joining game " + existingGameId +", waiting for platform");
-					player.addNewGame(existingGameId);
+					break;
+
+				case GET_MOVE_REQUEST:
+					final int iAm = getBody(message).getInt("i_am");
+					final String playingGameId = getBody(message).getString("game_id");
+					final JSONArray gameStateJson = getBody(message).getJSONArray("game_state");
+					final List<Integer> gameState = new ArrayList<>(gameStateJson.length());
+					for (int i=0; i<gameStateJson.length(); i++) {
+						gameState.add(gameStateJson.getInt(i));
+					}
+					log.info("Getting told to move with " + iAm + ", current board state=" + gameState);
+					final int move = player.makeMove(iAm, gameState);
+					log.info("My move =" + move);
+					final JSONObject moveJson = new JSONObject();
+					moveJson.put("move", move);
+					moveJson.put("game_id", playingGameId);
+					sendMessage(message.getSrc(), MessageType.GET_MOVE_REPONSE, moveJson.toString());
+					break;
+
+				case WINNER_REQUEST:
+					final JSONArray iWonFinalGameStateJson = getBody(message).getJSONArray("game_state");
+					final List<Integer> finalGameState = new ArrayList<>(iWonFinalGameStateJson.length());
+					for (int i=0; i<iWonFinalGameStateJson.length(); i++) {
+						finalGameState.add(iWonFinalGameStateJson.getInt(i));
+					}
+					log.info("I won: " + finalGameState);
+					close();
+					break;
+
+				case LOSER_REQUEST:
+					final JSONArray iLostFinalGameStateJson = getBody(message).getJSONArray("game_state");
+					final List<Integer> iLostFinalGameState = new ArrayList<>(iLostFinalGameStateJson.length());
+					for (int i=0; i<iLostFinalGameStateJson.length(); i++) {
+						iLostFinalGameState.add(iLostFinalGameStateJson.getInt(i));
+					}
+					log.info("I lost: " + iLostFinalGameState);
+					close();
+					break;
+
+				case TIE_REQUEST:
+					final JSONArray iTiedfinalGameStateJson = getBody(message).getJSONArray("game_state");
+					final List<Integer> iTiedFinalGameState = new ArrayList<>(iTiedfinalGameStateJson.length());
+					for (int i=0; i<iTiedfinalGameStateJson.length(); i++) {
+						iTiedFinalGameState.add(iTiedfinalGameStateJson.getInt(i));
+					}
+					log.info("I tied: " + iTiedFinalGameState);
+					close();
 					break;
 
 				default:
@@ -89,11 +137,17 @@ public class PlayerApp extends App {
 	protected void onRun(String... args) throws Exception {
 		setPlayer(new Player() {
 			@Override
-			public int makeMove(String gameId) {
-				return 0;
+			public int makeMove(int iAm, List<Integer> state) {
+				final List<Integer> emptyIndicies = new ArrayList<>(state.size());
+				for (int i=0; i<state.size(); i++) {
+					if (state.get(i) == 0) {
+						emptyIndicies.add(i);
+					}
+				}
+				return emptyIndicies.get(new Random().nextInt(emptyIndicies.size()));
 			}
 		});
-		sendMessage("*", MessageType.PLATFORM_DISCOVERY_REQUEST, "Where are you platform?");
+		sendMessage(PLATFORM_QUEUE, MessageType.PLATFORM_DISCOVERY_REQUEST, "Where are you platform?");
 	}
 
 	private void setPlayer(Player player) {

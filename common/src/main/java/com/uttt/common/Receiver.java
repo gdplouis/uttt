@@ -38,11 +38,6 @@ public abstract class Receiver {
 			return;
 		}
 
-		if (message.getSrc().equals(appId) || (!message.getDest().equals("*") && !message.getDest().equals(appId))) {
-			log.debug("ignoring " + message);
-			return;
-		}
-
 		try {
 			onReceive(message);
 		} catch (Exception e) {

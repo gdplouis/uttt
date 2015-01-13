@@ -28,13 +28,14 @@ public class PlayerApp extends App {
 	private Player player;
 
 	@Bean
-	Receiver receiver() {
+	@Override
+	protected Receiver receiver() {
 		return new Receiver(getAppId(), getErrorHandler()) {
 
 			@Override
 			public void onReceive(Message message) throws Exception {
 				final MessageType type = message.getMessageType();
-				
+
 				switch(type) {
 				case PLAYER_TEST_RESPONSE:
 					log.info("Got this: " + message);
@@ -67,7 +68,7 @@ public class PlayerApp extends App {
 
 				case JOIN_GAME_RESPONSE:
 					final String existingGameId = getBody(message).getString("game_id");
-					log.info("Adding game " + existingGameId +", waiting for platform");
+					log.info("Joining game " + existingGameId +", waiting for platform");
 					player.addNewGame(existingGameId);
 					break;
 
@@ -80,18 +81,19 @@ public class PlayerApp extends App {
 	}
 
 	@Override
-	public void run(String... args) throws Exception {
+	protected AppType getAppType() {
+		return AppType.PLAYER;
+	}
+
+	@Override
+	protected void onRun(String... args) throws Exception {
 		setPlayer(new Player() {
 			@Override
 			public int makeMove(String gameId) {
 				return 0;
 			}
 		});
-		log.info("Starting dummy player " + getAppId());
 		sendMessage("*", MessageType.PLATFORM_DISCOVERY_REQUEST, "Where are you platform?");
-		//		receiver().getLatch().await(10, TimeUnit.SECONDS);
-		//		context.close();
-		while(true) {}
 	}
 
 	private void setPlayer(Player player) {

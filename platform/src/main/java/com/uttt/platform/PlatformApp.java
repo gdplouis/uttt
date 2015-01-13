@@ -30,13 +30,14 @@ public class PlatformApp extends App {
 	private GameManager gameManager = new GameManager();
 
 	@Bean
-	Receiver receiver() {
+	@Override
+	protected Receiver receiver() {
 		return new Receiver(getAppId(), getErrorHandler()) {
 
 			@Override
 			public void onReceive(Message message) throws Exception {
 				final MessageType type = message.getMessageType();
-				
+
 				switch(type) {
 				case PLAYER_TEST_REQUEST:
 					log.info("Got this: " + message);
@@ -87,9 +88,13 @@ public class PlatformApp extends App {
 	}
 
 	@Override
-	public void run(String... args) throws Exception {
+	protected AppType getAppType() {
+		return AppType.PLATFORM;
+	}
+
+	@Override
+	protected void onRun(String... args) throws Exception {
 		log.info("Started Ultimate Tic-Tac-Toe Platform: " + getAppId());
-		while(true) {}
 	}
 
 	public static void main(String[] args) throws InterruptedException {

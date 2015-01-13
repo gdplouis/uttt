@@ -1,6 +1,8 @@
 package com.uttt.common;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
 import org.json.JSONException;
@@ -28,9 +30,12 @@ public abstract class App implements CommandLineRunner {
 
 	private final static Logger log = Logger.getLogger(App.class);
 
-	private final static String queueName = "spring-boot";
+	private final static String PLATFORM_QUEUE = "platform-queue";
+	private final static String PLAYER_QUEUE = "player-queue-";
 
 	private final String appId = UUID.randomUUID().toString();
+
+	protected AtomicBoolean running;
 
 	@Autowired
 	protected AnnotationConfigApplicationContext context;
@@ -38,33 +43,35 @@ public abstract class App implements CommandLineRunner {
 	@Autowired
 	protected RabbitTemplate rabbitTemplate;
 
+	protected enum AppType {
+		PLATFORM,
+		PLAYER;
+	}
+
+	protected abstract AppType getAppType();
+	protected abstract Receiver receiver();	
+	protected abstract void onRun(String... args) throws Exception;
+
 	@Bean
 	Queue queue() {
-		return new Queue(queueName, false);
+		return new Queue(getThisQueueName());
 	}
 
 	@Bean
 	TopicExchange exchange() {
-		return new TopicExchange("spring-boot-exchange");
+		return new TopicExchange("uttt-exchange");
 	}
 
 	@Bean
 	Binding binding(Queue queue, TopicExchange exchange) {
-		return BindingBuilder.bind(queue).to(exchange).with(queueName);
+		return BindingBuilder.bind(queue).to(exchange).with(getThisQueueName());
 	}
-
-	//	@Bean
-	//	public ConnectionFactory connectionFactory() {
-	//		CachingConnectionFactory connectionFactory = new CachingConnectionFactory("localhost");
-	//		connectionFactory.setPort(61636);
-	//		return connectionFactory;
-	//	}
 
 	@Bean
 	SimpleMessageListenerContainer container(ConnectionFactory connectionFactory, MessageListenerAdapter listenerAdapter) {
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 		container.setConnectionFactory(connectionFactory);
-		container.setQueueNames(queueName);
+		container.setQueueNames(getThisQueueName());
 		container.setMessageListener(listenerAdapter);
 		return container;
 	}
@@ -72,6 +79,36 @@ public abstract class App implements CommandLineRunner {
 	@Bean
 	MessageListenerAdapter listenerAdapter(Receiver receiver) {
 		return new MessageListenerAdapter(receiver, "receive");
+	}
+
+	@Override
+	public void run(String... args) throws Exception {
+		if (getAppType() == AppType.PLATFORM) {
+			log.info("Starting platform");
+		} else {
+			log.info("Starting player " + getAppId());
+		}
+		log.info("My route =" + getThisQueueName());
+		running = new AtomicBoolean(false);
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					onRun(args);
+				} catch (Exception e) {
+					log.error("No idea what happened", e);
+				}
+			}
+		}).start();
+		while (running.get()) {
+			Thread.sleep(1000l);
+		}
+	}
+
+	protected void close() throws InterruptedException {
+		receiver().getLatch().await(10, TimeUnit.SECONDS);
+		context.close();
+		running.set(false);
 	}
 
 	protected String getAppId() {
@@ -84,12 +121,20 @@ public abstract class App implements CommandLineRunner {
 			public void handleError(Message cause, Exception e) {
 				log.error("This message: " + cause + "raised exception", e);
 				try {
-				sendErrorMessage(cause, e);
+					sendErrorMessage(cause, e);
 				} catch (Exception e2) {
 					log.error("Got this while try to send error message", e);
 				}
 			}
 		};
+	}
+
+	protected String getThisQueueName() {
+		return getAppType() == AppType.PLATFORM ? PLATFORM_QUEUE : PLAYER_QUEUE + getAppId();
+	}
+
+	protected String getOtherQueue(String dest) {
+		return getAppType() == AppType.PLAYER ? PLATFORM_QUEUE : PLAYER_QUEUE + dest;
 	}
 
 	protected void sendMessage(String dest, MessageType messageType, String body) throws JSONException {
@@ -109,6 +154,6 @@ public abstract class App implements CommandLineRunner {
 	protected void sendMessage(Message message) {
 		final String payload = message.toString();
 		log.debug("Sending this: " + payload);
-		rabbitTemplate.convertAndSend(queueName, payload);
+		rabbitTemplate.convertAndSend("spring-boot-exchange", getOtherQueue(message.getDest()), payload);
 	}
 }

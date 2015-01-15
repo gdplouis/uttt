@@ -66,31 +66,31 @@ public final class Board implements Node {
 	private List<StringBuilder> fieldAsListOfStringBuilderForHeightOne() {
 		// horizontal rule between rows is as wide as size plus vertical separators (2 * size - 1), with left/right padding
 
-		final StringBuilder hrule = new StringBuilder();
+		final String hrule;
 		{
-			hrule.append(' ');
+			StringBuilder sb = new StringBuilder();
+			sb.append(' ');
 
 			for (int i = 0; i < (2 * size - 1); ++i)
-				hrule.append('-');
+				sb.append('-');
 
-			hrule.append(' ');
+			sb.append(' ');
+
+			hrule = sb.toString();
 		}
 
 		// top/bottom padding is as wide as the hrule, but is all spaces
 
-		final StringBuilder topBotPad = new StringBuilder();
-		{
-			topBotPad.append(hrule.toString().replace('-', ' '));
-		}
+		final String topBotPad = hrule.toString().replace('-', ' ');
 
 		// stringize board by rows by tokens, with left/right padding
 
 		List<StringBuilder> myBuilders = new LinkedList<StringBuilder>();
-		myBuilders.add(topBotPad);
+		myBuilders.add((new StringBuilder()).append(topBotPad));
 
 		for (int row = 0; row < size; ++row) {
 			if (row > 0)
-				myBuilders.add(hrule);
+				myBuilders.add((new StringBuilder()).append(hrule));
 
 			final StringBuilder rowSb = new StringBuilder();
 			myBuilders.add(rowSb);
@@ -105,7 +105,7 @@ public final class Board implements Node {
 			}
 			rowSb.append(' ');
 		}
-		myBuilders.add(topBotPad);
+		myBuilders.add((new StringBuilder()).append(topBotPad));
 
 
 		return myBuilders;
@@ -119,26 +119,28 @@ public final class Board implements Node {
 
 		List<StringBuilder> myBuilders = new LinkedList<StringBuilder>();
 
-		StringBuilder hrule = null; // deferred build out until first needed
+		String hrule = null; // deferred build out until first needed
 
 		// build by row
 
 		for (int row = 0; row < size; ++row) {
 			if (row > 0) {
 				if (hrule == null) {
-					hrule = new StringBuilder();
+					StringBuilder sb = new StringBuilder();
 
-					hrule.append(' '); // left padding
+					sb.append(' '); // left padding
 
 					int width = myBuilders.get(0).length();
-					for (int i = 0; i < width; ++i)
-						hrule.append('-');
+					for (int i = 1; i < (width - 1); ++i)
+						sb.append('-');
 
-					hrule.append(' '); // right padding
+					sb.append(' '); // right padding
+
+					hrule = sb.toString();
 				}
 
 				for (int i = 0; i < height; ++i)
-					myBuilders.add(hrule);
+					myBuilders.add((new StringBuilder()).append(hrule));
 			}
 
 			List<StringBuilder> rowBuilders = getSubNode(row, 0, Board.class).fieldAsListOfStringBuilder();
@@ -146,10 +148,12 @@ public final class Board implements Node {
 				List<StringBuilder> subBuilders = getSubNode(row, col, Board.class).fieldAsListOfStringBuilder();
 
 				for (int line = 0; line < rowBuilders.size(); ++line) {
-					for (int i = 0; i < height; ++i)
-						rowBuilders.get(line).append('|');
+					StringBuilder lineBuilder = rowBuilders.get(line);
 
-					rowBuilders.get(line).append(subBuilders.get(line));
+					for (int i = 0; i < height; ++i)
+						lineBuilder.append('|');
+
+					lineBuilder.append(subBuilders.get(line));
 				}
 			}
 			for (StringBuilder lineBuilder : rowBuilders)
@@ -160,12 +164,9 @@ public final class Board implements Node {
 
 		// top/bottom padding is as wide as the hrule, but is all spaces
 
-		final StringBuilder topBotPad = new StringBuilder();
-		{
-			topBotPad.append(hrule.toString().replace('-', ' '));
-		}
-		myBuilders.add(0, topBotPad);
-		myBuilders.add(topBotPad);
+		final String topBotPad = hrule.toString().replace('-', ' ');
+		myBuilders.add(0, (new StringBuilder()).append(topBotPad));
+		myBuilders.add((new StringBuilder()).append(topBotPad));
 
 
 		return myBuilders;

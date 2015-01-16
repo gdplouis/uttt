@@ -13,7 +13,7 @@ public class ArgCheck {
 		if ((value < lower) || (value > upper)) {
 			StringBuilder sb = new StringBuilder();
 
-			sb.append(name).append(": ");
+			sb.append(name).append(" = [").append(value).append("] ");
 			sb.append("outside of closed range ");
 			sb.append("[");
 			sb.append(lower);

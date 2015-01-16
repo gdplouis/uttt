@@ -11,6 +11,8 @@ public final class Board implements Node {
 	private final int size;
 	private final Node[][] field;
 
+	private Node.Status status = Node.Status.OPEN;
+
 	public Board(int height, int size) {
 		ArgCheck.rangeClosed("height", height, 1, 3);
 		ArgCheck.rangeClosed("size"  , size  , 2, 4);
@@ -23,10 +25,10 @@ public final class Board implements Node {
 			field[i] = new Node[size];
 		}
 
-		for (int x = 0; x < size; ++x) {
-			for (int y = 0; y < size; ++y) {
+		for (int row = 0; row < size; ++row) {
+			for (int col = 0; col < size; ++col) {
 				final Node node = (height == 1) ? Token.EMPTY : new Board((height - 1), size);
-				field[y][x] = node;
+				field[row][col] = node;
 			}
 		}
 	}
@@ -34,6 +36,15 @@ public final class Board implements Node {
 	@Override
 	public int getHeight() {
 		return height;
+	}
+
+	@Override
+	public Status getStatus() {
+		return status;
+	}
+
+	protected void setStatus(Node.Status status) {
+		this.status = status;
 	}
 
 	public int getSize() {
@@ -46,21 +57,60 @@ public final class Board implements Node {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends Node> T getSubNode(int x, int y, Class<T> typeClass) {
-		ArgCheck.rangeClosedOpen("x", x, 0, size);
-		ArgCheck.rangeClosedOpen("y", y, 0, size);
+	public <T extends Node> T getSubNode(int row, int col, Class<T> typeClass) {
+		ArgCheck.rangeClosedOpen("x", row, 0, size);
+		ArgCheck.rangeClosedOpen("y", col, 0, size);
 
-		return (T) field[y][x];
+		return (T) field[row][col];
 	}
 
-	private int deriveLineCount(int ofHeight) {
-		if (ofHeight == 0) return 1;
+	private void checkCoordinatesInRange(Coordinates coordinates) {
+		final int coordHeight = coordinates.getHeight();
+		if (coordHeight > height) {
+			throw new IllegalArgumentException("Coordinate height [" + coordHeight + "] is greater than board height [" + height + "]");
+		}
 
-		final int subLines = deriveLineCount(ofHeight - 1) * size;
-		final int boxLines = (size - 1) * ofHeight;
-		final int padLines = 2;
+		ArgCheck.rangeClosedOpen("row", coordinates.getRow(), 0, size);
+		ArgCheck.rangeClosedOpen("col", coordinates.getCol(), 0, size);
 
-		return (subLines + boxLines + padLines);
+		if (coordHeight > 1) {
+			checkCoordinatesInRange(coordinates.getSubordinates());
+		}
+	}
+
+	private Coordinates updatePosition(Token token, Coordinates coordinates) {
+		int myRow = coordinates.getRow();
+		int myCol = coordinates.getCol();
+
+		if (height > 1) {
+			Board       subBoard = getSubNode(myRow, myCol, Board.class);
+			Coordinates subCoord = coordinates.getSubordinates();
+
+			Coordinates subRestriction = subBoard.updatePosition(token, subCoord);
+			Coordinates myRestriction  = (subRestriction == null ? new Coordinates(myRow, myCol) : subRestriction.within(myRow, myCol));
+
+			return myRestriction;
+		} else {
+			Token inPlace = getSubNode(myRow, myCol, Token.class);
+			if (inPlace != Token.EMPTY) {
+				throw new IllegalArgumentException("token position already filled");
+			}
+
+			field[myRow][myCol] = token;
+
+			return null;
+		}
+	}
+
+	public Coordinates placeToken(Token token, Coordinates coordinates) {
+		final int coordHeight = coordinates.getHeight();
+		if (coordHeight != height) {
+			throw new IllegalArgumentException("Coordinate height [" + coordHeight + "] must equal board height [" + height + "]");
+		}
+
+		checkCoordinatesInRange(coordinates);
+
+		return updatePosition(token, coordinates);
 	}
 
 	private List<StringBuilder> fieldAsListOfStringBuilderForHeightOne() {

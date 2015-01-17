@@ -18,9 +18,12 @@ public class BoardTest extends NodeTest {
 		for (int i = 1; i < rHeight.length; ++i) rHeight[i] = i;
 	}
 
+	@SuppressWarnings("unused")
 	private static Token flip(Token t) {
 		return (t == Token.PLAYER_AAA ? Token.PLAYER_BBB: Token.PLAYER_AAA);
 	}
+
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 	@Override
 	@Test
@@ -36,6 +39,7 @@ public class BoardTest extends NodeTest {
 		}
 	}
 
+	@Override
 	@Test
 	public void accessors_getHeight() {
 		Board board = new Board(1, STANDARD_SIZE);
@@ -61,22 +65,26 @@ public class BoardTest extends NodeTest {
 
 	@Test(expected=IllegalArgumentException.class)
 	public void newBoard_tooShallow() {
-		new Board(0, 999);
+		@SuppressWarnings("unused")
+		Board board = new Board(0, 999);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void newBoard_tooTall() {
-		new Board(10, 999);
+		@SuppressWarnings("unused")
+		Board board = new Board(10, 999);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void newBoard_tooNarrow() {
-		new Board(1, 1);
+		@SuppressWarnings("unused")
+		Board board = new Board(1, 1);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void newBoard_tooWide() {
-		new Board(1, 999);
+		@SuppressWarnings("unused")
+		Board board = new Board(1, 999);
 	}
 
 	@Test

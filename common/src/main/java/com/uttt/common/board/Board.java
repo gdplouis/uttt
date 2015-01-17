@@ -90,16 +90,16 @@ public final class Board implements Node {
 			Coordinates myRestriction  = (subRestriction == null ? new Coordinates(myRow, myCol) : subRestriction.within(myRow, myCol));
 
 			return myRestriction;
-		} else {
-			Token inPlace = getSubNode(myRow, myCol, Token.class);
-			if (inPlace != Token.EMPTY) {
-				throw new IllegalArgumentException("token position already filled");
-			}
-
-			field[myRow][myCol] = token;
-
-			return null;
 		}
+
+		Token inPlace = getSubNode(myRow, myCol, Token.class);
+		if (inPlace != Token.EMPTY) {
+			throw new IllegalArgumentException("token position already filled");
+		}
+
+		field[myRow][myCol] = token;
+
+		return null;
 	}
 
 	public Coordinates placeToken(Token token, Coordinates coordinates) {
@@ -135,7 +135,7 @@ public final class Board implements Node {
 
 		// stringize board by rows by tokens, with left/right padding
 
-		List<StringBuilder> myBuilders = new LinkedList<StringBuilder>();
+		List<StringBuilder> myBuilders = new LinkedList<>();
 		myBuilders.add((new StringBuilder()).append(topBotPad));
 
 		for (int row = 0; row < size; ++row) {
@@ -167,7 +167,7 @@ public final class Board implements Node {
 			return fieldAsListOfStringBuilderForHeightOne();
 		}
 
-		List<StringBuilder> myBuilders = new LinkedList<StringBuilder>();
+		List<StringBuilder> myBuilders = new LinkedList<>();
 
 		String hrule = null; // deferred build out until first needed
 
@@ -214,6 +214,7 @@ public final class Board implements Node {
 
 		// top/bottom padding is as wide as the hrule, but is all spaces
 
+		@SuppressWarnings("null")
 		final String topBotPad = hrule.toString().replace('-', ' ');
 		myBuilders.add(0, (new StringBuilder()).append(topBotPad));
 		myBuilders.add((new StringBuilder()).append(topBotPad));

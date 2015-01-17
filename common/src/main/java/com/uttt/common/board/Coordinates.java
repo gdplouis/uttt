@@ -20,8 +20,8 @@ public class Coordinates {
 		this(row, col, null);
 	}
 
-	public Coordinates within(int row, int col) {
-		return new Coordinates(row, col, this);
+	public Coordinates within(int upperRow, int upperCol) {
+		return new Coordinates(upperRow, upperCol, this);
 	}
 
 	public int getRow() {
@@ -87,8 +87,8 @@ public class Coordinates {
 
 		if (subordinates == null) {
 			return (that.subordinates == null);
-		} else {
-			return subordinates.equals(that.subordinates);
 		}
+
+		return subordinates.equals(that.subordinates);
 	}
 }

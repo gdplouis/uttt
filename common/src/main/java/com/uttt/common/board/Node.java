@@ -27,7 +27,11 @@ public interface Node {
 	int      getHeight();
 	Status   getStatus();
 
-	default <T extends Node> T getSubNode(int x, int y, Class<T> typeClass) {
+	/**
+	 * @param row
+	 * @param col
+	 */
+	default <T extends Node> T getSubNode(int row, int col, Class<T> typeClass) {
 		throw new RuntimeException(typeClass.getName() + " nodes don't have sub-nodes");
 	}
 

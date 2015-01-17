@@ -115,11 +115,33 @@ public class BoardTest extends NodeTest {
 	}
 
 	@Test(expected=IllegalArgumentException.class)
-	public void placeToken_h2s3_alreadyFilled() {
-		Board board = new Board(1, STANDARD_SIZE);
+	public void placeToken_h2s3_placeInWonAtLevel1() {
+		Board board    = new Board(2, STANDARD_SIZE);
 
-		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 2).within(0,0));
-		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 2).within(0,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(0,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(0,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 2).within(0,0));
+
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(2, 2).within(0,0));
+	}
+
+	@Test(expected=IllegalArgumentException.class)
+	public void placeToken_h3s3_placeInWonAtLevel2() {
+		Board board    = new Board(3, STANDARD_SIZE);
+
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(0,0).within(0,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(0,0).within(0,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 2).within(0,0).within(0,0));
+
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(0,1).within(0,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(0,1).within(0,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 2).within(0,1).within(0,0));
+
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(0,2).within(0,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(0,2).within(0,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 2).within(0,2).within(0,0));
+
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(2, 2).within(2,2).within(0,0));
 	}
 
 	private static void takeAtRowCol(Board board, Token token, int row, int col) {

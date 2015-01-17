@@ -1,17 +1,15 @@
 package com.uttt.common.board;
 
 public enum Token implements Node {
-	EMPTY      (".", Node.Status.OPEN),
-	PLAYER_AAA ("x", Node.Status.WINNER_AAA),
-	PLAYER_BBB ("o", Node.Status.WINNER_BBB),
+	EMPTY      ("."),
+	PLAYER_AAA ("x"),
+	PLAYER_BBB ("o"),
 	;
 
-	public final Node.Status status;
-	public final String mark;
+	public final String      mark;
 
-	Token(String mark, Node.Status status) {
+	Token(String mark) {
 		this.mark   = mark;
-		this.status = status;
 	}
 
 	@Override
@@ -21,7 +19,13 @@ public enum Token implements Node {
 
 	@Override
 	public Status getStatus() {
-		return status;
+		switch(this) {
+			case EMPTY     : return Node.Status.OPEN;
+			case PLAYER_AAA: return Node.Status.WINNER_AAA;
+			case PLAYER_BBB: return Node.Status.WINNER_BBB;
+
+			default: return null;
+		}
 	}
 
 }

@@ -20,8 +20,8 @@ public class Coordinates {
 		this(row, col, null);
 	}
 
-	public Coordinates within(int upperRow, int upperCol) {
-		return new Coordinates(upperRow, upperCol, this);
+	public Coordinates within(int metaRow, int metCol) {
+		return new Coordinates(metaRow, metCol, this);
 	}
 
 	public int getRow() {

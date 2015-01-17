@@ -27,4 +27,15 @@ public class TokenTest extends NodeTest {
 			assertEquals("Token." + t + ".mark.length()", 1, t.mark.length());
 		}
 	}
+
+	@Test()
+	public void status_playersWinSelf() {
+		assertEquals("Token.PLAYER_AAA.getStatus(): ", Node.Status.WINNER_AAA, Token.PLAYER_AAA.getStatus());
+		assertEquals("Token.PLAYER_BBB.getStatus(): ", Node.Status.WINNER_BBB, Token.PLAYER_BBB.getStatus());
+	}
+
+	@Test()
+	public void status_emptyIsOpen() {
+		assertEquals("Token.EMPTY.getStatus(): ", Node.Status.OPEN, Token.EMPTY.getStatus());
+	}
 }

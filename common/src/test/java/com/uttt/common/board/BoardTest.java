@@ -101,8 +101,8 @@ public class BoardTest extends NodeTest {
 		Node[][] field = board.getField();
 
 		assertEquals("field.length: ", STANDARD_SIZE, field.length);
-		for (int x :rSize) {
-			assertEquals("field["+x+"].length: ", STANDARD_SIZE, field[x].length);
+		for (int row :rSize) {
+			assertEquals("field["+row+"].length: ", STANDARD_SIZE, field[row].length);
 		}
 	}
 
@@ -112,6 +112,84 @@ public class BoardTest extends NodeTest {
 
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 2));
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 2));
+	}
+
+	private static void takeAtRowCol(Board board, Token token, int row, int col) {
+		if (board.getHeight() == 1) {
+			Coordinates coord = new Coordinates(row, col);
+			board.placeToken(token, coord);
+		} else {
+			for (int diag = 0; diag < board.getSize(); ++diag) {
+				takeAtRowCol(board.getSubNode(row, col, Board.class), token, diag, diag);
+			}
+		}
+	}
+
+	private static void exerciseWinConditions(int height, int size) {
+		final String hsPfx = "h" + height + "s" + size + ": ";
+
+		// confirm win on each row
+
+		for (int row = 0; row < size; ++row) {
+			final Token  token = Token.PLAYER_AAA;
+			final String pfx   = hsPfx + "on row [" + row + "]: ";
+			final Board  board = new Board(height, size);
+
+			for (int col = 0; col < size; ++col) {
+				assertEquals(pfx + "board.getStatus(): ", Token.EMPTY.getStatus(), board.getStatus());
+				takeAtRowCol(board, token, row, col);
+			}
+
+			assertEquals(pfx + "board.getStatus(): ", token.getStatus(), board.getStatus());
+		}
+
+		// confirm win on each col
+
+		for (int col = 0; col < size; ++col) {
+			final Token  token = Token.PLAYER_BBB;
+			final String pfx   = hsPfx + "on col [" + col + "]: ";
+			final Board  board = new Board(height, size);
+
+			for (int row = 0; row < size; ++row) {
+				assertEquals(pfx + "board.getStatus(): ", Token.EMPTY.getStatus(), board.getStatus());
+				takeAtRowCol(board, token, row, col);
+			}
+
+			assertEquals(pfx + "board.getStatus(): ", token.getStatus(), board.getStatus());
+		}
+
+		// confirm win on each diagonal
+
+		{ // statement-block to avoid local name conflicts
+			final Token  token = Token.PLAYER_AAA;
+			final String pfx   = hsPfx + "on (0,0)..(s,s) diagonal: ";
+			final Board  board = new Board(height, size);
+
+			for (int diag = 0; diag < size; ++diag) {
+				assertEquals(pfx + "board.getStatus(): ", Token.EMPTY.getStatus(), board.getStatus());
+				takeAtRowCol(board, token, diag, diag);
+			}
+			assertEquals(pfx + "board.getStatus(): ", token.getStatus(), board.getStatus());
+		}
+
+		{ // statement-block to avoid local name conflicts
+			final Token  token = Token.PLAYER_BBB;
+			final String pfx   = hsPfx + "on (0,s)..(s,0) diagonal: ";
+			final Board  board = new Board(height, size);
+
+			for (int diag = 0; diag < size; ++diag) {
+				assertEquals(pfx + "board.getStatus(): ", Token.EMPTY.getStatus(), board.getStatus());
+				takeAtRowCol(board, token, diag, (size - 1 - diag));
+			}
+			assertEquals(pfx + "board.getStatus(): ", token.getStatus(), board.getStatus());
+		}
+	}
+
+	@Test
+	public void exerciseWinConditions() {
+		exerciseWinConditions(1,2);
+		exerciseWinConditions(1,3);
+		exerciseWinConditions(1,4);
 	}
 
 	@Test
@@ -124,17 +202,19 @@ public class BoardTest extends NodeTest {
 		assertEquals("board.getSubNode(1, 2, Token.class): ", Token.PLAYER_AAA, board.getSubNode(1, 2, Token.class));
 	}
 
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 	@Test
-	public void fieldAsPrintableString_h1s3() {
+	public void fieldAsPrintableString_h1s3_winLevel1() {
 		final String expected = ("\n" //
-				+ "AAAAAAA\n" //
-				+ "Ao|.|.A\n" //
-				+ "A-----A\n" //
-				+ "Ao|x|xA\n" //
-				+ "A-----A\n" //
-				+ "Ao|.|xA\n" //
-				+ "AAAAAAA\n" //
-				).replace('A', ' ') //
+				+ "OOOOOOO\n" //
+				+ "Oo|.|.O\n" //
+				+ "O-----O\n" //
+				+ "Oo|x|xO\n" //
+				+ "O-----O\n" //
+				+ "Oo|.|xO\n" //
+				+ "OOOOOOO\n" //
+				).replaceAll("[ABC]", " ") //
 				;
 
 		Board board = new Board(1, STANDARD_SIZE);
@@ -150,7 +230,7 @@ public class BoardTest extends NodeTest {
 	}
 
 	@Test
-	public void fieldAsPrintableString_h2s3() {
+	public void fieldAsPrintableString_h2s3_winLevel1() {
 		final String expected = ("\n" //
 			+ "BBBBBBBBBBBBBBBBBBBBBBBBBBB\n" //
 			+ "BAAAAAAA||AAAAAAA||AAAAAAAB\n" //
@@ -162,24 +242,24 @@ public class BoardTest extends NodeTest {
 			+ "BAAAAAAA||AAAAAAA||AAAAAAAB\n" //
 			+ "B-------------------------B\n" //
 			+ "B-------------------------B\n" //
-			+ "BAAAAAAA||AAAAAAA||AAAAAAAB\n" //
-			+ "BA.|.|.A||A.|.|.A||Ao|.|.AB\n" //
-			+ "BA-----A||A-----A||A-----AB\n" //
-			+ "BA.|.|.A||A.|.|.A||Ao|x|xAB\n" //
-			+ "BA-----A||A-----A||A-----AB\n" //
-			+ "BA.|.|.A||A.|.|.A||Ao|.|xAB\n" //
-			+ "BAAAAAAA||AAAAAAA||AAAAAAAB\n" //
+			+ "BAAAAAAA||AAAAAAA||OOOOOOOB\n" //
+			+ "BA.|.|.A||A.|.|.A||Oo|.|.OB\n" //
+			+ "BA-----A||A-----A||O-----OB\n" //
+			+ "BA.|.|.A||A.|.|.A||Oo|x|xOB\n" //
+			+ "BA-----A||A-----A||O-----OB\n" //
+			+ "BA.|.|.A||A.|.|.A||Oo|.|xOB\n" //
+			+ "BAAAAAAA||AAAAAAA||OOOOOOOB\n" //
 			+ "B-------------------------B\n" //
 			+ "B-------------------------B\n" //
-			+ "BAAAAAAA||AAAAAAA||AAAAAAAB\n" //
-			+ "BAx|.|.A||A.|.|.A||A.|.|.AB\n" //
-			+ "BA-----A||A-----A||A-----AB\n" //
-			+ "BAx|o|oA||A.|.|.A||A.|.|.AB\n" //
-			+ "BA-----A||A-----A||A-----AB\n" //
-			+ "BAx|.|oA||A.|.|.A||A.|.|.AB\n" //
-			+ "BAAAAAAA||AAAAAAA||AAAAAAAB\n" //
+			+ "BXXXXXXX||AAAAAAA||AAAAAAAB\n" //
+			+ "BXx|.|.X||A.|.|.A||A.|.|.AB\n" //
+			+ "BX-----X||A-----A||A-----AB\n" //
+			+ "BXx|o|oX||A.|.|.A||A.|.|.AB\n" //
+			+ "BX-----X||A-----A||A-----AB\n" //
+			+ "BXx|.|oX||A.|.|.A||A.|.|.AB\n" //
+			+ "BXXXXXXX||AAAAAAA||AAAAAAAB\n" //
 			+ "BBBBBBBBBBBBBBBBBBBBBBBBBBB\n" //
-			).replace('A', ' ').replace('B', ' ') //
+			).replaceAll("[ABC]", " ") //
 			;
 
 		Board board = new Board(STANDARD_HEIGHT, STANDARD_SIZE);
@@ -202,51 +282,159 @@ public class BoardTest extends NodeTest {
 	}
 
 	@Test
-	public void fieldAsPrintableString_h3s2() {
+	public void fieldAsPrintableString_h3s2_winLevel2() {
 		final String expected = ("\n" //
 				+ "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\n" //
-				+ "CBBBBBBBBBBBBBB|||BBBBBBBBBBBBBBC\n" //
-				+ "CBAAAAA||AAAAAB|||BAAAAA||AAAAABC\n" //
-				+ "CBA.|xA||A.|.AB|||BA.|.A||A.|.ABC\n" //
-				+ "CBA---A||A---AB|||BA---A||A---ABC\n" //
-				+ "CBA.|.A||A.|.AB|||BA.|.A||A.|.ABC\n" //
-				+ "CBAAAAA||AAAAAB|||BAAAAA||AAAAABC\n" //
-				+ "CB------------B|||B------------BC\n" //
-				+ "CB------------B|||B------------BC\n" //
-				+ "CBAAAAA||AAAAAB|||BAAAAA||AAAAABC\n" //
-				+ "CBA.|.A||A.|.AB|||BA.|.A||Ao|.ABC\n" //
-				+ "CBA---A||A---AB|||BA---A||A---ABC\n" //
-				+ "CBA.|.A||A.|.AB|||BA.|.A||A.|.ABC\n" //
-				+ "CBAAAAA||AAAAAB|||BAAAAA||AAAAABC\n" //
-				+ "CBBBBBBBBBBBBBB|||BBBBBBBBBBBBBBC\n" //
+				+ "CXXXXXXXXXXXXXX|||BBBBBBBBBBBBBBC\n" //
+				+ "CXXXXXX||XXXXXX|||BAAAAA||AAAAABC\n" //
+				+ "CXXo|xX||Xo|xXX|||BA.|.A||A.|.ABC\n" //
+				+ "CXX---X||X---XX|||BA---A||A---ABC\n" //
+				+ "CXX.|xX||X.|xXX|||BA.|.A||A.|.ABC\n" //
+				+ "CXXXXXX||XXXXXX|||BAAAAA||AAAAABC\n" //
+				+ "CX------------X|||B------------BC\n" //
+				+ "CX------------X|||B------------BC\n" //
+				+ "CXAAAAA||OOOOOX|||BAAAAA||AAAAABC\n" //
+				+ "CXA.|.A||Ox|oOX|||BA.|.A||A.|.ABC\n" //
+				+ "CXA---A||O---OX|||BA---A||A---ABC\n" //
+				+ "CXA.|.A||O.|oOX|||BA.|.A||A.|.ABC\n" //
+				+ "CXAAAAA||OOOOOX|||BAAAAA||AAAAABC\n" //
+				+ "CXXXXXXXXXXXXXX|||BBBBBBBBBBBBBBC\n" //
 				+ "C-------------------------------C\n" //
 				+ "C-------------------------------C\n" //
 				+ "C-------------------------------C\n" //
-				+ "CBBBBBBBBBBBBBB|||BBBBBBBBBBBBBBC\n" //
-				+ "CBAAAAA||AAAAAB|||BAAAAA||AAAAABC\n" //
-				+ "CBA.|.A||A.|.AB|||BA.|.A||A.|.ABC\n" //
-				+ "CBA---A||A---AB|||BA---A||A---ABC\n" //
-				+ "CBA.|.A||A.|.AB|||BA.|.A||A.|.ABC\n" //
-				+ "CBAAAAA||AAAAAB|||BAAAAA||AAAAABC\n" //
-				+ "CB------------B|||B------------BC\n" //
-				+ "CB------------B|||B------------BC\n" //
-				+ "CBAAAAA||AAAAAB|||BAAAAA||AAAAABC\n" //
-				+ "CBA.|.A||A.|.AB|||BA.|.A||A.|.ABC\n" //
-				+ "CBA---A||A---AB|||BA---A||A---ABC\n" //
-				+ "CBA.|.A||A.|.AB|||BA.|.A||A.|.ABC\n" //
-				+ "CBAAAAA||AAAAAB|||BAAAAA||AAAAABC\n" //
-				+ "CBBBBBBBBBBBBBB|||BBBBBBBBBBBBBBC\n" //
+				+ "CBBBBBBBBBBBBBB|||OOOOOOOOOOOOOOC\n" //
+				+ "CBAAAAA||AAAAAB|||OOOOOO||OOOOOOC\n" //
+				+ "CBA.|.A||A.|.AB|||OOx|oO||Ox|oOOC\n" //
+				+ "CBA---A||A---AB|||OO---O||O---OOC\n" //
+				+ "CBA.|.A||A.|.AB|||OO.|oO||O.|oOOC\n" //
+				+ "CBAAAAA||AAAAAB|||OOOOOO||OOOOOOC\n" //
+				+ "CB------------B|||O------------OC\n" //
+				+ "CB------------B|||O------------OC\n" //
+				+ "CBAAAAA||AAAAAB|||OAAAAA||XXXXXOC\n" //
+				+ "CBA.|.A||A.|.AB|||OA.|.A||Xo|xXOC\n" //
+				+ "CBA---A||A---AB|||OA---A||X---XOC\n" //
+				+ "CBA.|.A||A.|.AB|||OA.|.A||X.|xXOC\n" //
+				+ "CBAAAAA||AAAAAB|||OAAAAA||XXXXXOC\n" //
+				+ "CBBBBBBBBBBBBBB|||OOOOOOOOOOOOOOC\n" //
 				+ "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\n" //
-				).replace('A', ' ').replace('B', ' ').replace('C', ' ') //
+				).replaceAll("[ABC]", " ") //
 				;
 
 		Board board = new Board(3, 2);
 
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(0,0).within(0,0));
-		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 0).within(1,1).within(0,1));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(0,0).within(0,0));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 0).within(0,0).within(0,0));
 
-		assertEquals("played d3-s2: ", expected, ("\n" + board.fieldAsPrintableString()));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 1).within(1,1).within(0,0));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(1,1).within(0,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(1,1).within(0,0));
+
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(0,1).within(0,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(0,1).within(0,0));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 0).within(0,1).within(0,0));
+
+		//
+
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 1).within(0,0).within(1,1));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(0,0).within(1,1));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(0,0).within(1,1));
+
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(1,1).within(1,1));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(1,1).within(1,1));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 0).within(1,1).within(1,1));
+
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 1).within(0,1).within(1,1));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(0,1).within(1,1));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(0,1).within(1,1));
+
+		assertEquals("played h3-s2, winLevel2: ", expected, ("\n" + board.fieldAsPrintableString()));
 	}
+
+	@Test
+	public void fieldAsPrintableString_h3s2_winLevel3() {
+		final String expected = ("\n" //
+				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+				+ "XXXXXXXXXXXXXXX|||BBBBBBBBBBBBBBX\n" //
+				+ "XXXXXXX||XXXXXX|||BAAAAA||AAAAABX\n" //
+				+ "XXXo|xX||Xo|xXX|||BA.|.A||A.|.ABX\n" //
+				+ "XXX---X||X---XX|||BA---A||A---ABX\n" //
+				+ "XXX.|xX||X.|xXX|||BA.|.A||A.|.ABX\n" //
+				+ "XXXXXXX||XXXXXX|||BAAAAA||AAAAABX\n" //
+				+ "XX------------X|||B------------BX\n" //
+				+ "XX------------X|||B------------BX\n" //
+				+ "XXAAAAA||OOOOOX|||BAAAAA||AAAAABX\n" //
+				+ "XXA.|.A||Ox|oOX|||BA.|.A||A.|.ABX\n" //
+				+ "XXA---A||O---OX|||BA---A||A---ABX\n" //
+				+ "XXA.|.A||O.|oOX|||BA.|.A||A.|.ABX\n" //
+				+ "XXAAAAA||OOOOOX|||BAAAAA||AAAAABX\n" //
+				+ "XXXXXXXXXXXXXXX|||BBBBBBBBBBBBBBX\n" //
+				+ "X-------------------------------X\n" //
+				+ "X-------------------------------X\n" //
+				+ "X-------------------------------X\n" //
+				+ "XXXXXXXXXXXXXXX|||OOOOOOOOOOOOOOX\n" //
+				+ "XXXXXXX||XXXXXX|||OOOOOO||OOOOOOX\n" //
+				+ "XXXo|xX||Xo|xXX|||OOx|oO||Ox|oOOX\n" //
+				+ "XXX---X||X---XX|||OO---O||O---OOX\n" //
+				+ "XXX.|xX||X.|xXX|||OO.|oO||O.|oOOX\n" //
+				+ "XXXXXXX||XXXXXX|||OOOOOO||OOOOOOX\n" //
+				+ "XX------------X|||O------------OX\n" //
+				+ "XX------------X|||O------------OX\n" //
+				+ "XXAAAAA||OOOOOX|||OAAAAA||XXXXXOX\n" //
+				+ "XXA.|.A||Ox|oOX|||OA.|.A||Xo|xXOX\n" //
+				+ "XXA---A||O---OX|||OA---A||X---XOX\n" //
+				+ "XXA.|.A||O.|oOX|||OA.|.A||X.|xXOX\n" //
+				+ "XXAAAAA||OOOOOX|||OAAAAA||XXXXXOX\n" //
+				+ "XXXXXXXXXXXXXXX|||OOOOOOOOOOOOOOX\n" //
+				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+				).replaceAll("[ABC]", " ") //
+				;
+
+		Board board = new Board(3, 2);
+
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(0,0).within(0,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(0,0).within(0,0));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 0).within(0,0).within(0,0));
+
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 1).within(1,1).within(0,0));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(1,1).within(0,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(1,1).within(0,0));
+
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(0,1).within(0,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(0,1).within(0,0));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 0).within(0,1).within(0,0));
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 1).within(0,0).within(1,1));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(0,0).within(1,1));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(0,0).within(1,1));
+
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(1,1).within(1,1));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(1,1).within(1,1));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 0).within(1,1).within(1,1));
+
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 1).within(0,1).within(1,1));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(0,1).within(1,1));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(0,1).within(1,1));
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(0,0).within(1,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(0,0).within(1,0));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 0).within(0,0).within(1,0));
+
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 1).within(1,1).within(1,0));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(1,1).within(1,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(1,1).within(1,0));
+
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(0,1).within(1,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(0,1).within(1,0));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 0).within(0,1).within(1,0));
+
+		assertEquals("played h3-s2, winLevel3: ", expected, ("\n" + board.fieldAsPrintableString()));
+	}
+
 	@Test
 	public void printableField_h1s3_empty() {
 		final String expected = ("\n" //
@@ -257,7 +445,7 @@ public class BoardTest extends NodeTest {
 				+ "A-----A\n" //
 				+ "A.|.|.A\n" //
 				+ "AAAAAAA\n" //
-				).replace('A', ' ') //
+				).replaceAll("[ABC]", " ") //
 				;
 
 		Board board = new Board(1, STANDARD_SIZE);
@@ -277,7 +465,7 @@ public class BoardTest extends NodeTest {
 				+ "A-------A\n" //
 				+ "A.|.|.|.A\n" //
 				+ "AAAAAAAAA\n" //
-				).replace('A', ' ') //
+				).replaceAll("[ABC]", " ") //
 				;
 
 		Board board = new Board(1, 4);
@@ -315,7 +503,7 @@ public class BoardTest extends NodeTest {
 				+ "BA.|.|.A||A.|.|.A||A.|.|.AB\n" //
 				+ "BAAAAAAA||AAAAAAA||AAAAAAAB\n" //
 				+ "BBBBBBBBBBBBBBBBBBBBBBBBBBB\n" //
-				).replace('A', ' ').replace('B', ' ') //
+				).replaceAll("[ABC]", " ") //
 				;
 
 		Board board = new Board(STANDARD_HEIGHT, STANDARD_SIZE);
@@ -370,7 +558,7 @@ public class BoardTest extends NodeTest {
 				+ "BA.|.|.|.A||A.|.|.|.A||A.|.|.|.A||A.|.|.|.AB\n" //
 				+ "BAAAAAAAAA||AAAAAAAAA||AAAAAAAAA||AAAAAAAAAB\n" //
 				+ "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\n" //
-				).replace('A', ' ').replace('B', ' ') //
+				).replaceAll("[ABC]", " ") //
 				;
 
 		Board board = new Board(STANDARD_HEIGHT, 4);
@@ -414,7 +602,7 @@ public class BoardTest extends NodeTest {
 				+ "CBAAAAA||AAAAAB|||BAAAAA||AAAAABC\n" //
 				+ "CBBBBBBBBBBBBBB|||BBBBBBBBBBBBBBC\n" //
 				+ "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\n" //
-				).replace('A', ' ').replace('B', ' ').replace('C', ' ') //
+				).replaceAll("[ABC]", " ") //
 				;
 
 		Board board = new Board(3, 2);
@@ -514,7 +702,7 @@ public class BoardTest extends NodeTest {
 				+ "CBAAAAAAA||AAAAAAA||AAAAAAAB|||BAAAAAAA||AAAAAAA||AAAAAAAB|||BAAAAAAA||AAAAAAA||AAAAAAABC\n" //
 				+ "CBBBBBBBBBBBBBBBBBBBBBBBBBBB|||BBBBBBBBBBBBBBBBBBBBBBBBBBB|||BBBBBBBBBBBBBBBBBBBBBBBBBBBC\n" //
 				+ "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\n" //
-				).replace('A', ' ').replace('B', ' ').replace('C', ' ') //
+				).replaceAll("[ABC]", " ") //
 				;
 
 		Board board = new Board(3, STANDARD_SIZE);

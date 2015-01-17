@@ -6,17 +6,9 @@ import static org.junit.Assert.assertSame;
 
 import org.junit.Test;
 
+import com.uttt.common.Foreachable;
+
 public class BoardTest extends NodeTest {
-
-	private static final int STANDARD_HEIGHT = 2;
-	private static final int STANDARD_SIZE   = 3;
-
-	static private final int[] rHeight = new int[STANDARD_HEIGHT];
-	static private final int[] rSize   = new int[STANDARD_SIZE  ];
-	static {
-		for (int i = 1; i < rSize  .length; ++i) rSize  [i] = i;
-		for (int i = 1; i < rHeight.length; ++i) rHeight[i] = i;
-	}
 
 	@SuppressWarnings("unused")
 	private static Token flip(Token t) {
@@ -28,12 +20,12 @@ public class BoardTest extends NodeTest {
 	@Override
 	@Test
 	public void accessors_getSubNode() {
-		Board board = new Board(1, STANDARD_SIZE);
+		Board board = new Board(1, 3);
 
 		Node[][] field = board.getField();
 
-		for (int x : rSize) {
-			for (int y : rSize) {
+		for (int x : Foreachable.until(board.getSize())) {
+			for (int y : Foreachable.until(board.getSize())) {
 				assertSame("board.getHeight(): ", field[x][y], board.getSubNode(x,y));
 			}
 		}
@@ -42,7 +34,7 @@ public class BoardTest extends NodeTest {
 	@Override
 	@Test
 	public void accessors_getHeight() {
-		Board board = new Board(1, STANDARD_SIZE);
+		Board board = new Board(1, 3);
 
 		assertEquals("board.getHeight(): ", 1, board.getHeight());
 	}
@@ -51,10 +43,10 @@ public class BoardTest extends NodeTest {
 
 	@Test
 	public void newBoard_standard() {
-		Board board = new Board(2, STANDARD_SIZE);
+		Board board = new Board(2, 3);
 
-		assertEquals("board.getHeight(): ", STANDARD_HEIGHT, board.getHeight());
-		assertEquals("board.getSize(): "  , STANDARD_SIZE  , board.getSize());
+		assertEquals("board.getHeight(): ", 2, board.getHeight());
+		assertEquals("board.getSize(): "  , 3, board.getSize());
 
 		Board topNode = board.getSubNode(1, 2, Board.class);
 		assertEquals("topNode.getClass(): ", Board.class, topNode.getClass());
@@ -89,34 +81,42 @@ public class BoardTest extends NodeTest {
 
 	@Test
 	public void accessors_getSize() {
-		Board board = new Board(1, STANDARD_SIZE);
+		Board board = new Board(1, 3);
 
-		assertEquals("board.getSize(): "  , STANDARD_SIZE, board.getSize());
+		assertEquals("board.getSize(): "  , 3, board.getSize());
 	}
 
 	@Test
 	public void accessors_getField() {
-		Board board = new Board(1, STANDARD_SIZE);
+		Board board = new Board(1, 3);
 
 		Node[][] field = board.getField();
 
-		assertEquals("field.length: ", STANDARD_SIZE, field.length);
-		for (int row :rSize) {
-			assertEquals("field["+row+"].length: ", STANDARD_SIZE, field[row].length);
+		assertEquals("field.length: ", 3, field.length);
+		for (int row : Foreachable.until(board.getSize())) {
+			assertEquals("field["+row+"].length: ", 3, field[row].length);
 		}
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void placeToken_h1s3_alreadyFilled() {
-		Board board = new Board(1, STANDARD_SIZE);
+		Board board = new Board(1, 3);
 
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 2));
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 2));
 	}
 
 	@Test(expected=IllegalArgumentException.class)
+	public void placeToken_h2s2_alreadyFilled() {
+		Board board = new Board(2,2);
+
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 2).within(0,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 2).within(0,0));
+	}
+
+	@Test(expected=IllegalArgumentException.class)
 	public void placeToken_h2s3_placeInWonAtLevel1() {
-		Board board    = new Board(2, STANDARD_SIZE);
+		Board board    = new Board(2, 3);
 
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(0,0));
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(0,0));
@@ -127,7 +127,7 @@ public class BoardTest extends NodeTest {
 
 	@Test(expected=IllegalArgumentException.class)
 	public void placeToken_h3s3_placeInWonAtLevel2() {
-		Board board    = new Board(3, STANDARD_SIZE);
+		Board board    = new Board(3, 3);
 
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(0,0).within(0,0));
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(0,0).within(0,0));
@@ -149,7 +149,7 @@ public class BoardTest extends NodeTest {
 			Coordinates coord = new Coordinates(row, col);
 			board.placeToken(token, coord);
 		} else {
-			for (int diag = 0; diag < board.getSize(); ++diag) {
+			for (int diag : Foreachable.until(board.getSize())) {
 				Board subBoard = board.getSubNode(row, col, Board.class);
 				takeAtRowCol(subBoard, token, diag, diag);
 			}
@@ -161,12 +161,12 @@ public class BoardTest extends NodeTest {
 
 		// confirm win on each row
 
-		for (int row = 0; row < size; ++row) {
+		for (int row : Foreachable.until(size)) {
 			final Token  token = Token.PLAYER_AAA;
 			final String pfx   = hsPfx + "on row [" + row + "]: ";
 			final Board  board = new Board(height, size);
 
-			for (int col = 0; col < size; ++col) {
+			for (int col : Foreachable.until(size)) {
 				assertEquals(pfx + "board.getStatus(): ", Token.EMPTY.getStatus(), board.getStatus());
 				takeAtRowCol(board, token, row, col);
 			}
@@ -176,12 +176,12 @@ public class BoardTest extends NodeTest {
 
 		// confirm win on each col
 
-		for (int col = 0; col < size; ++col) {
+		for (int col : Foreachable.until(size)) {
 			final Token  token = Token.PLAYER_BBB;
 			final String pfx   = hsPfx + "on col [" + col + "]: ";
 			final Board  board = new Board(height, size);
 
-			for (int row = 0; row < size; ++row) {
+			for (int row : Foreachable.until(size)) {
 				assertEquals(pfx + "board.getStatus(): ", Token.EMPTY.getStatus(), board.getStatus());
 				takeAtRowCol(board, token, row, col);
 			}
@@ -196,7 +196,7 @@ public class BoardTest extends NodeTest {
 			final String pfx   = hsPfx + "on (0,0)..(s,s) diagonal: ";
 			final Board  board = new Board(height, size);
 
-			for (int diag = 0; diag < size; ++diag) {
+			for (int diag : Foreachable.until(size)) {
 				assertEquals(pfx + "board.getStatus(): ", Token.EMPTY.getStatus(), board.getStatus());
 				takeAtRowCol(board, token, diag, diag);
 			}
@@ -208,7 +208,7 @@ public class BoardTest extends NodeTest {
 			final String pfx   = hsPfx + "on (0,s)..(s,0) diagonal: ";
 			final Board  board = new Board(height, size);
 
-			for (int diag = 0; diag < size; ++diag) {
+			for (int diag : Foreachable.until(size)) {
 				assertEquals(pfx + "board.getStatus(): ", Token.EMPTY.getStatus(), board.getStatus());
 				takeAtRowCol(board, token, diag, (size - 1 - diag));
 			}
@@ -218,8 +218,8 @@ public class BoardTest extends NodeTest {
 
 	@Test
 	public void exerciseWinConditions() {
-		for (int h = 1; h <= 3; ++h) {
-			for (int s = 2; s <= 5; ++s) {
+		for (int h  : Foreachable.to(1, 3)) {
+			for (int  s : Foreachable.to(2,5)) {
 				exerciseWinConditions(h, s);
 			}
 		}
@@ -227,7 +227,7 @@ public class BoardTest extends NodeTest {
 
 	@Test
 	public void placeToken_h1s3() {
-		Board board = new Board(1, STANDARD_SIZE);
+		Board board = new Board(1, 3);
 
 		Coordinates restriction = board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 2));
 
@@ -250,7 +250,7 @@ public class BoardTest extends NodeTest {
 				+ "TOP.\n").replaceAll("[ABC]", " ") //
 				;
 
-		Board board = new Board(1, STANDARD_SIZE);
+		Board board = new Board(1, 3);
 
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 2));
 		board.placeToken(Token.PLAYER_BBB, new Coordinates(2, 0));
@@ -295,7 +295,7 @@ public class BoardTest extends NodeTest {
 			+ "TOP.\n").replaceAll("[ABC]", " ") //
 			;
 
-		Board board = new Board(STANDARD_HEIGHT, STANDARD_SIZE);
+		Board board = new Board(2, 3);
 
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 2).within(1,2));
 		board.placeToken(Token.PLAYER_BBB, new Coordinates(2, 0).within(1,2));
@@ -347,7 +347,7 @@ public class BoardTest extends NodeTest {
 			+ "TOP.\n").replaceAll("[ABC]", " ") //
 			;
 
-		Board board = new Board(STANDARD_HEIGHT, STANDARD_SIZE);
+		Board board = new Board(2, 3);
 
 		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 2).within(0,2));
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(2, 0).within(0,2));
@@ -554,7 +554,7 @@ public class BoardTest extends NodeTest {
 				+ "TOP.\n").replaceAll("[ABC]", " ") //
 				;
 
-		Board board = new Board(1, STANDARD_SIZE);
+		Board board = new Board(1, 3);
 
 		assertEquals("empty 1d-s3: ", expected, ("\n" + board.fieldAsPrintableString()));
 	}
@@ -612,7 +612,7 @@ public class BoardTest extends NodeTest {
 				+ "TOP.\n").replaceAll("[ABC]", " ") //
 				;
 
-		Board board = new Board(STANDARD_HEIGHT, STANDARD_SIZE);
+		Board board = new Board(2, 3);
 
 		assertEquals("empty 2d-s3: ", expected, ("\n" + board.fieldAsPrintableString()));
 	}
@@ -667,7 +667,7 @@ public class BoardTest extends NodeTest {
 				+ "TOP.\n").replaceAll("[ABC]", " ") //
 				;
 
-		Board board = new Board(STANDARD_HEIGHT, 4);
+		Board board = new Board(2, 4);
 
 		assertEquals("empty 2d-s4: ", expected, ("\n" + board.fieldAsPrintableString()));
 	}
@@ -811,7 +811,7 @@ public class BoardTest extends NodeTest {
 				+ "TOP.\n").replaceAll("[ABC]", " ") //
 				;
 
-		Board board = new Board(3, STANDARD_SIZE);
+		Board board = new Board(3, 3);
 
 		assertEquals("empty d3-s3: ", expected, ("\n" + board.fieldAsPrintableString()));
 	}
@@ -819,7 +819,7 @@ public class BoardTest extends NodeTest {
 	@Test(expected=IllegalArgumentException.class)
 	public void printableField_heightTooLarge() {
 
-		Board board = new Board(4, STANDARD_SIZE);
+		Board board = new Board(4, 3);
 
 		board.fieldAsPrintableString();
 	}

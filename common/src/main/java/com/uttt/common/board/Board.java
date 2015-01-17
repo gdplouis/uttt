@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.uttt.common.ArgCheck;
+import com.uttt.common.Foreachable;
 
 public final class Board implements Node {
 
@@ -25,12 +26,12 @@ public final class Board implements Node {
 		this.size      = size;
 
 		this.field = new Node[size][];
-		for (int i = 0; i < size; ++i) {
+		for (int i  : Foreachable.until(size)) {
 			field[i] = new Node[size];
 		}
 
-		for (int row = 0; row < size; ++row) {
-			for (int col = 0; col < size; ++col) {
+		for (int row : Foreachable.until(size)) {
+			for (int col : Foreachable.until(size)) {
 				final Node node = (height == 1) ? Token.EMPTY : new Board(this, new Coordinates(row, col), (height - 1), size);
 				field[row][col] = node;
 			}
@@ -101,7 +102,7 @@ public final class Board implements Node {
 
 	private boolean isWinner(Token token, int placedRow, int placedCol) {
 
-		for (int col = 0; col <= size; ++col) {
+		for (int col : Foreachable.to(size)) {
 			if (col == size) {
 				return true;
 			}
@@ -109,7 +110,7 @@ public final class Board implements Node {
 				break;
 		}
 
-		for (int row = 0; row <= size; ++row) {
+		for (int row : Foreachable.to(size)) {
 			if (row == size) {
 				return true;
 			}
@@ -118,7 +119,7 @@ public final class Board implements Node {
 		}
 
 		if (placedRow == placedCol) {
-			for (int diag = 0; diag <= size; ++diag) {
+			for (int diag : Foreachable.to(size)) {
 				if (diag == size) {
 					return true;
 				}
@@ -128,7 +129,7 @@ public final class Board implements Node {
 		}
 
 		if (placedCol == (size - 1 - placedRow)) {
-			for (int diag = 0; diag <= size; ++diag) {
+			for (int diag : Foreachable.to(size)) {
 				if (diag == size) {
 					return true;
 				}
@@ -220,7 +221,7 @@ public final class Board implements Node {
 			StringBuilder sb = new StringBuilder();
 			sb.append(padChar);
 
-			for (int i = 0; i < (2 * size - 1); ++i)
+			for (int i : Foreachable.until(2 * size - 1))
 				sb.append('-');
 
 			sb.append(padChar);
@@ -237,7 +238,7 @@ public final class Board implements Node {
 		List<StringBuilder> myBuilders = new LinkedList<>();
 		myBuilders.add((new StringBuilder()).append(topBotPad));
 
-		for (int row = 0; row < size; ++row) {
+		for (int row : Foreachable.until(size)) {
 			if (row > 0)
 				myBuilders.add((new StringBuilder()).append(hrule));
 
@@ -245,7 +246,7 @@ public final class Board implements Node {
 			myBuilders.add(rowSb);
 
 			rowSb.append(padChar);
-			for (int col = 0; col < size; ++col) {
+			for (int col : Foreachable.until(size)) {
 				if (col > 0)
 					rowSb.append('|');
 
@@ -271,7 +272,7 @@ public final class Board implements Node {
 
 		// build by row
 
-		for (int row = 0; row < size; ++row) {
+		for (int row : Foreachable.until(size)) {
 			if (row > 0) {
 				if (hrule == null) {
 					StringBuilder sb = new StringBuilder();
@@ -279,7 +280,7 @@ public final class Board implements Node {
 					sb.append(padChar); // left padding
 
 					int width = myBuilders.get(0).length();
-					for (int i = 1; i < (width - 1); ++i)
+					for (@SuppressWarnings("unused") int i : Foreachable.until(1, (width - 1)))
 						sb.append('-');
 
 					sb.append(padChar); // right padding
@@ -287,18 +288,18 @@ public final class Board implements Node {
 					hrule = sb.toString();
 				}
 
-				for (int i = 0; i < height; ++i)
+				for (int i : Foreachable.until(height))
 					myBuilders.add((new StringBuilder()).append(hrule));
 			}
 
 			List<StringBuilder> rowBuilders = getSubNode(row, 0, Board.class).fieldAsListOfStringBuilder();
-			for (int col = 1; col < size; ++col) {
+			for (int col : Foreachable.until(1, size)) {
 				List<StringBuilder> subBuilders = getSubNode(row, col, Board.class).fieldAsListOfStringBuilder();
 
-				for (int line = 0; line < rowBuilders.size(); ++line) {
+				for (int line : Foreachable.until(rowBuilders.size())) {
 					StringBuilder lineBuilder = rowBuilders.get(line);
 
-					for (int i = 0; i < height; ++i)
+					for (int i : Foreachable.until(height))
 						lineBuilder.append('|');
 
 					lineBuilder.append(subBuilders.get(line));

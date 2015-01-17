@@ -7,6 +7,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.uttt.common.Foreachable;
+
 public class CoordinatesTest {
 
 	@Test
@@ -45,7 +47,7 @@ public class CoordinatesTest {
 		final int expected = 2;
 
 		Coordinates coord = new Coordinates (0,0);
-		for (int i = 1; i < expected; ++i) {
+		for (int i : Foreachable.until(1, expected)) {
 			coord = new Coordinates (i, i, coord);
 		}
 		assertEquals("getHeight: ", expected, coord.getHeight());
@@ -56,7 +58,7 @@ public class CoordinatesTest {
 		final int height = 5;
 
 		Coordinates coord = new Coordinates (0,0);
-		for (int i = 1; i < height; ++i) {
+		for (int i : Foreachable.until(1, height)) {
 			coord = new Coordinates (i, i, coord);
 		}
 		assertEquals("getHeight: ", height, coord.getHeight());
@@ -67,7 +69,7 @@ public class CoordinatesTest {
 		final int height = 5;
 
 		Coordinates coord = new Coordinates (0,0);
-		for (int i = 1; i < height; ++i) {
+		for (int i : Foreachable.until(1, height)) {
 			coord = coord.within(i, i);
 
 			assertEquals("coord.getHeight: ", (i+1), coord.getHeight());

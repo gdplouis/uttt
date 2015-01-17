@@ -114,13 +114,22 @@ public class BoardTest extends NodeTest {
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 2));
 	}
 
+	@Test(expected=IllegalArgumentException.class)
+	public void placeToken_h2s3_alreadyFilled() {
+		Board board = new Board(1, STANDARD_SIZE);
+
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 2).within(0,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 2).within(0,0));
+	}
+
 	private static void takeAtRowCol(Board board, Token token, int row, int col) {
 		if (board.getHeight() == 1) {
 			Coordinates coord = new Coordinates(row, col);
 			board.placeToken(token, coord);
 		} else {
 			for (int diag = 0; diag < board.getSize(); ++diag) {
-				takeAtRowCol(board.getSubNode(row, col, Board.class), token, diag, diag);
+				Board subBoard = board.getSubNode(row, col, Board.class);
+				takeAtRowCol(subBoard, token, diag, diag);
 			}
 		}
 	}
@@ -187,9 +196,11 @@ public class BoardTest extends NodeTest {
 
 	@Test
 	public void exerciseWinConditions() {
-		exerciseWinConditions(1,2);
-		exerciseWinConditions(1,3);
-		exerciseWinConditions(1,4);
+		for (int h = 1; h <= 3; ++h) {
+			for (int s = 2; s <= 5; ++s) {
+				exerciseWinConditions(h, s);
+			}
+		}
 	}
 
 	@Test
@@ -214,7 +225,7 @@ public class BoardTest extends NodeTest {
 				+ "O-----O\n" //
 				+ "Oo|.|xO\n" //
 				+ "OOOOOOO\n" //
-				).replaceAll("[ABC]", " ") //
+				+ "TOP.\n").replaceAll("[ABC]", " ") //
 				;
 
 		Board board = new Board(1, STANDARD_SIZE);
@@ -259,7 +270,7 @@ public class BoardTest extends NodeTest {
 			+ "BXx|.|oX||A.|.|.A||A.|.|.AB\n" //
 			+ "BXXXXXXX||AAAAAAA||AAAAAAAB\n" //
 			+ "BBBBBBBBBBBBBBBBBBBBBBBBBBB\n" //
-			).replaceAll("[ABC]", " ") //
+			+ "TOP.\n").replaceAll("[ABC]", " ") //
 			;
 
 		Board board = new Board(STANDARD_HEIGHT, STANDARD_SIZE);
@@ -277,6 +288,79 @@ public class BoardTest extends NodeTest {
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 0).within(2, 0));
 		board.placeToken(Token.PLAYER_BBB, new Coordinates(2, 2).within(2, 0));
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(2, 0));
+
+		assertEquals("played 2d-s3: ", expected, ("\n" + board.fieldAsPrintableString()));
+	}
+
+	@Test
+	public void fieldAsPrintableString_h2s3_winLevel2() {
+		final String expected = ("\n" //
+			+ "XXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+			+ "XAAAAAAA||AAAAAAA||XXXXXXXX\n" //
+			+ "XA.|.|.A||A.|.|.A||Xx|.|.XX\n" //
+			+ "XA-----A||A-----A||X-----XX\n" //
+			+ "XA.|.|.A||A.|.|.A||Xx|o|oXX\n" //
+			+ "XA-----A||A-----A||X-----XX\n" //
+			+ "XA.|.|.A||A.|.|.A||Xx|.|oXX\n" //
+			+ "XAAAAAAA||AAAAAAA||XXXXXXXX\n" //
+			+ "X-------------------------X\n" //
+			+ "X-------------------------X\n" //
+			+ "XOOOOOOO||XXXXXXX||OOOOOOOX\n" //
+			+ "XOo|.|.O||Xx|.|.X||Oo|.|.OX\n" //
+			+ "XO-----O||X-----X||O-----OX\n" //
+			+ "XOo|x|xO||Xx|o|oX||Oo|x|xOX\n" //
+			+ "XO-----O||X-----X||O-----OX\n" //
+			+ "XOo|.|xO||Xx|.|oX||Oo|.|xOX\n" //
+			+ "XOOOOOOO||XXXXXXX||OOOOOOOX\n" //
+			+ "X-------------------------X\n" //
+			+ "X-------------------------X\n" //
+			+ "XXXXXXXX||AAAAAAA||AAAAAAAX\n" //
+			+ "XXx|.|.X||A.|.|.A||A.|.|.AX\n" //
+			+ "XX-----X||A-----A||A-----AX\n" //
+			+ "XXx|o|oX||A.|.|.A||A.|.|.AX\n" //
+			+ "XX-----X||A-----A||A-----AX\n" //
+			+ "XXx|.|oX||A.|.|.A||A.|.|.AX\n" //
+			+ "XXXXXXXX||AAAAAAA||AAAAAAAX\n" //
+			+ "XXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+			+ "TOP.\n").replaceAll("[ABC]", " ") //
+			;
+
+		Board board = new Board(STANDARD_HEIGHT, STANDARD_SIZE);
+
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 2).within(0,2));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(2, 0).within(0,2));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(0,2));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 0).within(0,2));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(2, 2).within(0,2));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(0,2));
+
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 2).within(1,2));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(2, 0).within(1,2));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(1,2));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 0).within(1,2));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(2, 2).within(1,2));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 0).within(1,2));
+
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 2).within(2,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(2, 0).within(2,0));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(2,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 0).within(2,0));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(2, 2).within(2,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(2,0));
+
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 2).within(1,0));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(2, 0).within(1,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(1,0));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 0).within(1,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(2, 2).within(1,0));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 0).within(1,0));
+
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 2).within(1,1));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(2, 0).within(1,1));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(1,1));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 0).within(1,1));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(2, 2).within(1,1));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(1,1));
 
 		assertEquals("played 2d-s3: ", expected, ("\n" + board.fieldAsPrintableString()));
 	}
@@ -317,36 +401,36 @@ public class BoardTest extends NodeTest {
 				+ "CBAAAAA||AAAAAB|||OAAAAA||XXXXXOC\n" //
 				+ "CBBBBBBBBBBBBBB|||OOOOOOOOOOOOOOC\n" //
 				+ "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\n" //
-				).replaceAll("[ABC]", " ") //
+				+ "TOP.\n").replaceAll("[ABC]", " ") //
 				;
 
 		Board board = new Board(3, 2);
 
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(0,0).within(0,0));
-		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(0,0).within(0,0));
 		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 0).within(0,0).within(0,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(0,0).within(0,0));
 
 		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 1).within(1,1).within(0,0));
-		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(1,1).within(0,0));
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(1,1).within(0,0));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(1,1).within(0,0));
 
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(0,1).within(0,0));
-		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(0,1).within(0,0));
 		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 0).within(0,1).within(0,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(0,1).within(0,0));
 
 		//
 
 		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 1).within(0,0).within(1,1));
-		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(0,0).within(1,1));
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(0,0).within(1,1));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(0,0).within(1,1));
 
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(1,1).within(1,1));
-		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(1,1).within(1,1));
 		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 0).within(1,1).within(1,1));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(1,1).within(1,1));
 
 		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 1).within(0,1).within(1,1));
-		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(0,1).within(1,1));
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(0,1).within(1,1));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(0,1).within(1,1));
 
 		assertEquals("played h3-s2, winLevel2: ", expected, ("\n" + board.fieldAsPrintableString()));
 	}
@@ -387,50 +471,50 @@ public class BoardTest extends NodeTest {
 				+ "XXAAAAA||OOOOOX|||OAAAAA||XXXXXOX\n" //
 				+ "XXXXXXXXXXXXXXX|||OOOOOOOOOOOOOOX\n" //
 				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
-				).replaceAll("[ABC]", " ") //
+				+ "TOP.\n").replaceAll("[ABC]", " ") //
 				;
 
 		Board board = new Board(3, 2);
 
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(0,0).within(0,0));
-		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(0,0).within(0,0));
 		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 0).within(0,0).within(0,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(0,0).within(0,0));
 
 		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 1).within(1,1).within(0,0));
-		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(1,1).within(0,0));
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(1,1).within(0,0));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(1,1).within(0,0));
 
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(0,1).within(0,0));
-		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(0,1).within(0,0));
 		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 0).within(0,1).within(0,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(0,1).within(0,0));
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 1).within(0,0).within(1,1));
-		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(0,0).within(1,1));
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(0,0).within(1,1));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(0,0).within(1,1));
 
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(1,1).within(1,1));
-		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(1,1).within(1,1));
 		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 0).within(1,1).within(1,1));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(1,1).within(1,1));
 
 		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 1).within(0,1).within(1,1));
-		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(0,1).within(1,1));
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(0,1).within(1,1));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(0,1).within(1,1));
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(0,0).within(1,0));
-		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(0,0).within(1,0));
 		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 0).within(0,0).within(1,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(0,0).within(1,0));
 
 		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 1).within(1,1).within(1,0));
-		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(1,1).within(1,0));
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(1,1).within(1,0));
+		board.placeToken(Token.PLAYER_BBB, new Coordinates(1, 1).within(1,1).within(1,0));
 
 		board.placeToken(Token.PLAYER_AAA, new Coordinates(0, 1).within(0,1).within(1,0));
-		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(0,1).within(1,0));
 		board.placeToken(Token.PLAYER_BBB, new Coordinates(0, 0).within(0,1).within(1,0));
+		board.placeToken(Token.PLAYER_AAA, new Coordinates(1, 1).within(0,1).within(1,0));
 
 		assertEquals("played h3-s2, winLevel3: ", expected, ("\n" + board.fieldAsPrintableString()));
 	}
@@ -445,7 +529,7 @@ public class BoardTest extends NodeTest {
 				+ "A-----A\n" //
 				+ "A.|.|.A\n" //
 				+ "AAAAAAA\n" //
-				).replaceAll("[ABC]", " ") //
+				+ "TOP.\n").replaceAll("[ABC]", " ") //
 				;
 
 		Board board = new Board(1, STANDARD_SIZE);
@@ -465,7 +549,7 @@ public class BoardTest extends NodeTest {
 				+ "A-------A\n" //
 				+ "A.|.|.|.A\n" //
 				+ "AAAAAAAAA\n" //
-				).replaceAll("[ABC]", " ") //
+				+ "TOP.\n").replaceAll("[ABC]", " ") //
 				;
 
 		Board board = new Board(1, 4);
@@ -503,7 +587,7 @@ public class BoardTest extends NodeTest {
 				+ "BA.|.|.A||A.|.|.A||A.|.|.AB\n" //
 				+ "BAAAAAAA||AAAAAAA||AAAAAAAB\n" //
 				+ "BBBBBBBBBBBBBBBBBBBBBBBBBBB\n" //
-				).replaceAll("[ABC]", " ") //
+				+ "TOP.\n").replaceAll("[ABC]", " ") //
 				;
 
 		Board board = new Board(STANDARD_HEIGHT, STANDARD_SIZE);
@@ -558,7 +642,7 @@ public class BoardTest extends NodeTest {
 				+ "BA.|.|.|.A||A.|.|.|.A||A.|.|.|.A||A.|.|.|.AB\n" //
 				+ "BAAAAAAAAA||AAAAAAAAA||AAAAAAAAA||AAAAAAAAAB\n" //
 				+ "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\n" //
-				).replaceAll("[ABC]", " ") //
+				+ "TOP.\n").replaceAll("[ABC]", " ") //
 				;
 
 		Board board = new Board(STANDARD_HEIGHT, 4);
@@ -602,7 +686,7 @@ public class BoardTest extends NodeTest {
 				+ "CBAAAAA||AAAAAB|||BAAAAA||AAAAABC\n" //
 				+ "CBBBBBBBBBBBBBB|||BBBBBBBBBBBBBBC\n" //
 				+ "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\n" //
-				).replaceAll("[ABC]", " ") //
+				+ "TOP.\n").replaceAll("[ABC]", " ") //
 				;
 
 		Board board = new Board(3, 2);
@@ -702,7 +786,7 @@ public class BoardTest extends NodeTest {
 				+ "CBAAAAAAA||AAAAAAA||AAAAAAAB|||BAAAAAAA||AAAAAAA||AAAAAAAB|||BAAAAAAA||AAAAAAA||AAAAAAABC\n" //
 				+ "CBBBBBBBBBBBBBBBBBBBBBBBBBBB|||BBBBBBBBBBBBBBBBBBBBBBBBBBB|||BBBBBBBBBBBBBBBBBBBBBBBBBBBC\n" //
 				+ "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\n" //
-				).replaceAll("[ABC]", " ") //
+				+ "TOP.\n").replaceAll("[ABC]", " ") //
 				;
 
 		Board board = new Board(3, STANDARD_SIZE);

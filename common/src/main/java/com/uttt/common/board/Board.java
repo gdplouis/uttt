@@ -7,18 +7,22 @@ import com.uttt.common.ArgCheck;
 
 public final class Board implements Node {
 
-	private final int height;
-	private final int size;
-	private final Node[][] field;
+	private final Board       parent;
+	private final Coordinates metaCoord;
+	private final int         height;
+	private final int         size;
+	private final Node[][]    field;
 
 	private Node.Status status = Node.Status.OPEN;
 
-	public Board(int height, int size) {
+	private Board(Board parent, Coordinates metaCoord, int height, int size) {
 		ArgCheck.rangeClosed("height", height, 1, 3);
-		ArgCheck.rangeClosed("size"  , size  , 2, 4);
+		ArgCheck.rangeClosed("size"  , size  , 2, 5);
 
-		this.height = height;
-		this.size = size;
+		this.parent    = parent;
+		this.metaCoord = metaCoord;
+		this.height    = height;
+		this.size      = size;
 
 		this.field = new Node[size][];
 		for (int i = 0; i < size; ++i) {
@@ -27,15 +31,31 @@ public final class Board implements Node {
 
 		for (int row = 0; row < size; ++row) {
 			for (int col = 0; col < size; ++col) {
-				final Node node = (height == 1) ? Token.EMPTY : new Board((height - 1), size);
+				final Node node = (height == 1) ? Token.EMPTY : new Board(this, new Coordinates(row, col), (height - 1), size);
 				field[row][col] = node;
 			}
 		}
 	}
 
+	public Board(int height, int size) {
+		this((Board) null, (Coordinates) null, height,  size);
+	}
+
+	public Board getParent() {
+		return parent;
+	}
+
+	public Coordinates getMetaCoord() {
+		return metaCoord;
+	}
+
 	@Override
 	public int getHeight() {
 		return height;
+	}
+
+	public int getSize() {
+		return size;
 	}
 
 	@Override
@@ -47,11 +67,12 @@ public final class Board implements Node {
 		this.status = status;
 	}
 
-	public int getSize() {
-		return size;
-	}
-
-	public Node[][] getField() {
+	/**
+	 * Returns the underlying field data structure. Only visible at package level for testing.
+	 *
+	 * @return
+	 */
+	/* pkg */ Node[][] getField() {
 		return field;
 	}
 
@@ -127,12 +148,12 @@ public final class Board implements Node {
 			Board       subBoard = getSubNode(myRow, myCol, Board.class);
 			Coordinates subCoord = coordinates.getSubordinates();
 
+			if (subBoard.getStatus() != Node.Status.OPEN) {
+				throw new IllegalArgumentException("Illegal Move: board at height [" + subBoard.getHeight() + "] is not OPEN for play");
+			}
+
 			Coordinates subRestriction = subBoard.updatePosition(token, subCoord);
 			Coordinates myRestriction  = (subRestriction == null ? new Coordinates(myRow, myCol) : subRestriction.within(myRow, myCol));
-
-			if (isWinner(token, myRow, myCol)) {
-				setStatus(token.getStatus());
-			}
 
 			return myRestriction;
 		}
@@ -144,10 +165,26 @@ public final class Board implements Node {
 
 		field[myRow][myCol] = token;
 
-		// check win conditions
+		// check win conditions, percolating towards top (null parent)
 
-		if (isWinner(token, myRow, myCol)) {
-			setStatus(token.getStatus());
+		Board boardCheck = this;
+		int   rowCheck   = myRow;
+		int   colCheck   = myCol;
+
+		while (boardCheck != null) {
+			if (!boardCheck.isWinner(token, rowCheck, colCheck)) {
+				break;
+			}
+			boardCheck.setStatus(token.getStatus());
+
+			if (boardCheck.parent == null) {
+				break;
+			}
+
+			rowCheck = boardCheck.metaCoord.getRow();
+			colCheck = boardCheck.metaCoord.getCol();
+
+			boardCheck = boardCheck.parent;
 		}
 
 		return null;
@@ -290,6 +327,15 @@ public final class Board implements Node {
 		for (StringBuilder line : sbs) {
 			totalSb.append(line).append('\n');
 		}
+
+		StringBuilder boardId = new StringBuilder();
+		Coordinates pCoord = metaCoord;
+		for (Board p = parent; p != null; pCoord = p.metaCoord, p = p.parent) {
+			boardId.insert(0, "-(" + pCoord.getRow() + "," + pCoord.getCol() + ")");
+		}
+		boardId.insert(0, "TOP");
+
+		totalSb.append(boardId).append(".\n");
 
 		return totalSb.toString();
 	}

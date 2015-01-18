@@ -28,4 +28,13 @@ public enum Token implements Node {
 		}
 	}
 
+	public static Token toToken(String mark) {
+		if (Token.PLAYER_AAA.mark.equals(mark)) {
+			return PLAYER_AAA;
+		} else if (Token.PLAYER_BBB.mark.equals(mark)) {
+			return PLAYER_BBB;
+		}
+		return EMPTY;
+	}
+	
 }

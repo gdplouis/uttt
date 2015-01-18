@@ -2,7 +2,6 @@ package com.uttt.player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -13,11 +12,15 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 
-import com.uttt.common.App;
-import com.uttt.common.Message;
-import com.uttt.common.MessageType;
-import com.uttt.common.Receiver;
-import com.uttt.player.game.Player;
+import com.uttt.common.board.Board;
+import com.uttt.common.board.Coordinates;
+import com.uttt.common.board.Token;
+import com.uttt.common.framework.App;
+import com.uttt.common.framework.Message;
+import com.uttt.common.framework.MessageType;
+import com.uttt.common.framework.Receiver;
+import com.uttt.common.player.Player;
+import com.uttt.common.player.impl.DumbPlayer;
 
 public class PlayerApp extends App {
 
@@ -74,18 +77,21 @@ public class PlayerApp extends App {
 					break;
 
 				case GET_MOVE_REQUEST:
-					final int iAm = getBody(message).getInt("i_am");
+					final Token iAm = Token.toToken(getBody(message).getString("i_am"));
 					final String playingGameId = getBody(message).getString("game_id");
-					final JSONArray gameStateJson = getBody(message).getJSONArray("game_state");
-					final List<Integer> gameState = new ArrayList<>(gameStateJson.length());
-					for (int i=0; i<gameStateJson.length(); i++) {
-						gameState.add(gameStateJson.getInt(i));
+					final Coordinates coords;
+					if (getBody(message).has("coords")) {
+						coords = Coordinates.deserialize(getBody(message).getString("coords"));
+					} else {
+						coords = null;
 					}
-					log.info("Getting told to move with " + iAm + ", current board state=" + gameState);
-					final int move = player.makeMove(iAm, gameState);
-					log.info("My move =" + move);
+					final Board board = Board.deserialize(getBody(message).getString("game_state"));
+					log.info("Getting told to move with " + iAm);
+					log.info(board.fieldAsPrintableString());
+					final Coordinates newCoords = player.makeMove(iAm, board, coords);
+					log.info("My move =" + newCoords.asPrintableString());
 					final JSONObject moveJson = new JSONObject();
-					moveJson.put("move", move);
+					moveJson.put("coords", newCoords);
 					moveJson.put("game_id", playingGameId);
 					sendMessage(message.getSrc(), MessageType.GET_MOVE_REPONSE, moveJson.toString());
 					break;
@@ -135,18 +141,7 @@ public class PlayerApp extends App {
 
 	@Override
 	protected void onRun(String... args) throws Exception {
-		setPlayer(new Player() {
-			@Override
-			public int makeMove(int iAm, List<Integer> state) {
-				final List<Integer> emptyIndicies = new ArrayList<>(state.size());
-				for (int i=0; i<state.size(); i++) {
-					if (state.get(i) == 0) {
-						emptyIndicies.add(i);
-					}
-				}
-				return emptyIndicies.get(new Random().nextInt(emptyIndicies.size()));
-			}
-		});
+		setPlayer(new DumbPlayer());
 		sendMessage(PLATFORM_QUEUE, MessageType.PLATFORM_DISCOVERY_REQUEST, "Where are you platform?");
 	}
 

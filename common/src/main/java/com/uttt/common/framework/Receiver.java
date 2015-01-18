@@ -1,12 +1,10 @@
-package com.uttt.common;
+package com.uttt.common.framework;
 
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.google.gson.JsonSyntaxException;
 
 public abstract class Receiver {
 
@@ -29,12 +27,7 @@ public abstract class Receiver {
 		log.debug("Received this: " + payload);
 
 		final Message message;
-		try {
-			message = Message.deserialize(payload);
-		} catch (JsonSyntaxException e) {
-			log.error("Bad message", e);
-			return;
-		}
+		message = Message.deserialize(payload);
 
 		try {
 			onReceive(message);

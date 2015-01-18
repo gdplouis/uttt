@@ -1,4 +1,4 @@
-package com.uttt.common;
+package com.uttt.common.framework;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -21,8 +21,6 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import com.google.gson.JsonObject;
 
 @Configuration
 @EnableAutoConfiguration
@@ -136,9 +134,9 @@ public abstract class App implements CommandLineRunner {
 	}
 
 	protected void sendErrorMessage(Message cause, Exception e) throws JSONException {
-		final JsonObject json = new JsonObject();
-		json.addProperty("cause", cause.toString());
-		json.addProperty("exception", e.toString());
+		final JSONObject json = new JSONObject();
+		json.put("cause", cause.toString());
+		json.put("exception", e.toString());
 		sendMessage(cause.getSrc(), MessageType.FAILED, json.toString());
 	}
 

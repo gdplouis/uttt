@@ -1,10 +1,19 @@
 package com.uttt.common.board;
 
+import java.lang.reflect.Type;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import com.uttt.common.ArgCheck;
 import com.uttt.common.Foreachable;
+import com.uttt.common.utils.ArrayUtils;
+
+import flexjson.JSONDeserializer;
+import flexjson.JSONSerializer;
+import flexjson.JsonNumber;
+import flexjson.ObjectBinder;
+import flexjson.ObjectFactory;
 
 public final class Board implements Node {
 
@@ -40,6 +49,14 @@ public final class Board implements Node {
 
 	public Board(int height, int size) {
 		this((Board) null, (Coordinates) null, height,  size);
+	}
+
+	private Board(Board parent, Coordinates metaCoord, int height, int size, Node[][] field) {
+		this.parent = parent;
+		this.metaCoord = metaCoord;
+		this.height = height;
+		this.size = size;
+		this.field = field;
 	}
 
 	public Board getParent() {
@@ -339,5 +356,49 @@ public final class Board implements Node {
 		totalSb.append(boardId).append(".\n");
 
 		return totalSb.toString();
+	}
+
+	public String serialize() {
+		return new JSONSerializer().serialize(this);
+	}
+	
+	public static Board deserialize(String jsonStr) {
+		
+		return new JSONDeserializer<Board>().use(Board.class, new ObjectFactory() {
+			
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			@Override
+			public Object instantiate(ObjectBinder context, Object value, Type targetType, Class targetClass) {
+				Map<String, Object> node = (Map<String, Object>) value;
+				return getNode(node);
+			}
+
+			@SuppressWarnings("unchecked")
+			private Board getNode(Map<String, Object> node) {
+				
+				if (node == null) {
+					return null;
+				}
+				
+				Object[][] oField = ArrayUtils.convertNestedList(((List<List<Object>>) node.get("field")));
+				Node[][] nFile = new Node[oField.length][oField[0].length];
+				for (int i = 0; i < oField.length; i++) {
+					for (int j = 0; j < oField[0].length; j++) {
+						if (oField[i][j] instanceof String) {
+							nFile[i][j] = Token.toToken((String)oField[i][j]);
+							continue;
+						}
+						Map<String, Object> coco = (Map<String, Object>)oField[i][j];
+						nFile[i][j] = getNode(coco);
+					}
+				}
+				final Board parent = getNode((Map<String, Object>) node.get("parent"));
+				final Coordinates metaCoord = null;
+				final int height = ((JsonNumber) node.get("height")).intValue();
+				final int size = ((JsonNumber) node.get("size")).intValue();
+				return new Board(parent, metaCoord, height, size, nFile);
+			}
+		})
+		.deserialize(jsonStr);
 	}
 }

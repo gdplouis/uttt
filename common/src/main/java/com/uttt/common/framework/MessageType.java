@@ -1,4 +1,4 @@
-package com.uttt.common;
+package com.uttt.common.framework;
 
 public enum MessageType {
 	//

@@ -1,7 +1,7 @@
-package com.uttt.common;
+package com.uttt.common.framework;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
+import flexjson.JSONDeserializer;
+import flexjson.JSONSerializer;
 
 public class Message {
 
@@ -27,11 +27,11 @@ public class Message {
 	}
 
 	public static String serialize(Message message) {
-		return new Gson().toJson(message);
+		return new JSONSerializer().serialize(message);
 	}
 
-	public static Message deserialize(String jsonStr) throws JsonSyntaxException {
-		return new Gson().fromJson(jsonStr, Message.class);
+	public static Message deserialize(String jsonStr) {
+		return new JSONDeserializer<Message>().deserialize(jsonStr);
 	}
 
 	public String getSrc() {

@@ -1,5 +1,7 @@
 package com.uttt.common.board;
 
+import flexjson.JSONSerializer;
+
 public class Coordinates {
 
 	private final int row;
@@ -91,4 +93,13 @@ public class Coordinates {
 
 		return subordinates.equals(that.subordinates);
 	}
+
+	public String serialize() {
+		return new JSONSerializer().deepSerialize(this);
+	}
+	
+	public static Coordinates deserialize(String string) {
+		return null;
+	}
+	
 }

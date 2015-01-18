@@ -2,16 +2,16 @@ package com.uttt.platform.game;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.uttt.platform.game.Board.SpaceState;
+import com.uttt.common.board.Board;
+import com.uttt.common.board.Coordinates;
+import com.uttt.common.board.Token;
 import com.uttt.platform.game.GameSession.GameState;
-import com.uttt.platform.game.GameSession.MoveResult;
 
 public class GameManager {
 
@@ -50,27 +50,23 @@ public class GameManager {
 		return games.get(gameId).getCurrentTurn();
 	}
 
-	public SpaceState getTurnPiece(String gameId) {
+	public Token getTurnPiece(String gameId) {
 		return games.get(gameId).getCurrentPlayerPiece();
 	}
 
-	public MoveResult addMove(String gameId, String appId, int spot) {
-		return games.get(gameId).addMove(appId, spot);
+	public Coordinates placeToken(String gameId, String appId, Coordinates coords) {
+		return games.get(gameId).placeToken(appId, coords);
 	}
 
-	public List<Integer> getRawBoardState(String gameId) {
-		return games.get(gameId).getRawBoardState();
-	}
-
-	public List<SpaceState> getMoves(String gameId) {
-		return games.get(gameId).getMoves();
+	public Board getBoard(String gameId) {
+		return games.get(gameId).getBoard();
 	}
 
 	public String getFirstPlayer(String gameId) {
-		return games.get(gameId).getPlayer(SpaceState.X);
+		return games.get(gameId).getPlayer(Token.PLAYER_AAA);
 	}
 
 	public String getSecondPlayer(String gameId) {
-		return games.get(gameId).getPlayer(SpaceState.O);
+		return games.get(gameId).getPlayer(Token.PLAYER_BBB);
 	}
 }

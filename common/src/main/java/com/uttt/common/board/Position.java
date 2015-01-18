@@ -33,23 +33,32 @@ public final class Position {
 	}
 
 	public boolean isPlayable() {
+		// first check own position
+
+		Node.Status status = board.getSubNode(row, col).getStatus();
+		if (!status.isPlayable()) {
+			return false;
+		}
+
+		// now check all boards in lineage (own board, and all parents)
+
 		for (Board lineage = board; lineage != null; lineage = lineage.getParent()) {
-			if (board.getStatus() != Node.Status.OPEN) {
+			if (!board.getStatus().isPlayable()) {
 				return false;
 			}
 		}
 
-		Node.Status status = board.getSubNode(row, col).getStatus();
-		return status.isPlayable();
+		return true;
 	}
+
 	public Position placeToken(Token t) {
 
-		if (!isPlayable()) {
-			throw new IllegalArgumentException("position is not playable, status = [" + board.getSubNode(row, col).getStatus() + "]");
+		if (board.getHeight() > 1) {
+			throw new IllegalArgumentException("position [" + asPrintable() + "]: not playable, height = [" + board.getHeight() + "]");
 		}
 
-		if (board.getHeight() > 1) {
-			throw new IllegalArgumentException("position is not playable, height = [" + board.getHeight() + "]");
+		if (!isPlayable()) {
+			throw new IllegalArgumentException("position [" + asPrintable() + "]: not playable, status = [" + board.getSubNode(row, col).getStatus() + "]");
 		}
 
 		board.updatePosition(t, row, col);
@@ -57,14 +66,16 @@ public final class Position {
 		return null;
 	}
 
+	//  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 	private StringBuilder appendTo(StringBuilder sb) {
 		final Position upperPos = board.getPosition();
 		if (upperPos == null) {
-			sb.append("TOP");
+			sb.append("TOP").append("(h").append(board.getHeight()).append(")");
 		} else {
 			upperPos.appendTo(sb);
 		}
-		sb.append("-(").append(row).append(",").append(col).append(")");
+		sb.append("~(").append(row).append(",").append(col).append(")");
 
 		return sb;
 	}

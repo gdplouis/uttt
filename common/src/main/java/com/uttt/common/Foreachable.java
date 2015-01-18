@@ -3,7 +3,7 @@ package com.uttt.common;
 import java.util.Iterator;
 
 
-public class Foreachable implements Iterable<Integer> {
+public final class Foreachable implements Iterable<Integer> {
 
 	public final int start;
 	public final int limit;

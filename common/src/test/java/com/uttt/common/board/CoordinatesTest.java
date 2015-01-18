@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import com.uttt.common.Foreachable;
 
+@Deprecated // the whold class under test is deprecated
 public class CoordinatesTest {
 
 	@Test

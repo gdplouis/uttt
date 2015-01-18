@@ -8,46 +8,38 @@ import com.uttt.common.Foreachable;
 
 public final class Board implements Node {
 
-	private final Board       parent;
-	private final Coordinates metaCoord;
+	private final Position    position;
 	private final int         height;
 	private final int         size;
 	private final Node[][]    field;
 
 	private Node.Status status = Node.Status.OPEN;
 
-	private Board(Board parent, Coordinates metaCoord, int height, int size) {
+	private Board(Position position, int height, int size) {
 		ArgCheck.rangeClosed("height", height, 1, 3);
 		ArgCheck.rangeClosed("size"  , size  , 2, 5);
 
-		this.parent    = parent;
-		this.metaCoord = metaCoord;
+		this.position  = position;
 		this.height    = height;
 		this.size      = size;
 
-		this.field = new Node[size][];
-		for (int i  : Foreachable.until(size)) {
-			field[i] = new Node[size];
-		}
-
-		for (int row : Foreachable.until(size)) {
-			for (int col : Foreachable.until(size)) {
-				final Node node = (height == 1) ? Token.EMPTY : new Board(this, new Coordinates(row, col), (height - 1), size);
-				field[row][col] = node;
-			}
-		}
+		this.field     = createField(this, height, size);
 	}
 
 	public Board(int height, int size) {
-		this((Board) null, (Coordinates) null, height,  size);
+		this((Position) null, height,  size);
+	}
+
+	public Position getPosition() {
+		return position;
 	}
 
 	public Board getParent() {
-		return parent;
+		return (position == null ? null : position.getBoard());
 	}
 
-	public Coordinates getMetaCoord() {
-		return metaCoord;
+	public boolean isTop() {
+		return (position == null);
 	}
 
 	@Override
@@ -68,6 +60,10 @@ public final class Board implements Node {
 		this.status = status;
 	}
 
+	public boolean isPlayable() {
+		return (status == Node.Status.OPEN) && ((position == null) || (position.getBoard().isPlayable()));
+	}
+
 	/**
 	 * Returns the underlying field data structure. Only visible at package level for testing.
 	 *
@@ -86,18 +82,53 @@ public final class Board implements Node {
 		return (T) field[row][col];
 	}
 
-	private void checkCoordinatesInRange(Coordinates coordinates) {
-		final int coordHeight = coordinates.getHeight();
-		if (coordHeight > height) {
-			throw new IllegalArgumentException("Coordinate height [" + coordHeight + "] is greater than board height [" + height + "]");
+	public Board getSubBoard(int row, int col) {
+		if (height <= 1) {
+			throw new IllegalArgumentException("no sub-boards, at bottom board");
 		}
 
-		ArgCheck.rangeClosedOpen("row", coordinates.getRow(), 0, size);
-		ArgCheck.rangeClosedOpen("col", coordinates.getCol(), 0, size);
+		return getSubNode(row, col, Board.class);
+	}
 
-		if (coordHeight > 1) {
-			checkCoordinatesInRange(coordinates.getSubordinates());
+	public Token getSubToken(int row, int col) {
+		if (height > 1) {
+			throw new IllegalArgumentException("no sub-tokens, above bottom board");
 		}
+
+		return getSubNode(row, col, Token.class);
+	}
+
+	// ====================================================================================================
+
+	private static Node[][] createField(Board board, int height, int size) {
+
+		// create array of rows
+
+		Node[][] rval = new Node[size][];
+		for (int i  : Foreachable.until(size)) {
+			rval[i] = new Node[size];
+		}
+
+		// either a field of tokens, or a field of sub-boards
+
+		if (height == 1) {
+			for (int row : Foreachable.until(size)) {
+				for (int col : Foreachable.until(size)) {
+					rval[row][col] = Token.EMPTY;
+				}
+			}
+		} else {
+			for (int row : Foreachable.until(size)) {
+				for (int col : Foreachable.until(size)) {
+					Position subPos   = new Position(board, row, col);
+					Board    subBoard = new Board(subPos, (height - 1), size);
+
+					rval[row][col] = subBoard;
+				}
+			}
+		}
+
+		return rval;
 	}
 
 	private boolean isWinner(Token token, int placedRow, int placedCol) {
@@ -141,32 +172,29 @@ public final class Board implements Node {
 		return false;
 	}
 
-	private Coordinates updatePosition(Token token, Coordinates coordinates) {
-		int myRow = coordinates.getRow();
-		int myCol = coordinates.getCol();
-
+	/* pkg */ void updatePosition(Token token, int myRow, int myCol) {
 		if (height > 1) {
-			Board       subBoard = getSubNode(myRow, myCol, Board.class);
-			Coordinates subCoord = coordinates.getSubordinates();
-
-			if (subBoard.getStatus() != Node.Status.OPEN) {
-				throw new IllegalArgumentException("Illegal Move: board at height [" + subBoard.getHeight() + "] is not OPEN for play");
-			}
-
-			Coordinates subRestriction = subBoard.updatePosition(token, subCoord);
-			Coordinates myRestriction  = (subRestriction == null ? new Coordinates(myRow, myCol) : subRestriction.within(myRow, myCol));
-
-			return myRestriction;
+			throw new IllegalArgumentException("board height [" + height + "] too high (>1) to place a token");
 		}
 
-		Token inPlace = getSubNode(myRow, myCol, Token.class);
+		// make sure this board lineage is playable
+
+		for (Board lineage = this; lineage != null; lineage = lineage.getParent()) {
+			if (!lineage.isPlayable()) {
+				throw new IllegalArgumentException("board lineage is not playable");
+			}
+		}
+
+		// make sure token location is available
+
+		Token inPlace = getSubToken(myRow, myCol);
 		if (inPlace != Token.EMPTY) {
 			throw new IllegalArgumentException("token position already filled");
 		}
 
 		field[myRow][myCol] = token;
 
-		// check win conditions, percolating towards top (null parent)
+		// check win conditions, percolating towards top
 
 		Board boardCheck = this;
 		int   rowCheck   = myRow;
@@ -178,28 +206,15 @@ public final class Board implements Node {
 			}
 			boardCheck.setStatus(token.getStatus());
 
-			if (boardCheck.parent == null) {
+			if (boardCheck.isTop()) {
 				break;
 			}
 
-			rowCheck = boardCheck.metaCoord.getRow();
-			colCheck = boardCheck.metaCoord.getCol();
+			rowCheck = boardCheck.getPosition().getRow();
+			colCheck = boardCheck.getPosition().getCol();
 
-			boardCheck = boardCheck.parent;
+			boardCheck = boardCheck.getParent();
 		}
-
-		return null;
-	}
-
-	public Coordinates placeToken(Token token, Coordinates coordinates) {
-		final int coordHeight = coordinates.getHeight();
-		if (coordHeight != height) {
-			throw new IllegalArgumentException("Coordinate height [" + coordHeight + "] must equal board height [" + height + "]");
-		}
-
-		checkCoordinatesInRange(coordinates);
-
-		return updatePosition(token, coordinates);
 	}
 
 	private char getPadChar() {
@@ -221,7 +236,7 @@ public final class Board implements Node {
 			StringBuilder sb = new StringBuilder();
 			sb.append(padChar);
 
-			for (int i : Foreachable.until(2 * size - 1))
+			for (@SuppressWarnings("unused") int i : Foreachable.until(2 * size - 1))
 				sb.append('-');
 
 			sb.append(padChar);
@@ -250,7 +265,7 @@ public final class Board implements Node {
 				if (col > 0)
 					rowSb.append('|');
 
-				Token token = getSubNode(row, col, Token.class);
+				Token token = getSubToken(row, col);
 				rowSb.append(token.mark);
 			}
 			rowSb.append(padChar);
@@ -288,18 +303,18 @@ public final class Board implements Node {
 					hrule = sb.toString();
 				}
 
-				for (int i : Foreachable.until(height))
+				for (@SuppressWarnings("unused") int i : Foreachable.until(height))
 					myBuilders.add((new StringBuilder()).append(hrule));
 			}
 
-			List<StringBuilder> rowBuilders = getSubNode(row, 0, Board.class).fieldAsListOfStringBuilder();
+			List<StringBuilder> rowBuilders = getSubBoard(row, 0).fieldAsListOfStringBuilder();
 			for (int col : Foreachable.until(1, size)) {
-				List<StringBuilder> subBuilders = getSubNode(row, col, Board.class).fieldAsListOfStringBuilder();
+				List<StringBuilder> subBuilders = getSubBoard(row, col).fieldAsListOfStringBuilder();
 
 				for (int line : Foreachable.until(rowBuilders.size())) {
 					StringBuilder lineBuilder = rowBuilders.get(line);
 
-					for (int i : Foreachable.until(height))
+					for (@SuppressWarnings("unused") int i : Foreachable.until(height))
 						lineBuilder.append('|');
 
 					lineBuilder.append(subBuilders.get(line));
@@ -330,9 +345,8 @@ public final class Board implements Node {
 		}
 
 		StringBuilder boardId = new StringBuilder();
-		Coordinates pCoord = metaCoord;
-		for (Board p = parent; p != null; pCoord = p.metaCoord, p = p.parent) {
-			boardId.insert(0, "-(" + pCoord.getRow() + "," + pCoord.getCol() + ")");
+		for (Position pos = getPosition(); pos != null; pos = pos.getBoard().getPosition()) {
+			boardId.insert(0, "-(" + pos.getRow() + "," + pos.getCol() + ")");
 		}
 		boardId.insert(0, "TOP");
 

@@ -1,5 +1,6 @@
 package com.uttt.common.board;
 
+@Deprecated // in favor of [Position]
 public class Coordinates {
 
 	private final int row;

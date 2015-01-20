@@ -1,17 +1,13 @@
 package com.uttt.common.board;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
+import org.junit.Ignore;
 import org.junit.Test;
 
-public class PositionTest {
+public class PositionTest implements PlayableTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void construct_boardNull() {
@@ -43,7 +39,7 @@ public class PositionTest {
 		Position x = new Position(new Board(1, 3), 0, 99);
 	}
 
-	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	// ====================================================================================================
 
 	@Test
 	public void accessor_getBoard() {
@@ -69,186 +65,390 @@ public class PositionTest {
 		assertEquals(2, pos.getCol());
 	}
 
-	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 	@Test
-	public void isPlayable_h1s3() {
-		Board    board = new Board(1, 3);
-		Position pos   = new Position(board, 1, 2);
+	public void accessor_deref() {
+		Board    board    = new Board(2, 3); // needs be at least h2 for this to be sensible
 
-		assertTrue("new board: ", pos.isPlayable());
+		Board    t12Board = board.getSubBoard(1,  2);
+		Position t12pos   = board.at (1, 2);
 
-		board.updatePosition(Token.PLAYER_AAA,0,0);
-		assertTrue("AAA at (0,0): ", pos.isPlayable());
-
-		board.updatePosition(Token.PLAYER_AAA,0,1);
-		assertTrue("AAA at (0,1): ", pos.isPlayable());
-
-		board.updatePosition(Token.PLAYER_AAA,0,2);
-		assertFalse("AAA wins (0,*): ", pos.isPlayable());
+		assertSame(t12Board, t12pos.derefBoard());
 	}
 
+	// ====================================================================================================
+	// tests defined in [PlayableTest]
+
+	@Override
 	@Test
-	public void isPlayable_h2s2() {
-		final Board    topBoard = new Board(2, 2);
-		final Board    t00Board = topBoard.getSubBoard(0, 0);
-		final Board    t01Board = topBoard.getSubBoard(0, 1);
-
-		final Position t10sxxPos  = new Position(topBoard, 1, 0);
-		final Position t11s11Pos  = new Position(t00Board, 1, 1);
-
-		t00Board.updatePosition(Token.PLAYER_AAA,0,0);
-		assertTrue ("AAA at T(0,0)-(0,0): topBoard .isPlayable()", (topBoard .isPlayable()));
-		assertTrue ("AAA at T(0,0)-(0,0): t00Board .isPlayable()", (t00Board .isPlayable()));
-		assertTrue ("AAA at T(0,0)-(0,0): t01Board .isPlayable()", (t01Board .isPlayable()));
-		assertTrue ("AAA at T(0,0)-(0,0): t10sxxPos.isPlayable()", (t10sxxPos.isPlayable()));
-		assertTrue ("AAA at T(0,0)-(0,0): t11s11Pos.isPlayable()", (t11s11Pos.isPlayable()));
-
-		t00Board.updatePosition(Token.PLAYER_AAA,1,0);
-		assertTrue ("AAA at T(0,0)-(1,0): topBoard .isPlayable()", (topBoard .isPlayable()));
-		assertFalse("AAA at T(0,0)-(1,0): t00Board .isPlayable()", (t00Board .isPlayable()));
-		assertTrue ("AAA at T(0,0)-(1,0): t01Board .isPlayable()", (t01Board .isPlayable()));
-		assertTrue ("AAA at T(0,0)-(1,0): t10sxxPos.isPlayable()", (t10sxxPos.isPlayable()));
-		assertFalse("AAA at T(0,0)-(1,0): t11s11Pos.isPlayable()", (t11s11Pos.isPlayable()));
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		t01Board.updatePosition(Token.PLAYER_AAA,0,0);
-		assertTrue ("AAA at T(0,1)-(0,0): topBoard .isPlayable()", (topBoard .isPlayable()));
-		assertFalse("AAA at T(0,1)-(0,0): t00Board .isPlayable()", (t00Board .isPlayable()));
-		assertTrue ("AAA at T(0,1)-(0,0): t01Board .isPlayable()", (t01Board .isPlayable()));
-		assertTrue ("AAA at T(0,1)-(0,0): t10sxxPos.isPlayable()", (t10sxxPos.isPlayable()));
-		assertFalse("AAA at T(0,1)-(0,0): t11s11Pos.isPlayable()", (t11s11Pos.isPlayable()));
-
-		t01Board.updatePosition(Token.PLAYER_AAA,0,1);
-		assertFalse("AAA at T(0,1)-(0,1): topBoard .isPlayable()", (topBoard .isPlayable()));
-		assertFalse("AAA at T(0,1)-(0,1): t00Board .isPlayable()", (t00Board .isPlayable()));
-		assertFalse("AAA at T(0,1)-(0,1): t01Board .isPlayable()", (t01Board .isPlayable()));
-		assertFalse("AAA at T(0,1)-(0,1): t10sxxPos.isPlayable()", (t10sxxPos.isPlayable()));
-		assertFalse("AAA at T(0,1)-(0,1): t11s11Pos.isPlayable()", (t11s11Pos.isPlayable()));
-	}
-
-	private static void assertPlayability(Board topBoard, Set<Board> playables, Set<Board> unplayables, String pfx, Board... newlyUnplayable) {
-		if (newlyUnplayable.length > 0) {
-			playables.removeAll(Arrays.asList(newlyUnplayable));
-			unplayables.addAll (Arrays.asList(newlyUnplayable));
-		}
-
-		for (Board board : playables) {
-			if (!board.isPlayable()) {
-				Position position = board.getPosition();
-				String posString  = (position == null ? "TOP." : position.asPrintable());
-				String msg = pfx + ": board not playable: " + posString + "\n" + topBoard.fieldAsPrintableString();
-				org.junit.Assert.fail(msg);
-			}
-		}
-
-		for (Board board : unplayables) {
-			if (board.isPlayable()) {
-				Position position = board.getPosition();
-				String posString  = (position == null ? "TOP." : position.asPrintable());
-				String msg = pfx + ": board is playable: " + posString + "\n" + topBoard.fieldAsPrintableString();
-				org.junit.Assert.fail(msg);
-			}
+	public void accessor_getTopBoard_h1s3() {
+		final Board topBoard = new Board(1, 3);
+		{
+			final Position t01Pos = topBoard.at(0, 1);
+			assertSame("t01Pos.getTopBoard(): ", topBoard, t01Pos.getTopBoard());
 		}
 	}
 
+	@Override
 	@Test
-	public void isPlayable_h3s2() {
-		final Board    topBoard    = new Board(3, 2);
-
-		final Board    t00Board    = topBoard.getSubBoard(0, 0);
-		final Board    t01Board    = topBoard.getSubBoard(0, 1);
-		final Board    t11Board    = topBoard.getSubBoard(1, 1);
-
-		final Board    t00s00Board = t00Board.getSubBoard(0, 0);
-		final Board    t00s01Board = t00Board.getSubBoard(0, 1);
-		final Board    t00s11Board = t00Board.getSubBoard(1, 1);
-
-		final Board    t01s00Board = t01Board.getSubBoard(0, 0);
-		final Board    t01s01Board = t01Board.getSubBoard(0, 1);
-		final Board    t01s11Board = t01Board.getSubBoard(1, 1);
-
-		final Board    t11s00Board = t11Board.getSubBoard(0, 0);
-		final Board    t11s01Board = t11Board.getSubBoard(0, 1);
-		final Board    t11s11Board = t11Board.getSubBoard(1, 1);
-
-		final Set<Board> unplayableBoards = new LinkedHashSet<>();
-		final Set<Board> playableBoards   = new LinkedHashSet<>();
-		playableBoards.addAll(Arrays.asList( //
-				topBoard,
-
-				t00Board,
-				t01Board,
-				t11Board,
-
-				t00s00Board,
-				t00s01Board,
-				t00s11Board,
-
-				t01s00Board,
-				t01s01Board,
-				t01s11Board,
-
-				t11s00Board,
-				t11s01Board,
-				t11s11Board
-		));
-
-		assertPlayability(topBoard, playableBoards, unplayableBoards, "new board");
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		t00s00Board.updatePosition(Token.PLAYER_AAA,0,0);
-		assertPlayability(topBoard, playableBoards, unplayableBoards, "AAA at t00s11Board~(0,0)");
-
-		t00s00Board.updatePosition(Token.PLAYER_AAA,1,0);
-		assertPlayability(topBoard, playableBoards, unplayableBoards, "AAA at t00s11Board~(1,0)", t00s00Board);
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		t00s01Board.updatePosition(Token.PLAYER_AAA,0,0);
-		assertPlayability(topBoard, playableBoards, unplayableBoards, "AAA at t00s01Board~(0,0)");
-
-		t00s01Board.updatePosition(Token.PLAYER_AAA,1,0);
-		assertPlayability(topBoard, playableBoards, unplayableBoards, "AAA at t00s01Board~(1,0)", t00s01Board, t00s11Board, t00Board);
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		t01s00Board.updatePosition(Token.PLAYER_BBB,0,0);
-		assertPlayability(topBoard, playableBoards, unplayableBoards, "BBB at t01s00Board~(0,0)");
-
-		t01s00Board.updatePosition(Token.PLAYER_BBB,1,0);
-		assertPlayability(topBoard, playableBoards, unplayableBoards, "BBB at t01s00Board~(1,0)", t01s00Board);
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		t01s01Board.updatePosition(Token.PLAYER_BBB,0,0);
-		assertPlayability(topBoard, playableBoards, unplayableBoards, "BBB at t01s01Board~(0,0)");
-
-		t01s01Board.updatePosition(Token.PLAYER_BBB,1,0);
-		assertPlayability(topBoard, playableBoards, unplayableBoards, "BBB at t01s01Board~(1,0)", t01s01Board, t01s11Board, t01Board);
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		t11s00Board.updatePosition(Token.PLAYER_AAA,0,0);
-		assertPlayability(topBoard, playableBoards, unplayableBoards, "AAA at t11s00Board~(0,0)");
-
-		t11s00Board.updatePosition(Token.PLAYER_AAA,1,0);
-		assertPlayability(topBoard, playableBoards, unplayableBoards, "AAA at t11s00Board~(1,0)", t11s00Board);
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		t11s01Board.updatePosition(Token.PLAYER_AAA,0,0);
-		assertPlayability(topBoard, playableBoards, unplayableBoards, "AAA at t11s01Board~(0,0)");
-
-		t11s01Board.updatePosition(Token.PLAYER_AAA,1,0);
-		assertPlayability(topBoard, playableBoards, unplayableBoards, "AAA at t11s01Board~(1,0)", t11s01Board, t11s11Board, t11Board, topBoard);
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	public void accessor_getTopBoard_h2s3() {
+		final Board topBoard = new Board(2, 3);
+		{
+			final Position t01Pos = topBoard.at(0, 1);
+			assertSame("t01Pos.getTopBoard(): ", topBoard, t01Pos.getTopBoard());
+		}
+		{
+			final Position t01s11Pos = topBoard.getSubBoard(0, 1).at(1, 1);
+			assertSame("t01s11Pos.getTopBoard(): ", topBoard, t01s11Pos.getTopBoard());
+		}
 	}
 
-	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	@Override
+	@Test
+	public void accessor_getTopBoard_h3s4() {
+		final Board topBoard = new Board(3,4);
+		{
+			final Position t01Pos = topBoard.at(0, 1);
+			assertSame("t01Pos.getTopBoard(): ", topBoard, t01Pos.getTopBoard());
+		}
+		{
+			final Position t01s11Pos = topBoard.getSubBoard(0, 1).at(1, 1);
+			assertSame("t01s11Pos.getTopBoard(): ", topBoard, t01s11Pos.getTopBoard());
+		}
+		{
+			final Position t01s11s00Pos = topBoard.getSubBoard(0, 1).getSubBoard(1, 1).at(0,0);
+			assertSame("t01s11s00Pos.getTopBoard(): ", topBoard, t01s11s00Pos.getTopBoard());
+		}
+	}
+
+	@Override
+	@Test
+	public void accessor_getPosition_h1s3() {
+		final Board topBoard    = new Board(1,3);
+		{
+			final Position t01Pos = topBoard.at(0,1);
+			assertSame("t01Pos: ", t01Pos, t01Pos.getPosition());
+		}
+	}
+
+	@Override
+	@Test
+	public void accessor_getPosition_h2s3() {
+		final Board topBoard = new Board(2, 3);
+		{
+			final Position t01Pos = topBoard.at(0, 1);
+			assertSame("t01Pos: ", t01Pos, t01Pos.getPosition());
+		}
+		{
+			final Position t01s11Pos = topBoard.getSubBoard(0, 1).at(1, 1);
+			assertSame("t01s11Pos: ", t01s11Pos, t01s11Pos.getPosition());
+		}
+	}
+
+	@Override
+	@Test
+	public void accessor_getPosition_h3s4() {
+		final Board topBoard = new Board(3, 4);
+		{
+			final Position t01Pos = topBoard.at(0, 1);
+			assertSame("t01Pos: ", t01Pos, t01Pos.getPosition());
+		}
+		{
+			final Position t01s11Pos = topBoard.getSubBoard(0, 1).at(1, 1);
+			assertSame("t01s11Pos: ", t01s11Pos, t01s11Pos.getPosition());
+		}
+		{
+			final Position t01s11s00Pos = topBoard.getSubBoard(0, 1).getSubBoard(1, 1).at(0,0);
+			assertSame("t01s11s00Pos: ", t01s11s00Pos, t01s11s00Pos.getPosition());
+		}
+	}
+
+
+	// ====================================================================================================
+
+	@Test
+	public void place_h1s3() {
+
+	}
+
+	// ====================================================================================================
+
+	@Override
+	@Test
+	public void isPlayable_h1s3_win() {
+		final Board     topBoard  = new Board(1, 3);
+		final Validator validator = new PlayableTest.Validator(topBoard);
+
+		final Position  t12Pos    = validator.add(topBoard.at(1, 2));
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		validator.place(topBoard.at(0,0), Token.PLAYER_AAA);
+		validator.place(topBoard.at(0,1), Token.PLAYER_AAA);
+		validator.place(topBoard.at(0,2), Token.PLAYER_AAA, topBoard, t12Pos);
+
+		validator.checkAllClosed();
+	}
+
+	@Override
+	@Test
+	public void isPlayable_h2s3_win() {
+
+		final Board     topBoard  = new Board(2, 3);
+		final Validator validator = new PlayableTest.Validator(topBoard);
+
+		final Board     t00Board  = validator.add(topBoard.getSubBoard(0, 0));
+		final Board     t01Board  = validator.add(topBoard.getSubBoard(0, 1));
+		final Board     t02Board  = validator.add(topBoard.getSubBoard(0, 2));
+
+		final Position  t10sxxPos = validator.add(topBoard.at(1, 0));
+		final Position  t00s11Pos = validator.add(t00Board.at(1, 1));
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		validator.place(t00Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t00Board.at(1,0), Token.PLAYER_AAA);
+		validator.place(t00Board.at(2,0), Token.PLAYER_AAA, t00Board, t00s11Pos);
+
+		validator.place(t01Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t01Board.at(0,1), Token.PLAYER_AAA);
+		validator.place(t01Board.at(0,2), Token.PLAYER_AAA, t01Board);
+
+		validator.place(t02Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t02Board.at(1,1), Token.PLAYER_AAA);
+		validator.place(t02Board.at(2,2), Token.PLAYER_AAA, t02Board, t10sxxPos, topBoard);
+
+		validator.checkAllClosed();
+	}
+
+	@Override
+	@Test
+	public void isPlayable_h3s4_win() {
+
+		final Board     topBoard  = new Board(3, 4);
+		final Validator validator = new PlayableTest.Validator(topBoard);
+
+		final Board     t00Board    = validator.add(topBoard.getSubBoard(0, 0));
+		final Board     t01Board    = validator.add(topBoard.getSubBoard(0, 1));
+		final Board     t02Board    = validator.add(topBoard.getSubBoard(0, 2));
+		final Board     t03Board    = validator.add(topBoard.getSubBoard(0, 3));
+
+		final Board     t00s00Board = validator.add(t00Board.getSubBoard(0, 0));
+		final Board     t00s01Board = validator.add(t00Board.getSubBoard(0, 1));
+		final Board     t00s02Board = validator.add(t00Board.getSubBoard(0, 2));
+		final Board     t00s03Board = validator.add(t00Board.getSubBoard(0, 3));
+
+		final Board     t01s00Board = validator.add(t01Board.getSubBoard(0, 0));
+		final Board     t01s01Board = validator.add(t01Board.getSubBoard(0, 1));
+		final Board     t01s02Board = validator.add(t01Board.getSubBoard(0, 2));
+		final Board     t01s03Board = validator.add(t01Board.getSubBoard(0, 3));
+
+		final Board     t02s00Board = validator.add(t02Board.getSubBoard(0, 0));
+		final Board     t02s01Board = validator.add(t02Board.getSubBoard(0, 1));
+		final Board     t02s02Board = validator.add(t02Board.getSubBoard(0, 2));
+		final Board     t02s03Board = validator.add(t02Board.getSubBoard(0, 3));
+
+		final Board     t03s00Board = validator.add(t03Board.getSubBoard(0, 0));
+		final Board     t03s01Board = validator.add(t03Board.getSubBoard(0, 1));
+		final Board     t03s02Board = validator.add(t03Board.getSubBoard(0, 2));
+		final Board     t03s03Board = validator.add(t03Board.getSubBoard(0, 3));
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		validator.place(t00s00Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t00s00Board.at(0,1), Token.PLAYER_AAA);
+		validator.place(t00s00Board.at(0,2), Token.PLAYER_AAA);
+		validator.place(t00s00Board.at(0,3), Token.PLAYER_AAA, t00s00Board);
+
+		validator.place(t00s01Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t00s01Board.at(0,1), Token.PLAYER_AAA);
+		validator.place(t00s01Board.at(0,2), Token.PLAYER_AAA);
+		validator.place(t00s01Board.at(0,3), Token.PLAYER_AAA, t00s01Board);
+
+		validator.place(t00s02Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t00s02Board.at(0,1), Token.PLAYER_AAA);
+		validator.place(t00s02Board.at(0,2), Token.PLAYER_AAA);
+		validator.place(t00s02Board.at(0,3), Token.PLAYER_AAA, t00s02Board);
+
+		validator.place(t00s03Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t00s03Board.at(0,1), Token.PLAYER_AAA);
+		validator.place(t00s03Board.at(0,2), Token.PLAYER_AAA);
+		validator.place(t00s03Board.at(0,3), Token.PLAYER_AAA, t00s03Board, t00Board);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		validator.place(t01s00Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t01s00Board.at(0,1), Token.PLAYER_AAA);
+		validator.place(t01s00Board.at(0,2), Token.PLAYER_AAA);
+		validator.place(t01s00Board.at(0,3), Token.PLAYER_AAA, t01s00Board);
+
+		validator.place(t01s01Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t01s01Board.at(0,1), Token.PLAYER_AAA);
+		validator.place(t01s01Board.at(0,2), Token.PLAYER_AAA);
+		validator.place(t01s01Board.at(0,3), Token.PLAYER_AAA, t01s01Board);
+
+		validator.place(t01s02Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t01s02Board.at(0,1), Token.PLAYER_AAA);
+		validator.place(t01s02Board.at(0,2), Token.PLAYER_AAA);
+		validator.place(t01s02Board.at(0,3), Token.PLAYER_AAA, t01s02Board);
+
+		validator.place(t01s03Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t01s03Board.at(0,1), Token.PLAYER_AAA);
+		validator.place(t01s03Board.at(0,2), Token.PLAYER_AAA);
+		validator.place(t01s03Board.at(0,3), Token.PLAYER_AAA, t01s03Board, t01Board);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		validator.place(t02s00Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t02s00Board.at(0,1), Token.PLAYER_AAA);
+		validator.place(t02s00Board.at(0,2), Token.PLAYER_AAA);
+		validator.place(t02s00Board.at(0,3), Token.PLAYER_AAA, t02s00Board);
+
+		validator.place(t02s01Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t02s01Board.at(0,1), Token.PLAYER_AAA);
+		validator.place(t02s01Board.at(0,2), Token.PLAYER_AAA);
+		validator.place(t02s01Board.at(0,3), Token.PLAYER_AAA, t02s01Board);
+
+		validator.place(t02s02Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t02s02Board.at(0,1), Token.PLAYER_AAA);
+		validator.place(t02s02Board.at(0,2), Token.PLAYER_AAA);
+		validator.place(t02s02Board.at(0,3), Token.PLAYER_AAA, t02s02Board);
+
+		validator.place(t02s03Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t02s03Board.at(0,1), Token.PLAYER_AAA);
+		validator.place(t02s03Board.at(0,2), Token.PLAYER_AAA);
+		validator.place(t02s03Board.at(0,3), Token.PLAYER_AAA, t02s03Board, t02Board);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		validator.place(t03s00Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t03s00Board.at(0,1), Token.PLAYER_AAA);
+		validator.place(t03s00Board.at(0,2), Token.PLAYER_AAA);
+		validator.place(t03s00Board.at(0,3), Token.PLAYER_AAA, t03s00Board);
+
+		validator.place(t03s01Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t03s01Board.at(0,1), Token.PLAYER_AAA);
+		validator.place(t03s01Board.at(0,2), Token.PLAYER_AAA);
+		validator.place(t03s01Board.at(0,3), Token.PLAYER_AAA, t03s01Board);
+
+		validator.place(t03s02Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t03s02Board.at(0,1), Token.PLAYER_AAA);
+		validator.place(t03s02Board.at(0,2), Token.PLAYER_AAA);
+		validator.place(t03s02Board.at(0,3), Token.PLAYER_AAA, t03s02Board);
+
+		validator.place(t03s03Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t03s03Board.at(0,1), Token.PLAYER_AAA);
+		validator.place(t03s03Board.at(0,2), Token.PLAYER_AAA);
+		validator.place(t03s03Board.at(0,3), Token.PLAYER_AAA, t03s03Board, t03Board, topBoard);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		validator.checkAllClosed();
+	}
+
+	@Override
+	@Test
+	public void isPlayable_h1s3_draw() {
+
+		final Board     topBoard  = new Board(1, 3);
+		final Validator validator = new PlayableTest.Validator(topBoard);
+
+		final Position  t12Pos    = validator.add(topBoard.at(1, 2));
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		validator.place(topBoard.at(0,0), Token.PLAYER_AAA);
+		validator.place(topBoard.at(0,1), Token.PLAYER_AAA);
+		validator.place(topBoard.at(0,2), Token.PLAYER_AAA, topBoard, t12Pos);
+
+		validator.checkAllClosed();
+		}
+
+	@Override
+	@Test @Ignore
+	public void isPlayable_h2s3_draw() {
+		fail("NYI");
+	}
+
+	@Override
+	@Test @Ignore
+	public void isPlayable_h3s4_draw() {
+		fail("NYI");
+	}
+
+	// ====================================================================================================
+	// other win test(s)
+
+	@Test
+	public void isPlayable_h2s2_win() {
+
+		final Board     topBoard  = new Board(2, 2);
+		final Validator validator = new PlayableTest.Validator(topBoard);
+
+		final Board     t00Board  = validator.add(topBoard.getSubBoard(0, 0));
+		final Board     t01Board  = validator.add(topBoard.getSubBoard(0, 1));
+
+		final Position  t10sxxPos = validator.add(topBoard.at(1, 0));
+		final Position  t00s11Pos = validator.add(t00Board.at(1, 1));
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		validator.place(t00Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t00Board.at(1,0), Token.PLAYER_AAA, t00Board, t00s11Pos);
+
+		validator.place(t01Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t01Board.at(0,1), Token.PLAYER_AAA, topBoard, t01Board, t10sxxPos);
+
+		validator.checkAllClosed();
+	}
+
+	@Test
+	public void isPlayable_h3s2_winning_SAVE() {
+		final Board     topBoard   = new Board(3, 2);
+		final Validator validator  = new PlayableTest.Validator(topBoard);
+
+		final Board    t00Board    = validator.add(topBoard.getSubBoard(0, 0));
+		final Board    t01Board    = validator.add(topBoard.getSubBoard(0, 1));
+		final Board    t11Board    = validator.add(topBoard.getSubBoard(1, 1));
+
+		final Board    t00s00Board = validator.add(t00Board.getSubBoard(0, 0));
+		final Board    t00s01Board = validator.add(t00Board.getSubBoard(0, 1));
+		final Board    t00s11Board = validator.add(t00Board.getSubBoard(1, 1));
+
+		final Board    t01s00Board = validator.add(t01Board.getSubBoard(0, 0));
+		final Board    t01s01Board = validator.add(t01Board.getSubBoard(0, 1));
+		final Board    t01s11Board = validator.add(t01Board.getSubBoard(1, 1));
+
+		final Board    t11s00Board = validator.add(t11Board.getSubBoard(0, 0));
+		final Board    t11s01Board = validator.add(t11Board.getSubBoard(0, 1));
+		final Board    t11s11Board = validator.add(t11Board.getSubBoard(1, 1));
+
+		final Position t10Pos      = validator.add(topBoard.at(1,0));
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		validator.place(t00s00Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t00s00Board.at(1,0), Token.PLAYER_AAA, t00s00Board);
+
+		validator.place(t00s01Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t00s01Board.at(1,0), Token.PLAYER_AAA, t00s01Board, t00s11Board, t00Board);
+
+		validator.place(t01s00Board.at(0,0), Token.PLAYER_BBB);
+		validator.place(t01s00Board.at(1,0), Token.PLAYER_BBB, t01s00Board);
+
+		validator.place(t01s01Board.at(0,0), Token.PLAYER_BBB);
+		validator.place(t01s01Board.at(1,0), Token.PLAYER_BBB, t01s01Board, t01s11Board, t01Board);
+
+		validator.place(t11s00Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t11s00Board.at(1,0), Token.PLAYER_AAA, t11s00Board);
+
+		validator.place(t11s01Board.at(0,0), Token.PLAYER_AAA);
+		validator.place(t11s01Board.at(1,0), Token.PLAYER_AAA, t11s01Board, t11s11Board, t11Board, topBoard, t10Pos);
+
+		validator.checkAllClosed();
+	}
+
+	// ==============================================================================================================
+	// printable text - ensure no surprises!
 
 	@Test
 	public void asPrintable_h1s3() {

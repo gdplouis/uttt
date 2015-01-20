@@ -1,6 +1,7 @@
 package com.uttt.common.board;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
 import org.junit.Test;
@@ -9,12 +10,45 @@ import com.uttt.common.Foreachable;
 
 public class BoardTest extends NodeTest {
 
-	@SuppressWarnings("unused")
-	private static Token flip(Token t) {
-		return (t == Token.PLAYER_AAA ? Token.PLAYER_BBB: Token.PLAYER_AAA);
+	@Test
+	public void constructor_standard() {
+		Board board = new Board(2, 3);
+
+		assertEquals("board.getHeight(): ", 2, board.getHeight());
+		assertEquals("board.getSize(): "  , 3, board.getSize());
+
+		Board topNode = board.getSubBoard(1, 2);
+		assertEquals("topNode.getClass(): ", Board.class, topNode.getClass());
+
+		Token bottomNode = topNode.getSubToken(1, 2);
+		assertEquals("bottomNode.getClass(): ", Token.class, bottomNode.getClass());
 	}
 
-	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	@Test(expected=IllegalArgumentException.class)
+	public void constructor_tooShallow() {
+		@SuppressWarnings("unused")
+		Board board = new Board(0, 999);
+	}
+
+	@Test(expected=IllegalArgumentException.class)
+	public void constructor_tooTall() {
+		@SuppressWarnings("unused")
+		Board board = new Board(10, 999);
+	}
+
+	@Test(expected=IllegalArgumentException.class)
+	public void constructor_tooNarrow() {
+		@SuppressWarnings("unused")
+		Board board = new Board(1, 1);
+	}
+
+	@Test(expected=IllegalArgumentException.class)
+	public void constructor_tooWide() {
+		@SuppressWarnings("unused")
+		Board board = new Board(1, 999);
+	}
+
+	// ====================================================================================================
 
 	@Override
 	@Test
@@ -87,44 +121,29 @@ public class BoardTest extends NodeTest {
 		assertEquals("subToken: "  , Token.EMPTY, subToken);
 	}
 
-	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	@Test
+	public void accessor_getTopBoard_h1s3() {
+		final Board  board = new Board(1, 3);
+
+		assertSame("board.getTopBoard(): ", board, board.getTopBoard());
+	}
 
 	@Test
-	public void newBoard_standard() {
-		Board board = new Board(2, 3);
+	public void accessor_getTopBoard_h2s2() {
+		final Board  board = new Board(2, 2);
 
-		assertEquals("board.getHeight(): ", 2, board.getHeight());
-		assertEquals("board.getSize(): "  , 3, board.getSize());
-
-		Board topNode = board.getSubBoard(1, 2);
-		assertEquals("topNode.getClass(): ", Board.class, topNode.getClass());
-
-		Token bottomNode = topNode.getSubToken(1, 2);
-		assertEquals("bottomNode.getClass(): ", Token.class, bottomNode.getClass());
+		assertSame("board.getTopBoard(): ",                  board, board.getTopBoard());
+		assertSame("board.getSubBoard(0,0).getTopBoard(): ", board, board.getSubBoard(0,0).getTopBoard());
 	}
 
-	@Test(expected=IllegalArgumentException.class)
-	public void newBoard_tooShallow() {
-		@SuppressWarnings("unused")
-		Board board = new Board(0, 999);
-	}
 
-	@Test(expected=IllegalArgumentException.class)
-	public void newBoard_tooTall() {
-		@SuppressWarnings("unused")
-		Board board = new Board(10, 999);
-	}
+	@Test
+	public void accessor_getTopBoard_h3s4() {
+		final Board  board = new Board(3, 4);
 
-	@Test(expected=IllegalArgumentException.class)
-	public void newBoard_tooNarrow() {
-		@SuppressWarnings("unused")
-		Board board = new Board(1, 1);
-	}
-
-	@Test(expected=IllegalArgumentException.class)
-	public void newBoard_tooWide() {
-		@SuppressWarnings("unused")
-		Board board = new Board(1, 999);
+		assertSame("TOP: ",             board, board.getTopBoard());
+		assertSame("TOP~(0,0): ",       board, board.getSubBoard(0,0).getTopBoard());
+		assertSame("TOP~(0,0)~(1,1): ", board, board.getSubBoard(0,0).getSubBoard(1,1).getTopBoard());
 	}
 
 	@Test
@@ -146,59 +165,76 @@ public class BoardTest extends NodeTest {
 		}
 	}
 
-	@Test(expected=IllegalArgumentException.class)
-	public void updatePosition_h1s3_alreadyFilled() {
+	// ====================================================================================================
+
+	@Test
+	public void place_h1s3() {
 		Board board = new Board(1, 3);
 
-		board.updatePosition(Token.PLAYER_AAA, 1, 2);
-		board.updatePosition(Token.PLAYER_AAA, 1, 2);
+		Position contraint = board.at(1, 2).place(Token.PLAYER_AAA);
+
+		assertEquals("board.getSubNode(1, 2, Token.class): ", Token.PLAYER_AAA, board.getSubToken(1, 2));
+		assertNull("contraint", contraint);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
-	public void updatePosition_h2s2_alreadyFilled() {
+	public void place_h1s3_alreadyFilled() {
+		Board board = new Board(1, 3);
+
+		board.at(1, 2).place(Token.PLAYER_AAA);
+		board.at(1, 2).place(Token.PLAYER_AAA);
+	}
+
+	@Test(expected=IllegalArgumentException.class)
+	public void place_h2s2_alreadyFilled() {
 		Board board = new Board(2,2);
 
-		board.getSubBoard(0,0).updatePosition(Token.PLAYER_AAA, 1, 2);
-		board.getSubBoard(0,0).updatePosition(Token.PLAYER_AAA, 1, 2);
+		board.getSubBoard(0,0).at(1, 2).place(Token.PLAYER_AAA);
+		board.getSubBoard(0,0).at(1, 2).place(Token.PLAYER_AAA);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
-	public void updatePosition_h2s3_placeInWonAtLevel1() {
+	public void place_h2s3_alreadyWonAtLevel1() {
 		Board board    = new Board(2, 3);
 
-		board.getSubBoard(0,0).updatePosition(Token.PLAYER_AAA, 0, 0);
-		board.getSubBoard(0,0).updatePosition(Token.PLAYER_AAA, 0, 1);
-		board.getSubBoard(0,0).updatePosition(Token.PLAYER_AAA, 0, 2);
+		board.getSubBoard(0,0).at(0, 0).place(Token.PLAYER_AAA);
+		board.getSubBoard(0,0).at(0, 1).place(Token.PLAYER_AAA);
+		board.getSubBoard(0,0).at(0, 2).place(Token.PLAYER_AAA);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		board.getSubBoard(0,0).updatePosition(Token.PLAYER_BBB, 2, 2);
+		board.getSubBoard(0,0).at(2, 2).place(Token.PLAYER_BBB);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
-	public void updatePosition_h3s3_placeInWonAtLevel2() {
+	public void place_h3s3_alreadyWonAtLevel2() {
 		Board board    = new Board(3, 3);
 
-		board.getSubBoard(0,0).getSubBoard(0,0).updatePosition(Token.PLAYER_AAA, 0, 0);
-		board.getSubBoard(0,0).getSubBoard(0,0).updatePosition(Token.PLAYER_AAA, 0, 1);
-		board.getSubBoard(0,0).getSubBoard(0,0).updatePosition(Token.PLAYER_AAA, 0, 2);
+		Board level2winner = board.getSubBoard(0, 0);
 
-		board.getSubBoard(0,0).getSubBoard(0,1).updatePosition(Token.PLAYER_AAA, 0, 0);
-		board.getSubBoard(0,0).getSubBoard(0,1).updatePosition(Token.PLAYER_AAA, 0, 1);
-		board.getSubBoard(0,0).getSubBoard(0,1).updatePosition(Token.PLAYER_AAA, 0, 2);
+		level2winner.getSubBoard(0, 0).at(0, 0).place(Token.PLAYER_AAA);
+		level2winner.getSubBoard(0, 0).at(0, 1).place(Token.PLAYER_AAA);
+		level2winner.getSubBoard(0, 0).at(0, 2).place(Token.PLAYER_AAA);
 
-		board.getSubBoard(0,0).getSubBoard(0,2).updatePosition(Token.PLAYER_AAA, 0, 0);
-		board.getSubBoard(0,0).getSubBoard(0,2).updatePosition(Token.PLAYER_AAA, 0, 1);
-		board.getSubBoard(0,0).getSubBoard(0,2).updatePosition(Token.PLAYER_AAA, 0, 2);
+		level2winner.getSubBoard(0, 1).at(0, 0).place(Token.PLAYER_AAA);
+		level2winner.getSubBoard(0, 1).at(0, 1).place(Token.PLAYER_AAA);
+		level2winner.getSubBoard(0, 1).at(0, 2).place(Token.PLAYER_AAA);
+
+		level2winner.getSubBoard(0, 2).at(0, 0).place(Token.PLAYER_AAA);
+		level2winner.getSubBoard(0, 2).at(0, 1).place(Token.PLAYER_AAA);
+		level2winner.getSubBoard(0, 2).at(0, 2).place(Token.PLAYER_AAA);
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		board.getSubBoard(0,0).getSubBoard(2,2).updatePosition(Token.PLAYER_BBB, 2, 2);
+		level2winner.getSubBoard(2, 2).at(2, 1).place(Token.PLAYER_BBB);
 	}
+
+	// ====================================================================================================
+	// exaustive win condition tests across [h1s2 .. h3s5]
 
 	private static void takeAtRowCol(Board board, Token token, int row, int col) {
 		if (board.getHeight() == 1) {
-			board.updatePosition(token, row, col);
+			board.at(row, col).place(token);
 		} else {
 			for (int diag : Foreachable.until(board.getSize())) {
 				Board subBoard = board.getSubBoard(row, col);
@@ -276,16 +312,7 @@ public class BoardTest extends NodeTest {
 		}
 	}
 
-	@Test
-	public void updatePosition_h1s3() {
-		Board board = new Board(1, 3);
-
-		board.updatePosition(Token.PLAYER_AAA, 1, 2);
-
-		assertEquals("board.getSubNode(1, 2, Token.class): ", Token.PLAYER_AAA, board.getSubToken(1, 2));
-	}
-
-	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	// ====================================================================================================
 
 	@Test
 	public void fieldAsPrintableString_h1s3_winLevel1() {
@@ -302,12 +329,12 @@ public class BoardTest extends NodeTest {
 
 		Board board = new Board(1, 3);
 
-		board.updatePosition(Token.PLAYER_AAA, 1, 2);
-		board.updatePosition(Token.PLAYER_BBB, 2, 0);
-		board.updatePosition(Token.PLAYER_AAA, 1, 1);
-		board.updatePosition(Token.PLAYER_BBB, 1, 0);
-		board.updatePosition(Token.PLAYER_AAA, 2, 2);
-		board.updatePosition(Token.PLAYER_BBB, 0, 0);
+		board.at(1, 2).place(Token.PLAYER_AAA);
+		board.at(2, 0).place(Token.PLAYER_BBB);
+		board.at(1, 1).place(Token.PLAYER_AAA);
+		board.at(1, 0).place(Token.PLAYER_BBB);
+		board.at(2, 2).place(Token.PLAYER_AAA);
+		board.at(0, 0).place(Token.PLAYER_BBB);
 
 		assertEquals("played 1d-s3: ", expected, ("\n" + board.fieldAsPrintableString()));
 	}
@@ -347,19 +374,19 @@ public class BoardTest extends NodeTest {
 
 		Board board = new Board(2, 3);
 
-		board.getSubBoard(1, 2).updatePosition(Token.PLAYER_AAA, 1, 2);
-		board.getSubBoard(1, 2).updatePosition(Token.PLAYER_BBB, 2, 0);
-		board.getSubBoard(1, 2).updatePosition(Token.PLAYER_AAA, 1, 1);
-		board.getSubBoard(1, 2).updatePosition(Token.PLAYER_BBB, 1, 0);
-		board.getSubBoard(1, 2).updatePosition(Token.PLAYER_AAA, 2, 2);
-		board.getSubBoard(1, 2).updatePosition(Token.PLAYER_BBB, 0, 0);
+		board.getSubBoard(1, 2).at(1, 2).place(Token.PLAYER_AAA);
+		board.getSubBoard(1, 2).at(2, 0).place(Token.PLAYER_BBB);
+		board.getSubBoard(1, 2).at(1, 1).place(Token.PLAYER_AAA);
+		board.getSubBoard(1, 2).at(1, 0).place(Token.PLAYER_BBB);
+		board.getSubBoard(1, 2).at(2, 2).place(Token.PLAYER_AAA);
+		board.getSubBoard(1, 2).at(0, 0).place(Token.PLAYER_BBB);
 
-		board.getSubBoard(2, 0).updatePosition(Token.PLAYER_BBB, 1, 2);
-		board.getSubBoard(2, 0).updatePosition(Token.PLAYER_AAA, 2, 0);
-		board.getSubBoard(2, 0).updatePosition(Token.PLAYER_BBB, 1, 1);
-		board.getSubBoard(2, 0).updatePosition(Token.PLAYER_AAA, 1, 0);
-		board.getSubBoard(2, 0).updatePosition(Token.PLAYER_BBB, 2, 2);
-		board.getSubBoard(2, 0).updatePosition(Token.PLAYER_AAA, 0, 0);
+		board.getSubBoard(2, 0).at(1, 2).place(Token.PLAYER_BBB);
+		board.getSubBoard(2, 0).at(2, 0).place(Token.PLAYER_AAA);
+		board.getSubBoard(2, 0).at(1, 1).place(Token.PLAYER_BBB);
+		board.getSubBoard(2, 0).at(1, 0).place(Token.PLAYER_AAA);
+		board.getSubBoard(2, 0).at(2, 2).place(Token.PLAYER_BBB);
+		board.getSubBoard(2, 0).at(0, 0).place(Token.PLAYER_AAA);
 
 		assertEquals("played 2d-s3: ", expected, ("\n" + board.fieldAsPrintableString()));
 	}
@@ -399,40 +426,40 @@ public class BoardTest extends NodeTest {
 
 		Board board = new Board(2, 3);
 
-		board.getSubBoard(0,2).updatePosition(Token.PLAYER_BBB, 1, 2);
-		board.getSubBoard(0,2).updatePosition(Token.PLAYER_AAA, 2, 0);
-		board.getSubBoard(0,2).updatePosition(Token.PLAYER_BBB, 1, 1);
-		board.getSubBoard(0,2).updatePosition(Token.PLAYER_AAA, 1, 0);
-		board.getSubBoard(0,2).updatePosition(Token.PLAYER_BBB, 2, 2);
-		board.getSubBoard(0,2).updatePosition(Token.PLAYER_AAA, 0, 0);
+		board.getSubBoard(0,2).at(1, 2).place(Token.PLAYER_BBB);
+		board.getSubBoard(0,2).at(2, 0).place(Token.PLAYER_AAA);
+		board.getSubBoard(0,2).at(1, 1).place(Token.PLAYER_BBB);
+		board.getSubBoard(0,2).at(1, 0).place(Token.PLAYER_AAA);
+		board.getSubBoard(0,2).at(2, 2).place(Token.PLAYER_BBB);
+		board.getSubBoard(0,2).at(0, 0).place(Token.PLAYER_AAA);
 
-		board.getSubBoard(1,2).updatePosition(Token.PLAYER_AAA, 1, 2);
-		board.getSubBoard(1,2).updatePosition(Token.PLAYER_BBB, 2, 0);
-		board.getSubBoard(1,2).updatePosition(Token.PLAYER_AAA, 1, 1);
-		board.getSubBoard(1,2).updatePosition(Token.PLAYER_BBB, 1, 0);
-		board.getSubBoard(1,2).updatePosition(Token.PLAYER_AAA, 2, 2);
-		board.getSubBoard(1,2).updatePosition(Token.PLAYER_BBB, 0, 0);
+		board.getSubBoard(1,2).at(1, 2).place(Token.PLAYER_AAA);
+		board.getSubBoard(1,2).at(2, 0).place(Token.PLAYER_BBB);
+		board.getSubBoard(1,2).at(1, 1).place(Token.PLAYER_AAA);
+		board.getSubBoard(1,2).at(1, 0).place(Token.PLAYER_BBB);
+		board.getSubBoard(1,2).at(2, 2).place(Token.PLAYER_AAA);
+		board.getSubBoard(1,2).at(0, 0).place(Token.PLAYER_BBB);
 
-		board.getSubBoard(2,0).updatePosition(Token.PLAYER_BBB, 1, 2);
-		board.getSubBoard(2,0).updatePosition(Token.PLAYER_AAA, 2, 0);
-		board.getSubBoard(2,0).updatePosition(Token.PLAYER_BBB, 1, 1);
-		board.getSubBoard(2,0).updatePosition(Token.PLAYER_AAA, 1, 0);
-		board.getSubBoard(2,0).updatePosition(Token.PLAYER_BBB, 2, 2);
-		board.getSubBoard(2,0).updatePosition(Token.PLAYER_AAA, 0, 0);
+		board.getSubBoard(2,0).at(1, 2).place(Token.PLAYER_BBB);
+		board.getSubBoard(2,0).at(2, 0).place(Token.PLAYER_AAA);
+		board.getSubBoard(2,0).at(1, 1).place(Token.PLAYER_BBB);
+		board.getSubBoard(2,0).at(1, 0).place(Token.PLAYER_AAA);
+		board.getSubBoard(2,0).at(2, 2).place(Token.PLAYER_BBB);
+		board.getSubBoard(2,0).at(0, 0).place(Token.PLAYER_AAA);
 
-		board.getSubBoard(1,0).updatePosition(Token.PLAYER_AAA, 1, 2);
-		board.getSubBoard(1,0).updatePosition(Token.PLAYER_BBB, 2, 0);
-		board.getSubBoard(1,0).updatePosition(Token.PLAYER_AAA, 1, 1);
-		board.getSubBoard(1,0).updatePosition(Token.PLAYER_BBB, 1, 0);
-		board.getSubBoard(1,0).updatePosition(Token.PLAYER_AAA, 2, 2);
-		board.getSubBoard(1,0).updatePosition(Token.PLAYER_BBB, 0, 0);
+		board.getSubBoard(1,0).at(1, 2).place(Token.PLAYER_AAA);
+		board.getSubBoard(1,0).at(2, 0).place(Token.PLAYER_BBB);
+		board.getSubBoard(1,0).at(1, 1).place(Token.PLAYER_AAA);
+		board.getSubBoard(1,0).at(1, 0).place(Token.PLAYER_BBB);
+		board.getSubBoard(1,0).at(2, 2).place(Token.PLAYER_AAA);
+		board.getSubBoard(1,0).at(0, 0).place(Token.PLAYER_BBB);
 
-		board.getSubBoard(1,1).updatePosition(Token.PLAYER_BBB, 1, 2);
-		board.getSubBoard(1,1).updatePosition(Token.PLAYER_AAA, 2, 0);
-		board.getSubBoard(1,1).updatePosition(Token.PLAYER_BBB, 1, 1);
-		board.getSubBoard(1,1).updatePosition(Token.PLAYER_AAA, 1, 0);
-		board.getSubBoard(1,1).updatePosition(Token.PLAYER_BBB, 2, 2);
-		board.getSubBoard(1,1).updatePosition(Token.PLAYER_AAA, 0, 0);
+		board.getSubBoard(1,1).at(1, 2).place(Token.PLAYER_BBB);
+		board.getSubBoard(1,1).at(2, 0).place(Token.PLAYER_AAA);
+		board.getSubBoard(1,1).at(1, 1).place(Token.PLAYER_BBB);
+		board.getSubBoard(1,1).at(1, 0).place(Token.PLAYER_AAA);
+		board.getSubBoard(1,1).at(2, 2).place(Token.PLAYER_BBB);
+		board.getSubBoard(1,1).at(0, 0).place(Token.PLAYER_AAA);
 
 		assertEquals("played 2d-s3: ", expected, ("\n" + board.fieldAsPrintableString()));
 	}
@@ -478,31 +505,31 @@ public class BoardTest extends NodeTest {
 
 		Board board = new Board(3, 2);
 
-		board.getSubBoard(0,0).getSubBoard(0,0).updatePosition(Token.PLAYER_AAA, 0, 1);
-		board.getSubBoard(0,0).getSubBoard(0,0).updatePosition(Token.PLAYER_BBB, 0, 0);
-		board.getSubBoard(0,0).getSubBoard(0,0).updatePosition(Token.PLAYER_AAA, 1, 1);
+		board.getSubBoard(0,0).getSubBoard(0,0).at(0, 1).place(Token.PLAYER_AAA);
+		board.getSubBoard(0,0).getSubBoard(0,0).at(0, 0).place(Token.PLAYER_BBB);
+		board.getSubBoard(0,0).getSubBoard(0,0).at(1, 1).place(Token.PLAYER_AAA);
 
-		board.getSubBoard(0,0).getSubBoard(1,1).updatePosition(Token.PLAYER_BBB, 0, 1);
-		board.getSubBoard(0,0).getSubBoard(1,1).updatePosition(Token.PLAYER_AAA, 0, 0);
-		board.getSubBoard(0,0).getSubBoard(1,1).updatePosition(Token.PLAYER_BBB, 1, 1);
+		board.getSubBoard(0,0).getSubBoard(1,1).at(0, 1).place(Token.PLAYER_BBB);
+		board.getSubBoard(0,0).getSubBoard(1,1).at(0, 0).place(Token.PLAYER_AAA);
+		board.getSubBoard(0,0).getSubBoard(1,1).at(1, 1).place(Token.PLAYER_BBB);
 
-		board.getSubBoard(0,0).getSubBoard(0,1).updatePosition(Token.PLAYER_AAA, 0, 1);
-		board.getSubBoard(0,0).getSubBoard(0,1).updatePosition(Token.PLAYER_BBB, 0, 0);
-		board.getSubBoard(0,0).getSubBoard(0,1).updatePosition(Token.PLAYER_AAA, 1, 1);
+		board.getSubBoard(0,0).getSubBoard(0,1).at(0, 1).place(Token.PLAYER_AAA);
+		board.getSubBoard(0,0).getSubBoard(0,1).at(0, 0).place(Token.PLAYER_BBB);
+		board.getSubBoard(0,0).getSubBoard(0,1).at(1, 1).place(Token.PLAYER_AAA);
 
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		// - - - - - - - - - - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		board.getSubBoard(1,1).getSubBoard(0,0).updatePosition(Token.PLAYER_BBB, 0, 1);
-		board.getSubBoard(1,1).getSubBoard(0,0).updatePosition(Token.PLAYER_AAA, 0, 0);
-		board.getSubBoard(1,1).getSubBoard(0,0).updatePosition(Token.PLAYER_BBB, 1, 1);
+		board.getSubBoard(1,1).getSubBoard(0,0).at(0, 1).place(Token.PLAYER_BBB);
+		board.getSubBoard(1,1).getSubBoard(0,0).at(0, 0).place(Token.PLAYER_AAA);
+		board.getSubBoard(1,1).getSubBoard(0,0).at(1, 1).place(Token.PLAYER_BBB);
 
-		board.getSubBoard(1,1).getSubBoard(1,1).updatePosition(Token.PLAYER_AAA, 0, 1);
-		board.getSubBoard(1,1).getSubBoard(1,1).updatePosition(Token.PLAYER_BBB, 0, 0);
-		board.getSubBoard(1,1).getSubBoard(1,1).updatePosition(Token.PLAYER_AAA, 1, 1);
+		board.getSubBoard(1,1).getSubBoard(1,1).at(0, 1).place(Token.PLAYER_AAA);
+		board.getSubBoard(1,1).getSubBoard(1,1).at(0, 0).place(Token.PLAYER_BBB);
+		board.getSubBoard(1,1).getSubBoard(1,1).at(1, 1).place(Token.PLAYER_AAA);
 
-		board.getSubBoard(1,1).getSubBoard(0,1).updatePosition(Token.PLAYER_BBB, 0, 1);
-		board.getSubBoard(1,1).getSubBoard(0,1).updatePosition(Token.PLAYER_AAA, 0, 0);
-		board.getSubBoard(1,1).getSubBoard(0,1).updatePosition(Token.PLAYER_BBB, 1, 1);
+		board.getSubBoard(1,1).getSubBoard(0,1).at(0, 1).place(Token.PLAYER_BBB);
+		board.getSubBoard(1,1).getSubBoard(0,1).at(0, 0).place(Token.PLAYER_AAA);
+		board.getSubBoard(1,1).getSubBoard(0,1).at(1, 1).place(Token.PLAYER_BBB);
 
 		assertEquals("played h3-s2, winLevel2: ", expected, ("\n" + board.fieldAsPrintableString()));
 	}
@@ -548,45 +575,45 @@ public class BoardTest extends NodeTest {
 
 		Board board = new Board(3, 2);
 
-		board.getSubBoard(0,0).getSubBoard(0,0).updatePosition(Token.PLAYER_AAA, 0, 1);
-		board.getSubBoard(0,0).getSubBoard(0,0).updatePosition(Token.PLAYER_BBB, 0, 0);
-		board.getSubBoard(0,0).getSubBoard(0,0).updatePosition(Token.PLAYER_AAA, 1, 1);
+		board.getSubBoard(0,0).getSubBoard(0,0).at(0, 1).place(Token.PLAYER_AAA);
+		board.getSubBoard(0,0).getSubBoard(0,0).at(0, 0).place(Token.PLAYER_BBB);
+		board.getSubBoard(0,0).getSubBoard(0,0).at(1, 1).place(Token.PLAYER_AAA);
 
-		board.getSubBoard(0,0).getSubBoard(1,1).updatePosition(Token.PLAYER_BBB, 0, 1);
-		board.getSubBoard(0,0).getSubBoard(1,1).updatePosition(Token.PLAYER_AAA, 0, 0);
-		board.getSubBoard(0,0).getSubBoard(1,1).updatePosition(Token.PLAYER_BBB, 1, 1);
+		board.getSubBoard(0,0).getSubBoard(1,1).at(0, 1).place(Token.PLAYER_BBB);
+		board.getSubBoard(0,0).getSubBoard(1,1).at(0, 0).place(Token.PLAYER_AAA);
+		board.getSubBoard(0,0).getSubBoard(1,1).at(1, 1).place(Token.PLAYER_BBB);
 
-		board.getSubBoard(0,0).getSubBoard(0,1).updatePosition(Token.PLAYER_AAA, 0, 1);
-		board.getSubBoard(0,0).getSubBoard(0,1).updatePosition(Token.PLAYER_BBB, 0, 0);
-		board.getSubBoard(0,0).getSubBoard(0,1).updatePosition(Token.PLAYER_AAA, 1, 1);
+		board.getSubBoard(0,0).getSubBoard(0,1).at(0, 1).place(Token.PLAYER_AAA);
+		board.getSubBoard(0,0).getSubBoard(0,1).at(0, 0).place(Token.PLAYER_BBB);
+		board.getSubBoard(0,0).getSubBoard(0,1).at(1, 1).place(Token.PLAYER_AAA);
 
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		board.getSubBoard(1,1).getSubBoard(0,0).updatePosition(Token.PLAYER_BBB, 0, 1);
-		board.getSubBoard(1,1).getSubBoard(0,0).updatePosition(Token.PLAYER_AAA, 0, 0);
-		board.getSubBoard(1,1).getSubBoard(0,0).updatePosition(Token.PLAYER_BBB, 1, 1);
+		board.getSubBoard(1,1).getSubBoard(0,0).at(0, 1).place(Token.PLAYER_BBB);
+		board.getSubBoard(1,1).getSubBoard(0,0).at(0, 0).place(Token.PLAYER_AAA);
+		board.getSubBoard(1,1).getSubBoard(0,0).at(1, 1).place(Token.PLAYER_BBB);
 
-		board.getSubBoard(1,1).getSubBoard(1,1).updatePosition(Token.PLAYER_AAA, 0, 1);
-		board.getSubBoard(1,1).getSubBoard(1,1).updatePosition(Token.PLAYER_BBB, 0, 0);
-		board.getSubBoard(1,1).getSubBoard(1,1).updatePosition(Token.PLAYER_AAA, 1, 1);
+		board.getSubBoard(1,1).getSubBoard(1,1).at(0, 1).place(Token.PLAYER_AAA);
+		board.getSubBoard(1,1).getSubBoard(1,1).at(0, 0).place(Token.PLAYER_BBB);
+		board.getSubBoard(1,1).getSubBoard(1,1).at(1, 1).place(Token.PLAYER_AAA);
 
-		board.getSubBoard(1,1).getSubBoard(0,1).updatePosition(Token.PLAYER_BBB, 0, 1);
-		board.getSubBoard(1,1).getSubBoard(0,1).updatePosition(Token.PLAYER_AAA, 0, 0);
-		board.getSubBoard(1,1).getSubBoard(0,1).updatePosition(Token.PLAYER_BBB, 1, 1);
+		board.getSubBoard(1,1).getSubBoard(0,1).at(0, 1).place(Token.PLAYER_BBB);
+		board.getSubBoard(1,1).getSubBoard(0,1).at(0, 0).place(Token.PLAYER_AAA);
+		board.getSubBoard(1,1).getSubBoard(0,1).at(1, 1).place(Token.PLAYER_BBB);
 
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		board.getSubBoard(1,0).getSubBoard(0,0).updatePosition(Token.PLAYER_AAA, 0, 1);
-		board.getSubBoard(1,0).getSubBoard(0,0).updatePosition(Token.PLAYER_BBB, 0, 0);
-		board.getSubBoard(1,0).getSubBoard(0,0).updatePosition(Token.PLAYER_AAA, 1, 1);
+		board.getSubBoard(1,0).getSubBoard(0,0).at(0, 1).place(Token.PLAYER_AAA);
+		board.getSubBoard(1,0).getSubBoard(0,0).at(0, 0).place(Token.PLAYER_BBB);
+		board.getSubBoard(1,0).getSubBoard(0,0).at(1, 1).place(Token.PLAYER_AAA);
 
-		board.getSubBoard(1,0).getSubBoard(1,1).updatePosition(Token.PLAYER_BBB, 0, 1);
-		board.getSubBoard(1,0).getSubBoard(1,1).updatePosition(Token.PLAYER_AAA, 0, 0);
-		board.getSubBoard(1,0).getSubBoard(1,1).updatePosition(Token.PLAYER_BBB, 1, 1);
+		board.getSubBoard(1,0).getSubBoard(1,1).at(0, 1).place(Token.PLAYER_BBB);
+		board.getSubBoard(1,0).getSubBoard(1,1).at(0, 0).place(Token.PLAYER_AAA);
+		board.getSubBoard(1,0).getSubBoard(1,1).at(1, 1).place(Token.PLAYER_BBB);
 
-		board.getSubBoard(1,0).getSubBoard(0,1).updatePosition(Token.PLAYER_AAA, 0, 1);
-		board.getSubBoard(1,0).getSubBoard(0,1).updatePosition(Token.PLAYER_BBB, 0, 0);
-		board.getSubBoard(1,0).getSubBoard(0,1).updatePosition(Token.PLAYER_AAA, 1, 1);
+		board.getSubBoard(1,0).getSubBoard(0,1).at(0, 1).place(Token.PLAYER_AAA);
+		board.getSubBoard(1,0).getSubBoard(0,1).at(0, 0).place(Token.PLAYER_BBB);
+		board.getSubBoard(1,0).getSubBoard(0,1).at(1, 1).place(Token.PLAYER_AAA);
 
 		assertEquals("played h3-s2, winLevel3: ", expected, ("\n" + board.fieldAsPrintableString()));
 	}

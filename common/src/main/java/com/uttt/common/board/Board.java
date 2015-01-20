@@ -6,14 +6,17 @@ import java.util.List;
 import com.uttt.common.ArgCheck;
 import com.uttt.common.Foreachable;
 
-public final class Board implements Node {
+public final class Board implements Node, Playable {
 
 	private final Position    position;
 	private final int         height;
 	private final int         size;
+
+	private final int         playCountMax;
 	private final Node[][]    field;
 
-	private Node.Status status = Node.Status.OPEN;
+	private Node.Status status    = Node.Status.OPEN;
+	private int         playCount = 0;
 
 	private Board(Position position, int height, int size) {
 		ArgCheck.rangeClosed("height", height, 1, 3);
@@ -23,13 +26,15 @@ public final class Board implements Node {
 		this.height    = height;
 		this.size      = size;
 
-		this.field     = createField(this, height, size);
+		this.playCountMax = (size * size);
+		this.field        = createField(this, height, size);
 	}
 
 	public Board(int height, int size) {
 		this((Position) null, height,  size);
 	}
 
+	@Override
 	public Position getPosition() {
 		return position;
 	}
@@ -51,6 +56,14 @@ public final class Board implements Node {
 		return size;
 	}
 
+	public int getPlayCount() {
+		return playCount;
+	}
+
+	public int getPlayCountMax() {
+		return playCountMax;
+	}
+
 	@Override
 	public Status getStatus() {
 		return status;
@@ -60,6 +73,7 @@ public final class Board implements Node {
 		this.status = status;
 	}
 
+	@Override
 	public boolean isPlayable() {
 		return (status == Node.Status.OPEN) && ((position == null) || (position.getBoard().isPlayable()));
 	}
@@ -96,6 +110,21 @@ public final class Board implements Node {
 		}
 
 		return getSubNode(row, col, Token.class);
+	}
+
+	public Position at(int row, int col) {
+		return new Position(this, row, col);
+	}
+
+
+	@Override
+	public Board getTopBoard() {
+		Board topBoard = this;
+		while (!topBoard.isTop()) {
+			topBoard = topBoard.getParent();
+		}
+
+		return topBoard;
 	}
 
 	// ====================================================================================================
@@ -193,18 +222,33 @@ public final class Board implements Node {
 		}
 
 		field[myRow][myCol] = token;
+		++playCount;
 
-		// check win conditions, percolating towards top
+		// update status, percolating towards top
 
 		Board boardCheck = this;
 		int   rowCheck   = myRow;
 		int   colCheck   = myCol;
 
-		while (boardCheck != null) {
-			if (!boardCheck.isWinner(token, rowCheck, colCheck)) {
+		while (true) {
+			final boolean isWon  = boardCheck.isWinner(token, rowCheck, colCheck);
+			final boolean isDraw = (!isWon) && (boardCheck.playCount >= boardCheck.playCountMax);
+
+			final Node.Status updatedStatus;
+
+			if (isWon) {
+				updatedStatus = token.getStatus();
+			} else if (isDraw) {
+				updatedStatus = Node.Status.DRAW;
+			} else {
+				updatedStatus = null;
+			}
+
+			if (updatedStatus == null) {
 				break;
 			}
-			boardCheck.setStatus(token.getStatus());
+
+			boardCheck.setStatus(updatedStatus);
 
 			if (boardCheck.isTop()) {
 				break;
@@ -214,6 +258,7 @@ public final class Board implements Node {
 			colCheck = boardCheck.getPosition().getCol();
 
 			boardCheck = boardCheck.getParent();
+			boardCheck.playCount += 1;
 		}
 	}
 

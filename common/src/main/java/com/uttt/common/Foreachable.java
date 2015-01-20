@@ -21,28 +21,64 @@ public final class Foreachable implements Iterable<Integer> {
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+	/**
+	 * Iterable as in: {@code for (int i = start; i < limit; i+=step)}.
+	 *
+	 * @param start - initial value
+	 * @param limit - upper bound, exclusive
+	 * @param step - must be positive
+	 */
 	public static Foreachable until(int start, int limit, int step) {
 		return new Foreachable(start, limit, step);
 	}
 
+	/**
+	 * Iterable as in: {@code for (int i = start; i < limit; ++i)}.
+	 *
+	 * @param start - initial value
+	 * @param limit - upper bound, exclusive
+	 */
 	public static Foreachable until(int start, int limit) {
 		return until(start, limit, 1);
 	}
 
+	/**
+	 * Iterable as in: {@code for (int i = 0; i < limit; ++i)}.
+	 *
+	 * @param limit - upper bound, exclusive
+	 */
 	public static Foreachable until(int limit) {
 		return until(0, limit, 1);
 	}
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+	/**
+	 * Iterable as in: {@code for (int i = start; i <= limit; i+=step)}.
+	 *
+	 * @param start - initial value
+	 * @param limit - upper bound, inclusive
+	 * @param step - must be positive
+	 */
 	public static Foreachable to(int start, int limit, int step) {
 		return until(start, (limit+step), step);
 	}
 
+	/**
+	 * Iterable as in: {@code for (int i = start; i <= limit; ++i)}.
+	 *
+	 * @param start - initial value
+	 * @param limit - upper bound, inclusive
+	 */
 	public static Foreachable to(int start, int limit) {
 		return to(start, limit, 1);
 	}
 
+	/**
+	 * Iterable as in: {@code for (int i = 0; i <= limit; ++i)}.
+	 *
+	 * @param limit - upper bound, inclusive
+	 */
 	public static Foreachable to(int limit) {
 		return to(0, limit, 1);
 	}

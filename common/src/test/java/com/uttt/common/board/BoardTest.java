@@ -823,4 +823,34 @@ public class BoardTest extends NodeTest {
 
 		board.fieldAsPrintableString();
 	}
+
+	@Test
+	public void serializeHeight1Board() {
+		Board control = new Board(1, 3);
+		control.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0));
+		control.placeToken(Token.PLAYER_AAA, new Coordinates(1, 0));
+		control.placeToken(Token.PLAYER_AAA, new Coordinates(2, 0));
+		Board test = Board.deserialize(control.serialize());
+		assertEquals("[De]serialization failed", control, test);
+	}
+
+	@Test
+	public void serializeHeight2Board() {
+		Board control = new Board(2, 3);
+		control.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(0, 0));
+		control.placeToken(Token.PLAYER_AAA, new Coordinates(1, 0).within(0, 0));
+		control.placeToken(Token.PLAYER_AAA, new Coordinates(2, 0).within(0, 0));
+		Board test = Board.deserialize(control.serialize());
+		assertEquals("[De]serialization failed", control, test);
+	}
+
+	@Test
+	public void serializeHeight3Board() {
+		Board control = new Board(3, 3);
+		control.placeToken(Token.PLAYER_AAA, new Coordinates(0, 0).within(0, 0).within(0, 0));
+		control.placeToken(Token.PLAYER_AAA, new Coordinates(1, 0).within(0, 0).within(0, 0));
+		control.placeToken(Token.PLAYER_AAA, new Coordinates(2, 0).within(0, 0).within(0, 0));
+		Board test = Board.deserialize(control.serialize());
+		assertEquals("[De]serialization failed", control, test);
+	}
 }

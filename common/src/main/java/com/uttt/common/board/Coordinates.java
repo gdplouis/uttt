@@ -1,6 +1,13 @@
 package com.uttt.common.board;
 
+import java.lang.reflect.Type;
+import java.util.Map;
+
+import flexjson.JSONDeserializer;
 import flexjson.JSONSerializer;
+import flexjson.JsonNumber;
+import flexjson.ObjectBinder;
+import flexjson.ObjectFactory;
 
 public class Coordinates {
 
@@ -98,8 +105,31 @@ public class Coordinates {
 		return new JSONSerializer().deepSerialize(this);
 	}
 	
-	public static Coordinates deserialize(String string) {
-		return null;
+	public static Coordinates deserialize(String jsonStr) {
+		return new JSONDeserializer<Coordinates>()
+				.use(Coordinates.class, genObjectFactory())
+				.deserialize(jsonStr);
 	}
-	
+
+	public static ObjectFactory genObjectFactory() {
+
+		return new ObjectFactory() {
+
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			@Override
+			public Object instantiate(ObjectBinder context, Object value, Type targetType, Class targetClass) {
+				return getCoords((Map<String, Object>) value);
+			}
+
+			@SuppressWarnings("unchecked")
+			private Coordinates getCoords(Map<String, Object> map) {
+				final int row = ((JsonNumber) map.get("row")).intValue();
+				final int col = ((JsonNumber) map.get("col")).intValue();
+				if (map.get("subordinates") != null) {
+					return new Coordinates(row, col, getCoords((Map<String, Object>) map.get("subordinates")));
+				}
+				return new Coordinates(row, col);
+			}
+		};
+	}
 }

@@ -1,11 +1,14 @@
 package com.uttt.common.board;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.uttt.common.ArgCheck;
+import static com.uttt.common.Constants.*;
 import com.uttt.common.Foreachable;
 import com.uttt.common.utils.ArrayUtils;
 
@@ -21,13 +24,14 @@ public final class Board implements Node {
 	private final Coordinates metaCoord;
 	private final int         height;
 	private final int         size;
-	private final Node[][]    field;
+	
+	private Node[][] field;
 
 	private Node.Status status = Node.Status.OPEN;
 
 	private Board(Board parent, Coordinates metaCoord, int height, int size) {
-		ArgCheck.rangeClosed("height", height, 1, 3);
-		ArgCheck.rangeClosed("size"  , size  , 2, 5);
+		ArgCheck.rangeClosed("height", height, MIN_BOARD_HEIGHT, MAX_BOARD_HEIGHT);
+		ArgCheck.rangeClosed("size"  , size  , MIN_BOARD_SIZE  , MAX_BOARD_SIZE);
 
 		this.parent    = parent;
 		this.metaCoord = metaCoord;
@@ -49,14 +53,6 @@ public final class Board implements Node {
 
 	public Board(int height, int size) {
 		this((Board) null, (Coordinates) null, height,  size);
-	}
-
-	private Board(Board parent, Coordinates metaCoord, int height, int size, Node[][] field) {
-		this.parent = parent;
-		this.metaCoord = metaCoord;
-		this.height = height;
-		this.size = size;
-		this.field = field;
 	}
 
 	public Board getParent() {
@@ -359,46 +355,95 @@ public final class Board implements Node {
 	}
 
 	public String serialize() {
-		return new JSONSerializer().serialize(this);
+		return new JSONSerializer().deepSerialize(this);
 	}
 	
 	public static Board deserialize(String jsonStr) {
+		return new JSONDeserializer<Board>()
+				.use(Board.class, genObjectFactory())
+				.use(Coordinates.class, Coordinates.genObjectFactory())
+				.deserialize(jsonStr);
+	}
+
+	public static ObjectFactory genObjectFactory() {
 		
-		return new JSONDeserializer<Board>().use(Board.class, new ObjectFactory() {
-			
+		return new ObjectFactory() {
+
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			@Override
 			public Object instantiate(ObjectBinder context, Object value, Type targetType, Class targetClass) {
-				Map<String, Object> node = (Map<String, Object>) value;
-				return getNode(node);
+				return getNode(context, (Map<String, Object>) value, null);
 			}
 
 			@SuppressWarnings("unchecked")
-			private Board getNode(Map<String, Object> node) {
-				
-				if (node == null) {
-					return null;
-				}
-				
-				Object[][] oField = ArrayUtils.convertNestedList(((List<List<Object>>) node.get("field")));
-				Node[][] nFile = new Node[oField.length][oField[0].length];
-				for (int i = 0; i < oField.length; i++) {
-					for (int j = 0; j < oField[0].length; j++) {
+			private Board getNode(ObjectBinder context, Map<String, Object> map, Node parent) {
+				Object[][] oField = ArrayUtils.convertNestedList(((List<List<Object>>) map.get("field")));
+				Node[][] nField = new Node[oField.length][oField[0].length];
+				final int height = ((JsonNumber) map.get("height")).intValue();
+				final int size = ((JsonNumber) map.get("size")).intValue();
+				final Coordinates metaCoord = (Coordinates)context.bind(map.get("metaCoord"));
+				final Board board = new Board((Board)parent, metaCoord, height, size);
+				for (int i : Foreachable.until(oField.length)) {
+					for (int j : Foreachable.until(oField[0].length)) {
 						if (oField[i][j] instanceof String) {
-							nFile[i][j] = Token.toToken((String)oField[i][j]);
+							nField[i][j] = Enum.valueOf(Token.class, (String) oField[i][j]);
 							continue;
 						}
-						Map<String, Object> coco = (Map<String, Object>)oField[i][j];
-						nFile[i][j] = getNode(coco);
+						Map<String, Object> coco = (Map<String, Object>) oField[i][j];
+						nField[i][j] = getNode(context, coco, board);
 					}
 				}
-				final Board parent = getNode((Map<String, Object>) node.get("parent"));
-				final Coordinates metaCoord = null;
-				final int height = ((JsonNumber) node.get("height")).intValue();
-				final int size = ((JsonNumber) node.get("size")).intValue();
-				return new Board(parent, metaCoord, height, size, nFile);
+				board.field = nField;
+				board.status = Enum.valueOf(Node.Status.class, (String)map.get("status"));
+				return board;
 			}
-		})
-		.deserialize(jsonStr);
+		};
+	}
+
+	@Override
+	public int hashCode() {
+		// Don't hash on parent to avoid stack overflow, duh!
+		return Objects.hash(metaCoord, height, size, Arrays.deepHashCode(field));
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == null) {
+			return false;
+		}
+		if (!(o instanceof Board)) {
+			return false;
+		}
+		Board b = (Board) o;
+		return // Use the parent's hash to ascertain equality
+				((b.parent == null && this.parent == null) || (this.parent != null && b.parent != null && this.parent.hashCode() == b.parent.hashCode()))
+				&& ((b.metaCoord == null && this.metaCoord == null) || (this.metaCoord != null && this.metaCoord.equals(b.metaCoord)))
+				&& b.height == this.height
+				&& b.size == this.size
+				&& fieldsEqual(b.field, this.field)
+				&& b.status == this.status;
+	}
+
+	private static boolean fieldsEqual(Node[][] field1, Node[][] field2) {
+		if (field1 == null && field2 == null) {
+			return true;
+		}
+		if (field1 == null || field2 == null) {
+			return false;
+		}
+		if (field1.length != field2.length) {
+			return false;
+		}
+		if (field1[0].length != field2[0].length) {
+			return false;
+		}
+		for (int i : Foreachable.until(field1.length)) {
+			for (int j : Foreachable.until(field1[0].length)) {
+				if (!field1[i][j].equals(field2[i][j])) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 }

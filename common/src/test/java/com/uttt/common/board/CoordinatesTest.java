@@ -161,4 +161,18 @@ public class CoordinatesTest {
 	public void asPrintableString_h3() {
 		assertEquals("{H=3: (2,3),(1,2),(0,0)}", (new Coordinates (0,0)).within(1,2).within(2,3).asPrintableString());
 	}
+
+	@Test
+	public void serializeDepth1Coords() {
+		Coordinates control = new Coordinates(3, 2);
+		Coordinates test = Coordinates.deserialize(control.serialize());
+		assertEquals("[De]serialization failed", control, test);
+	}
+
+	@Test
+	public void serializeDepth2Coords() {
+		Coordinates control = new Coordinates(2, 2).within(0, 1);
+		Coordinates test = Coordinates.deserialize(control.serialize());
+		assertEquals("[De]serialization failed", control, test);
+	}
 }

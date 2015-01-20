@@ -6,10 +6,10 @@ public enum Token implements Node {
 	PLAYER_BBB ("o"),
 	;
 
-	public final String      mark;
+	public final String mark;
 
 	Token(String mark) {
-		this.mark   = mark;
+		this.mark = mark;
 	}
 
 	@Override
@@ -27,14 +27,4 @@ public enum Token implements Node {
 			default: return null;
 		}
 	}
-
-	public static Token toToken(String mark) {
-		if (Token.PLAYER_AAA.mark.equals(mark)) {
-			return PLAYER_AAA;
-		} else if (Token.PLAYER_BBB.mark.equals(mark)) {
-			return PLAYER_BBB;
-		}
-		return EMPTY;
-	}
-	
 }

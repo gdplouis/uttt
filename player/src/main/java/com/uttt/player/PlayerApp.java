@@ -77,7 +77,7 @@ public class PlayerApp extends App {
 					break;
 
 				case GET_MOVE_REQUEST:
-					final Token iAm = Token.toToken(getBody(message).getString("i_am"));
+					final Token iAm = Enum.valueOf(Token.class, getBody(message).getString("i_am"));
 					final String playingGameId = getBody(message).getString("game_id");
 					final Coordinates coords;
 					if (getBody(message).has("coords")) {

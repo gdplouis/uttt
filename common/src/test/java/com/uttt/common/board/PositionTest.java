@@ -167,7 +167,18 @@ public class PositionTest implements PlayableTest {
 
 	@Test
 	public void place_h1s3() {
+		final Board topBoard = new Board(1, 3);
 
+		final Position t00Pos = topBoard.at(0,0);
+		t00Pos.place(Token.PLAYER_AAA);
+
+		final Position t12Pos = topBoard.at(1,2);
+		t12Pos.place(Token.PLAYER_BBB);
+
+		assertEquals("topBoard.getPlayCount(): ", 2, topBoard.getPlayCount());
+
+		assertEquals("topBoard.getSubToken(0,0): ", Token.PLAYER_AAA, topBoard.getSubToken(0,0));
+		assertEquals("topBoard.getSubToken(1,2): ", Token.PLAYER_BBB, topBoard.getSubToken(1,2));
 	}
 
 	// ====================================================================================================

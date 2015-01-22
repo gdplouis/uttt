@@ -43,8 +43,14 @@ public final class Board implements Node, Playable {
 		return (position == null ? null : position.getBoard());
 	}
 
+	@Override
 	public boolean isTop() {
 		return (position == null);
+	}
+
+	@Override
+	public boolean isBottom() {
+		return (height == 1);
 	}
 
 	@Override

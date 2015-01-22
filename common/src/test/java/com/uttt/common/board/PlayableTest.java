@@ -12,6 +12,10 @@ import com.uttt.common.ArgCheck;
 
 public interface PlayableTest {
 
+	@Test public abstract void accessor_getHeight_h1s3();
+	@Test public abstract void accessor_getHeight_h2s3();
+	@Test public abstract void accessor_getHeight_h3s4();
+
 	@Test public abstract void accessor_getTopBoard_h1s3();
 	@Test public abstract void accessor_getTopBoard_h2s3();
 	@Test public abstract void accessor_getTopBoard_h3s4();
@@ -20,13 +24,23 @@ public interface PlayableTest {
 	@Test public abstract void accessor_getPosition_h2s3();
 	@Test public abstract void accessor_getPosition_h3s4();
 
-	@Test public abstract void isPlayable_h1s3_win();
-	@Test public abstract void isPlayable_h2s3_win();
-	@Test public abstract void isPlayable_h3s4_win();
+	@Test public abstract void accessor_isTop_h1s3();
+	@Test public abstract void accessor_isTop_h2s3();
+	@Test public abstract void accessor_isTop_h3s4();
 
-	@Test public abstract void isPlayable_h1s3_draw();
-	@Test public abstract void isPlayable_h2s3_draw();
-	@Test public abstract void isPlayable_h3s4_draw();
+	@Test public abstract void accessor_isBottom_h1s3();
+	@Test public abstract void accessor_isBottom_h2s3();
+	@Test public abstract void accessor_isBottom_h3s4();
+
+	@Test public abstract void accessor_isPlayable_h1s3_win();
+	@Test public abstract void accessor_isPlayable_h2s3_win();
+	@Test public abstract void accessor_isPlayable_h3s4_win();
+
+	@Test public abstract void accessor_isPlayable_h1s3_draw();
+	@Test public abstract void accessor_isPlayable_h2s3_draw();
+	@Test public abstract void accessor_isPlayable_h3s4_draw();
+
+	// ====================================================================================================
 
 	public static class Validator {
 

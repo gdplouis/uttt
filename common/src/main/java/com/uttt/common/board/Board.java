@@ -373,7 +373,6 @@ public final class Board implements Node, Playable {
 
 		// top/bottom padding is as wide as the hrule, but is all spaces
 
-		@SuppressWarnings("null")
 		final String topBotPad = hrule.toString().replace('-', padChar);
 		myBuilders.add(0, (new StringBuilder()).append(topBotPad));
 		myBuilders.add((new StringBuilder()).append(topBotPad));

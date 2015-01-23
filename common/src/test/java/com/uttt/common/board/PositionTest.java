@@ -6,9 +6,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import org.junit.Ignore;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map.Entry;
+
 import org.junit.Test;
 
 public class PositionTest implements PlayableTest {
@@ -437,27 +440,95 @@ public class PositionTest implements PlayableTest {
 		final Board     topBoard  = new Board(1, 3);
 		final Validator validator = new PlayableTest.Validator(topBoard);
 
-		final Position  t12Pos    = validator.add(topBoard.at(1, 2));
+		final Position t12Pos = validator.add(topBoard.at(1, 2));
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		validator.place(topBoard.at(0,0), Token.PLAYER_AAA);
-		validator.place(topBoard.at(0,1), Token.PLAYER_AAA);
-		validator.place(topBoard.at(0,2), Token.PLAYER_AAA, topBoard, t12Pos);
+		validator.place(topBoard.at(0, 0), Token.PLAYER_AAA);
+		validator.place(topBoard.at(0, 1), Token.PLAYER_AAA);
+		validator.place(topBoard.at(0, 2), Token.PLAYER_BBB);
+
+		validator.place(topBoard.at(1, 0), Token.PLAYER_BBB);
+		validator.place(topBoard.at(1, 1), Token.PLAYER_BBB);
+		validator.place(topBoard.at(1, 2), Token.PLAYER_AAA, t12Pos);
+
+		validator.place(topBoard.at(2, 0), Token.PLAYER_AAA);
+		validator.place(topBoard.at(2, 1), Token.PLAYER_AAA);
+		validator.place(topBoard.at(2, 2), Token.PLAYER_BBB, topBoard);
 
 		validator.checkAllClosed();
-		}
-
-	@Override
-	@Test @Ignore
-	public void accessor_isPlayable_h2s3_draw() {
-		fail("NYI");
 	}
 
 	@Override
-	@Test @Ignore
+	@Test
+	public void accessor_isPlayable_h2s3_draw() {
+
+		final Board     topBoard  = new Board(2, 3);
+		final Validator validator = new PlayableTest.Validator(topBoard);
+
+		final Board t00Board  = validator.add(topBoard.getSubBoard(0, 0));
+		final Board t01Board  = validator.add(topBoard.getSubBoard(0, 1));
+		final Board t02Board  = validator.add(topBoard.getSubBoard(0, 2));
+		final Board t10Board  = validator.add(topBoard.getSubBoard(1, 0));
+		final Board t11Board  = validator.add(topBoard.getSubBoard(1, 1));
+		final Board t12Board  = validator.add(topBoard.getSubBoard(1, 2));
+		final Board t20Board  = validator.add(topBoard.getSubBoard(2, 0));
+		final Board t21Board  = validator.add(topBoard.getSubBoard(2, 1));
+		final Board t22Board  = validator.add(topBoard.getSubBoard(2, 2));
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		validator.checkClosures("t00Board: ", BoardTestUtil.forceDraw(t00Board));
+		validator.checkClosures("t01Board: ", BoardTestUtil.forceDraw(t01Board));
+		validator.checkClosures("t02Board: ", BoardTestUtil.forceDraw(t02Board));
+		validator.checkClosures("t10Board: ", BoardTestUtil.forceDraw(t10Board));
+		validator.checkClosures("t11Board: ", BoardTestUtil.forceDraw(t11Board));
+		validator.checkClosures("t12Board: ", BoardTestUtil.forceDraw(t12Board));
+		validator.checkClosures("t20Board: ", BoardTestUtil.forceDraw(t20Board));
+		validator.checkClosures("t21Board: ", BoardTestUtil.forceDraw(t21Board));
+		validator.checkClosures("t22Board: ", BoardTestUtil.forceDraw(t22Board), topBoard);
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		validator.checkAllClosed();
+	}
+
+	@Override
+	@Test
 	public void accessor_isPlayable_h3s4_draw() {
-		fail("NYI");
+
+		final Board     topBoard  = new Board(3, 4);
+		final Validator validator = new PlayableTest.Validator(topBoard);
+
+		// the testing loop depends on the addAllFromTop using an insert-order-preseving map
+
+		LinkedHashMap<String, Board> boards = validator.addAllFromTop();
+
+		for (final Entry<String, Board> e : boards.entrySet()) {
+			Board  board = e.getValue();
+
+			if (board.isBottom()) {
+				BoardTestUtil.forceDraw(board);
+
+				List<Board> newlyClosed = new LinkedList<>();
+				newlyClosed.add(board);
+
+				while ((board.getPosition() != null) && (board.getPosition().getRow() == 3) && (board.getPosition().getCol() == 3)) {
+					newlyClosed.add(board); // okay if this board is twice on the newlyClosed list
+					board = board.getParent();
+
+					if (board.getParent() == null) {
+						newlyClosed.add(boards.get("top"));
+					}
+				}
+
+				validator.checkClosures(e.getKey() , newlyClosed.toArray(new Board[0]));
+			}
+		}
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		validator.checkAllClosed();
 	}
 
 	// ====================================================================================================
@@ -579,82 +650,108 @@ public class PositionTest implements PlayableTest {
 		}
 	}
 
+	private Position n(Board b) { return b.at(0, 0); }
+	private Position s(Board b) { return b.at(1, 1); }
+	private Position e(Board b) { return b.at(0, 1); }
+	private Position w(Board b) { return b.at(1, 0); }
+
 	@Test
 	public void place_h3s2() {
-		fail("NYI");
-		fail("NYI - validate constraint");
-	}
+		final Board t__Top = new Board(3, 2);
+		assertEquals("topBoard.getPlayCount(): ", 0, t__Top.getPlayCount());
 
-	// ====================================================================================================
-	// tests other than from [PlayableTest]
+		final Board tn_Mid = t__Top.getSubBoard(0, 0);
+		final Board ts_Mid = t__Top.getSubBoard(1, 1);
+		final Board te_Mid = t__Top.getSubBoard(0, 1);
+		final Board tw_Mid = t__Top.getSubBoard(1, 0);
 
-	@Test @Deprecated
-	public void accessor_isPlayable_h2s2_win() {
+		final Board tnnBtm = tn_Mid.getSubBoard(0, 0);
+		final Board tnsBtm = tn_Mid.getSubBoard(1, 1);
+		final Board tneBtm = tn_Mid.getSubBoard(0, 1);
+		final Board tnwBtm = tn_Mid.getSubBoard(1, 0);
 
-		final Board     topBoard  = new Board(2, 2);
-		final Validator validator = new PlayableTest.Validator(topBoard);
+		final Board tsnBtm = ts_Mid.getSubBoard(0, 0);
+		final Board tssBtm = ts_Mid.getSubBoard(1, 1);
+		final Board tseBtm = ts_Mid.getSubBoard(0, 1);
+		final Board tswBtm = ts_Mid.getSubBoard(1, 0);
 
-		final Board     t00Board  = validator.add(topBoard.getSubBoard(0, 0));
-		final Board     t01Board  = validator.add(topBoard.getSubBoard(0, 1));
+		final Board tenBtm = te_Mid.getSubBoard(0, 0);
+		final Board tesBtm = te_Mid.getSubBoard(1, 1);
+		final Board teeBtm = te_Mid.getSubBoard(0, 1);
+		final Board tewBtm = te_Mid.getSubBoard(1, 0);
 
-		final Position  t10sxxPos = validator.add(topBoard.at(1, 0));
-		final Position  t00s11Pos = validator.add(t00Board.at(1, 1));
+		final Board twnBtm = tw_Mid.getSubBoard(0, 0);
+		final Board twsBtm = tw_Mid.getSubBoard(1, 1);
+		final Board tweBtm = tw_Mid.getSubBoard(0, 1);
+		final Board twwBtm = tw_Mid.getSubBoard(1, 0);
 
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		{{
+			final Position nnnNpc = n(tnnBtm).place(Token.PLAYER_AAA);
+			assertNotNull("nnnNpc: ", nnnNpc);
+			assertSame   ("nnnNpc.derefBoard(): ", tnnBtm, (nnnNpc.derefBoard()));
+			assertEquals ("tnnBtm.getPlayCount(): ", 1, tnnBtm.getPlayCount());
+			assertEquals ("tneBtm.getPlayCount(): ", 0, tneBtm.getPlayCount());
+			assertEquals ("tneBtm.getPlayCount(): ", 0, tnwBtm.getPlayCount());
+			assertEquals ("tn_Mid.getPlayCount(): ", 0, tn_Mid.getPlayCount());
+			assertEquals ("t__Top.getPlayCount(): ", 0, t__Top.getPlayCount());
+		}{
+			final Position nneNpc = e(tnnBtm).place(Token.PLAYER_BBB);
+			assertNotNull("nneNpc: ", nneNpc);
+			assertSame   ("nneNpc.derefBoard(): ", tneBtm, (nneNpc.derefBoard()));
+			assertEquals ("tnnBtm.getPlayCount(): ", 2, tnnBtm.getPlayCount());
+			assertEquals ("tneBtm.getPlayCount(): ", 0, tneBtm.getPlayCount());
+			assertEquals ("tneBtm.getPlayCount(): ", 0, tnwBtm.getPlayCount());
+			assertEquals ("tn_Mid.getPlayCount(): ", 0, tn_Mid.getPlayCount());
+			assertEquals ("t__Top.getPlayCount(): ", 0, t__Top.getPlayCount());
+		}{
+			final Position nnsNpc = s(tnnBtm).place(Token.PLAYER_AAA);
+			assertNotNull("nnsNpc: ", nnsNpc);
+			assertSame   ("nnsNpc.derefBoard(): ", tnsBtm, (nnsNpc.derefBoard()));
+			assertEquals ("tnnBtm.getPlayCount(): ", 3, tnnBtm.getPlayCount());
+			assertEquals ("tneBtm.getPlayCount(): ", 0, tneBtm.getPlayCount());
+			assertEquals ("tneBtm.getPlayCount(): ", 0, tnwBtm.getPlayCount());
+			assertEquals ("tn_Mid.getPlayCount(): ", 1, tn_Mid.getPlayCount());
+			assertEquals ("t__Top.getPlayCount(): ", 0, t__Top.getPlayCount());
+		}{
+			final Position nenNpc = n(tneBtm).place(Token.PLAYER_BBB);
+			assertNotNull("nenNpc: ", nenNpc);
+			assertSame   ("nenNpc.derefBoard(): ", tn_Mid, (nenNpc.derefBoard()));
 
-		validator.place(t00Board.at(0,0), Token.PLAYER_AAA);
-		validator.place(t00Board.at(1,0), Token.PLAYER_AAA, t00Board, t00s11Pos);
+			assertEquals ("tnnBtm.getPlayCount(): ", 3, tnnBtm.getPlayCount());
+			assertEquals ("tneBtm.getPlayCount(): ", 1, tneBtm.getPlayCount());
+			assertEquals ("tneBtm.getPlayCount(): ", 0, tnwBtm.getPlayCount());
+			assertEquals ("tn_Mid.getPlayCount(): ", 1, tn_Mid.getPlayCount());
+			assertEquals ("t__Top.getPlayCount(): ", 0, t__Top.getPlayCount());
+		}{
+			final Position neeNpc = e(tneBtm).place(Token.PLAYER_BBB);
+			assertNotNull("neeNpc: ", neeNpc);
+			assertSame   ("neeNpc.derefBoard(): ", tn_Mid, (neeNpc.derefBoard()));
 
-		validator.place(t01Board.at(0,0), Token.PLAYER_AAA);
-		validator.place(t01Board.at(0,1), Token.PLAYER_AAA, topBoard, t01Board, t10sxxPos);
+			assertEquals ("tnnBtm.getPlayCount(): ", 3, tnnBtm.getPlayCount());
+			assertEquals ("tneBtm.getPlayCount(): ", 2, tneBtm.getPlayCount());
+			assertEquals ("tneBtm.getPlayCount(): ", 0, tnwBtm.getPlayCount());
+			assertEquals ("tn_Mid.getPlayCount(): ", 2, tn_Mid.getPlayCount());
+			assertEquals ("t__Top.getPlayCount(): ", 0, t__Top.getPlayCount());
+		}{
+			final Position nwnNpc = n(tnwBtm).place(Token.PLAYER_AAA);
+			assertNotNull("nwnNpc: ", nwnNpc);
+			assertSame   ("nwnNpc.derefBoard(): ", tn_Mid, (nwnNpc.derefBoard()));
 
-		validator.checkAllClosed();
-	}
+			assertEquals ("tnnBtm.getPlayCount(): ", 3, tnnBtm.getPlayCount());
+			assertEquals ("tneBtm.getPlayCount(): ", 2, tneBtm.getPlayCount());
+			assertEquals ("tneBtm.getPlayCount(): ", 1, tnwBtm.getPlayCount());
+			assertEquals ("tn_Mid.getPlayCount(): ", 2, tn_Mid.getPlayCount());
+			assertEquals ("t__Top.getPlayCount(): ", 0, t__Top.getPlayCount());
+		}{
+			final Position nweNpc = e(tnwBtm).place(Token.PLAYER_AAA);
+			assertNull   ("nweNpc: ", nweNpc);
 
-	@Test @Deprecated
-	public void accessor_isPlayable_h3s2_winning_SAVE() {
-		final Board     topBoard   = new Board(3, 2);
-		final Validator validator  = new PlayableTest.Validator(topBoard);
-
-		final Board    t00Board    = validator.add(topBoard.getSubBoard(0, 0));
-		final Board    t01Board    = validator.add(topBoard.getSubBoard(0, 1));
-		final Board    t11Board    = validator.add(topBoard.getSubBoard(1, 1));
-
-		final Board    t00s00Board = validator.add(t00Board.getSubBoard(0, 0));
-		final Board    t00s01Board = validator.add(t00Board.getSubBoard(0, 1));
-		final Board    t00s11Board = validator.add(t00Board.getSubBoard(1, 1));
-
-		final Board    t01s00Board = validator.add(t01Board.getSubBoard(0, 0));
-		final Board    t01s01Board = validator.add(t01Board.getSubBoard(0, 1));
-		final Board    t01s11Board = validator.add(t01Board.getSubBoard(1, 1));
-
-		final Board    t11s00Board = validator.add(t11Board.getSubBoard(0, 0));
-		final Board    t11s01Board = validator.add(t11Board.getSubBoard(0, 1));
-		final Board    t11s11Board = validator.add(t11Board.getSubBoard(1, 1));
-
-		final Position t10Pos      = validator.add(topBoard.at(1,0));
-
-		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-		validator.place(t00s00Board.at(0,0), Token.PLAYER_AAA);
-		validator.place(t00s00Board.at(1,0), Token.PLAYER_AAA, t00s00Board);
-
-		validator.place(t00s01Board.at(0,0), Token.PLAYER_AAA);
-		validator.place(t00s01Board.at(1,0), Token.PLAYER_AAA, t00s01Board, t00s11Board, t00Board);
-
-		validator.place(t01s00Board.at(0,0), Token.PLAYER_BBB);
-		validator.place(t01s00Board.at(1,0), Token.PLAYER_BBB, t01s00Board);
-
-		validator.place(t01s01Board.at(0,0), Token.PLAYER_BBB);
-		validator.place(t01s01Board.at(1,0), Token.PLAYER_BBB, t01s01Board, t01s11Board, t01Board);
-
-		validator.place(t11s00Board.at(0,0), Token.PLAYER_AAA);
-		validator.place(t11s00Board.at(1,0), Token.PLAYER_AAA, t11s00Board);
-
-		validator.place(t11s01Board.at(0,0), Token.PLAYER_AAA);
-		validator.place(t11s01Board.at(1,0), Token.PLAYER_AAA, t11s01Board, t11s11Board, t11Board, topBoard, t10Pos);
-
-		validator.checkAllClosed();
+			assertEquals ("tnnBtm.getPlayCount(): ", 3, tnnBtm.getPlayCount());
+			assertEquals ("tneBtm.getPlayCount(): ", 2, tneBtm.getPlayCount());
+			assertEquals ("tneBtm.getPlayCount(): ", 2, tnwBtm.getPlayCount());
+			assertEquals ("tn_Mid.getPlayCount(): ", 3, tn_Mid.getPlayCount());
+			assertEquals ("t__Top.getPlayCount(): ", 1, t__Top.getPlayCount());
+		}}
 	}
 
 	// ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

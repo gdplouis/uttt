@@ -1,5 +1,6 @@
 package com.uttt.common.board;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,6 +29,37 @@ public final class Board implements Node, Playable {
 
 		this.playCountMax = (size * size);
 		this.field        = createField(this, height, size);
+	}
+
+	private Board(Board source, Board copyParent, boolean isShallow) {
+
+		this.height        = source.height;
+		this.size          = source.size;
+		this.playCountMax  = source.playCountMax;
+
+		if (isShallow) {
+			this.position      = source.position;
+			this.field         = source.field;
+		} else {
+			Position copyPos = null;
+			if (copyParent != null) {
+				copyPos = new Position(copyParent, source.position.getRow(), source.position.getCol());
+			}
+
+			Node[][] copyField = createFieldNulls(size);
+
+			for(final int row : Foreachable.until(size)) {
+				for (final int col : Foreachable.until(size)) {
+					copyField[row][col] = source.field[row][col].copyDeep();
+				}
+			}
+
+			this.position      = copyPos;
+			this.field         = copyField;
+		}
+
+		this.playCount     = source.playCount;
+		this.status        = source.status;
 	}
 
 	public Board(int height, int size) {
@@ -118,11 +150,6 @@ public final class Board implements Node, Playable {
 		return getSubNode(row, col, Token.class);
 	}
 
-	public Position at(int row, int col) {
-		return new Position(this, row, col);
-	}
-
-
 	@Override
 	public Board getTopBoard() {
 		Board topBoard = this;
@@ -133,16 +160,31 @@ public final class Board implements Node, Playable {
 		return topBoard;
 	}
 
+	public Position at(int row, int col) {
+		return new Position(this, row, col);
+	}
+
+	public Board copyDeep() {
+		return new Board(this, getParent(), false);
+	}
+
 	// ====================================================================================================
 
-	private static Node[][] createField(Board board, int height, int size) {
-
-		// create array of rows
+	private static Node[][] createFieldNulls(int size) {
 
 		Node[][] rval = new Node[size][];
 		for (int i  : Foreachable.until(size)) {
 			rval[i] = new Node[size];
 		}
+
+		return rval;
+	}
+
+	private static Node[][] createField(Board board, int height, int size) {
+
+		// create array of rows
+
+		Node[][] rval = createFieldNulls(size);
 
 		// either a field of tokens, or a field of sub-boards
 
@@ -403,5 +445,45 @@ public final class Board implements Node, Playable {
 		totalSb.append(boardId).append(".\n");
 
 		return totalSb.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(field);
+		result = prime * result + height;
+		result = prime * result + playCount;
+		result = prime * result + size;
+		result = prime * result + ((status == null) ? 0 : status.hashCode());
+		return result;
+	}
+
+	/**
+	 * Return {@code true} iff value-wise equal. <B>NOTE:</B> The {@code position} of the boards within their parents
+	 * is NOT considered part of the equality test, although any sub-boards of the two boards under comparison
+	 * are compared in a same-position manner. Essentially, this means that the equality test is only sensitive to
+	 * the {@code Token} layout of the bottom boards.
+	 *
+	 * @param obj
+	 * @return
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj ) return true;
+		if (obj  == null) return false;
+
+		if (!(obj instanceof Board)) return false;
+
+		Board other = (Board) obj;
+		if (height    != other.height   ) return false;
+		if (playCount != other.playCount) return false;
+		if (size      != other.size     ) return false;
+		if (status    != other.status   ) return false;
+
+		if (!Arrays.deepEquals(field, other.field)) // expensive predicate, keep last
+			return false;
+
+		return true;
 	}
 }

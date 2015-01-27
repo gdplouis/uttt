@@ -135,7 +135,7 @@ public final class Position implements Playable {
 	private StringBuilder appendTo(StringBuilder sb) {
 		final Position upperPos = board.getPosition();
 		if (upperPos == null) {
-			sb.append("TOP").append("(h").append(board.getHeight()).append(")");
+			sb.append("TOP").append("/h").append(board.getHeight()).append(":");
 		} else {
 			upperPos.appendTo(sb);
 		}

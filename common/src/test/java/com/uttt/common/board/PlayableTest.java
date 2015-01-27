@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -46,8 +46,8 @@ public interface PlayableTest {
 
 	public static class Validator {
 
-		private final Set<Playable> open   = new LinkedHashSet<>();
-		private final Set<Playable> closed = new LinkedHashSet<>();
+		private final List<Playable> open   = new LinkedList<>();
+		private final List<Playable> closed = new LinkedList<>();
 
 		private final Board topBoard;
 
@@ -79,7 +79,7 @@ public interface PlayableTest {
 			if ((closures != null) && (closures.length > 0)) {
 				open  .removeAll(Arrays.asList(closures));
 				closed.addAll   (Arrays.asList(closures));
-				closed.remove   (null); // in case there's a null in [newlyClosed]
+				closed.remove   (null); // in case there's a null in [closures]
 			}
 
 			for (Playable item : open) {

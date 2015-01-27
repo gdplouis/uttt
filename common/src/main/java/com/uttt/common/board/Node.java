@@ -38,4 +38,7 @@ public interface Node {
 	default Node getSubNode(int x, int y) {
 		return getSubNode(x, y, Node.class);
 	}
+
+	Node copyDeep();
+
 }

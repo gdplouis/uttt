@@ -802,41 +802,41 @@ public class PositionTest implements PlayableTest {
 	public void asPrintable_h1s3() {
 		Board board = new Board(1,3);
 
-		assertEquals("Position(board, 0, 0): ", "TOP(h1)~(0,0)", new Position(board, 0, 0).asPrintable());
-		assertEquals("Position(board, 0, 1): ", "TOP(h1)~(0,1)", new Position(board, 0, 1).asPrintable());
-		assertEquals("Position(board, 1, 1): ", "TOP(h1)~(1,1)", new Position(board, 1, 1).asPrintable());
+		assertEquals("Position(board, 0, 0): ", "TOP/h1:~(0,0)", new Position(board, 0, 0).asPrintable());
+		assertEquals("Position(board, 0, 1): ", "TOP/h1:~(0,1)", new Position(board, 0, 1).asPrintable());
+		assertEquals("Position(board, 1, 1): ", "TOP/h1:~(1,1)", new Position(board, 1, 1).asPrintable());
 	}
 
 	@Test
 	public void asPrintable_h2s2() {
 		Board board = new Board(2,2);
 
-		assertEquals("Position(board, 0, 0): ", "TOP(h2)~(0,0)", new Position(board, 0, 0).asPrintable());
-		assertEquals("Position(board, 0, 1): ", "TOP(h2)~(0,1)", new Position(board, 0, 1).asPrintable());
-		assertEquals("Position(board, 1, 1): ", "TOP(h2)~(1,1)", new Position(board, 1, 1).asPrintable());
+		assertEquals("Position(board, 0, 0): ", "TOP/h2:~(0,0)", new Position(board, 0, 0).asPrintable());
+		assertEquals("Position(board, 0, 1): ", "TOP/h2:~(0,1)", new Position(board, 0, 1).asPrintable());
+		assertEquals("Position(board, 1, 1): ", "TOP/h2:~(1,1)", new Position(board, 1, 1).asPrintable());
 
 		Board t01Board = board.getSubBoard(0, 1);
-		assertEquals("Position(t01Board, 0, 0): ", "TOP(h2)~(0,1)~(0,0)", new Position(t01Board, 0, 0).asPrintable());
-		assertEquals("Position(t01Board, 0, 1): ", "TOP(h2)~(0,1)~(0,1)", new Position(t01Board, 0, 1).asPrintable());
-		assertEquals("Position(t01Board, 1, 1): ", "TOP(h2)~(0,1)~(1,1)", new Position(t01Board, 1, 1).asPrintable());
+		assertEquals("Position(t01Board, 0, 0): ", "TOP/h2:~(0,1)~(0,0)", new Position(t01Board, 0, 0).asPrintable());
+		assertEquals("Position(t01Board, 0, 1): ", "TOP/h2:~(0,1)~(0,1)", new Position(t01Board, 0, 1).asPrintable());
+		assertEquals("Position(t01Board, 1, 1): ", "TOP/h2:~(0,1)~(1,1)", new Position(t01Board, 1, 1).asPrintable());
 	}
 
 	@Test
 	public void asPrintable_h3s4() {
 		Board board = new Board(3,4);
 
-		assertEquals("Position(board, 0, 0): ", "TOP(h3)~(0,0)", new Position(board, 0, 0).asPrintable());
-		assertEquals("Position(board, 0, 1): ", "TOP(h3)~(0,1)", new Position(board, 0, 1).asPrintable());
-		assertEquals("Position(board, 1, 1): ", "TOP(h3)~(1,1)", new Position(board, 1, 1).asPrintable());
+		assertEquals("Position(board, 0, 0): ", "TOP/h3:~(0,0)", new Position(board, 0, 0).asPrintable());
+		assertEquals("Position(board, 0, 1): ", "TOP/h3:~(0,1)", new Position(board, 0, 1).asPrintable());
+		assertEquals("Position(board, 1, 1): ", "TOP/h3:~(1,1)", new Position(board, 1, 1).asPrintable());
 
 		Board t01Board = board.getSubBoard(0, 1);
-		assertEquals("Position(t01Board, 0, 0): ", "TOP(h3)~(0,1)~(0,0)", new Position(t01Board, 0, 0).asPrintable());
-		assertEquals("Position(t01Board, 0, 1): ", "TOP(h3)~(0,1)~(0,1)", new Position(t01Board, 0, 1).asPrintable());
-		assertEquals("Position(t01Board, 1, 1): ", "TOP(h3)~(0,1)~(1,1)", new Position(t01Board, 1, 1).asPrintable());
+		assertEquals("Position(t01Board, 0, 0): ", "TOP/h3:~(0,1)~(0,0)", new Position(t01Board, 0, 0).asPrintable());
+		assertEquals("Position(t01Board, 0, 1): ", "TOP/h3:~(0,1)~(0,1)", new Position(t01Board, 0, 1).asPrintable());
+		assertEquals("Position(t01Board, 1, 1): ", "TOP/h3:~(0,1)~(1,1)", new Position(t01Board, 1, 1).asPrintable());
 
 		Board t01s11Board = t01Board.getSubBoard(1, 1);
-		assertEquals("Position(t01s11Board, 0, 0): ", "TOP(h3)~(0,1)~(1,1)~(0,0)", new Position(t01s11Board, 0, 0).asPrintable());
-		assertEquals("Position(t01s11Board, 0, 1): ", "TOP(h3)~(0,1)~(1,1)~(0,1)", new Position(t01s11Board, 0, 1).asPrintable());
-		assertEquals("Position(t01s11Board, 1, 1): ", "TOP(h3)~(0,1)~(1,1)~(1,1)", new Position(t01s11Board, 1, 1).asPrintable());
+		assertEquals("Position(t01s11Board, 0, 0): ", "TOP/h3:~(0,1)~(1,1)~(0,0)", new Position(t01s11Board, 0, 0).asPrintable());
+		assertEquals("Position(t01s11Board, 0, 1): ", "TOP/h3:~(0,1)~(1,1)~(0,1)", new Position(t01s11Board, 0, 1).asPrintable());
+		assertEquals("Position(t01s11Board, 1, 1): ", "TOP/h3:~(0,1)~(1,1)~(1,1)", new Position(t01s11Board, 1, 1).asPrintable());
 	}
 }

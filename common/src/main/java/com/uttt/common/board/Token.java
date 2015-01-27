@@ -28,4 +28,8 @@ public enum Token implements Node {
 		}
 	}
 
+	@Override
+	public Token copyDeep() {
+		return this;
+	}
 }

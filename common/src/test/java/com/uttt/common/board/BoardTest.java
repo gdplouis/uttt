@@ -7,6 +7,7 @@ import static org.junit.Assert.assertSame;
 import org.junit.Test;
 
 import com.uttt.common.Foreachable;
+import com.uttt.common.board.Node.Status;
 
 public class BoardTest extends NodeTest {
 
@@ -227,6 +228,213 @@ public class BoardTest extends NodeTest {
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 		level2winner.getSubBoard(2, 2).at(2, 1).place(Token.PLAYER_BBB);
+	}
+
+	// ====================================================================================================
+
+	@Test()
+	public void copyDeep_h1s3() {
+		final Board orig = new Board(1, 3);
+		{
+			final Board copy = orig.copyDeep();
+			assertEquals("empty board: ", orig, copy);
+		}
+		{
+			orig.at(0,1).place(Token.PLAYER_AAA);
+
+			final Board copy = orig.copyDeep();
+			assertEquals("AAA at (0,1): ", orig, copy);
+		}
+		{
+			orig.at(1,2).place(Token.PLAYER_BBB);
+
+			final Board copy = orig.copyDeep();
+			assertEquals("BBB at (2,2): ", orig, copy);
+		}
+		{
+			orig.at(1,1).place(Token.PLAYER_AAA);
+
+			final Board copy = orig.copyDeep();
+			assertEquals("AAA at (1,1): ", orig, copy);
+		}
+		{
+			orig.at(2,1).place(Token.PLAYER_BBB);
+
+			final Board copy = orig.copyDeep();
+			assertEquals("BBB at (2,1): ", orig, copy);
+		}
+		{
+			final Board draw = orig.copyDeep();
+
+			draw.at(2,0).place(Token.PLAYER_AAA);
+			draw.at(0,2).place(Token.PLAYER_BBB);
+			draw.at(2,2).place(Token.PLAYER_AAA);
+			draw.at(0,0).place(Token.PLAYER_BBB);
+			draw.at(1,0).place(Token.PLAYER_AAA);
+			assertEquals("draw (orig): ", Status.DRAW, draw.getStatus());
+
+			final Board copy = draw.copyDeep();
+			assertEquals("draw (copy): ", Status.DRAW, copy.getStatus());
+		}
+		{
+			orig.at(0,0).place(Token.PLAYER_AAA);
+
+			final Board copy = orig.copyDeep();
+			assertEquals("AAA at (0,0): ", orig, copy);
+		}
+		{
+			orig.at(2,2).place(Token.PLAYER_BBB);
+
+			final Board copy = orig.copyDeep();
+			assertEquals("BBB at (2,2): ", orig, copy);
+		}
+		{
+			orig.at(0,2).place(Token.PLAYER_AAA);
+			assertEquals("AAA wins (orig): ", Status.WINNER_AAA, orig.getStatus());
+
+			final Board copy = orig.copyDeep();
+			assertEquals("AAA at (0,2): ", orig, copy);
+			assertEquals("AAA wins (copy): ", Status.WINNER_AAA, copy.getStatus());
+		}
+	}
+
+	@Test()
+	public void copyDeep_h2s3() {
+		final Board orig = new Board(2, 3);
+		{
+			final Board copy = orig.copyDeep();
+			assertEquals("empty board: ", orig, copy);
+		}
+
+		Position[] playPositions = new Position[] { //
+				orig.at(0,0).at(0,0), // AAA
+				orig.at(0,0).at(1,0), // BBB
+				orig.at(0,0).at(0,1), // AAA
+				orig.at(0,0).at(1,1), // BBB
+				orig.at(0,0).at(0,2), // AAA - wins btm
+
+				orig.at(0,2).at(0,0), // BBB - just to flip token
+
+				orig.at(1,1).at(0,0), // AAA
+				orig.at(1,1).at(0,1), // BBB
+				orig.at(1,1).at(0,2), // AAA
+				orig.at(1,1).at(2,0), // BBB
+				orig.at(1,1).at(2,1), // AAA
+				orig.at(1,1).at(2,2), // BBB
+				orig.at(1,1).at(1,0), // AAA
+				orig.at(1,1).at(1,1), // BBB
+				orig.at(1,1).at(1,2), // AAA - draw
+
+				orig.at(0,2).at(1,1), // BBB - just to flip token
+
+				orig.at(1,0).at(0,0), // AAA
+				orig.at(1,0).at(1,0), // BBB
+				orig.at(1,0).at(0,1), // AAA
+				orig.at(1,0).at(1,1), // BBB
+				orig.at(1,0).at(0,2), // AAA - wins btm
+
+				orig.at(0,2).at(2,2), // BBB - just to flip token (also wins for BBB)
+
+				orig.at(2,0).at(0,0), // AAA
+				orig.at(2,0).at(1,0), // BBB
+				orig.at(2,0).at(0,1), // AAA
+				orig.at(2,0).at(1,1), // BBB
+				orig.at(2,0).at(0,2), // AAA - wins btm; wins top
+		};
+
+		Token token = Token.PLAYER_AAA;
+		for (Position play : playPositions) {
+			play.place(token);
+
+			final Board copy = orig.copyDeep();
+			assertEquals("play=[" + play.asPrintable() + "].place(" + token + "): ", orig, copy);
+
+			token = BoardTestUtil.flip(token);
+		}
+		assertEquals("final status: ", Status.WINNER_AAA, orig.getStatus());
+	}
+
+	@Test()
+	public void copyDeep_h3s4() {
+		final Board orig = new Board(3, 4);
+		{
+			final Board copy = orig.copyDeep();
+			assertEquals("empty board: ", orig, copy);
+		}
+
+		Position[] playPositions = new Position[] { //
+				orig.at(0,0).at(0,0), // AAA
+				orig.at(0,0).at(1,0), // BBB
+				orig.at(0,0).at(0,1), // AAA
+				orig.at(0,0).at(1,1), // BBB
+				orig.at(0,0).at(0,2), // AAA
+				orig.at(0,0).at(1,2), // BBB
+				orig.at(0,0).at(0,3), // AAA - wins mid
+
+				orig.at(0,2).at(0,0), // BBB - just to flip token
+
+				orig.at(1,1).at(0,0), // AAA
+				orig.at(1,1).at(0,1), // BBB
+				orig.at(1,1).at(0,2), // AAA
+				orig.at(1,1).at(0,3), // BBB
+				orig.at(1,1).at(1,0), // AAA
+				orig.at(1,1).at(1,1), // BBB
+				orig.at(1,1).at(1,2), // AAA
+				orig.at(1,1).at(1,3), // BBB
+				orig.at(1,1).at(2,3), // AAA
+				orig.at(1,1).at(2,2), // BBB
+				orig.at(1,1).at(2,1), // AAA
+				orig.at(1,1).at(2,0), // BBB
+				orig.at(1,1).at(3,3), // AAA
+				orig.at(1,1).at(3,2), // BBB
+				orig.at(1,1).at(3,1), // AAA
+				orig.at(1,1).at(3,0), // BBB - draw
+
+				orig.at(3,3).at(3,3), // AAA - isolated play
+				orig.at(0,2).at(1,1), // BBB - just to flip token
+
+				orig.at(1,0).at(0,0), // AAA
+				orig.at(1,0).at(1,0), // BBB
+				orig.at(1,0).at(0,1), // AAA
+				orig.at(1,0).at(1,1), // BBB
+				orig.at(1,0).at(0,2), // AAA
+				orig.at(1,0).at(1,2), // BBB
+				orig.at(1,0).at(0,3), // AAA - wins mid
+
+				orig.at(0,2).at(2,2), // BBB - just to flip token
+
+				orig.at(2,0).at(0,0), // AAA
+				orig.at(2,0).at(1,0), // BBB
+				orig.at(2,0).at(0,1), // AAA
+				orig.at(2,0).at(1,1), // BBB
+				orig.at(2,0).at(0,2), // AAA
+				orig.at(2,0).at(1,2), // BBB
+				orig.at(2,0).at(0,3), // AAA - wins mid; wins top
+
+				orig.at(0,2).at(3,3), // BBB - just to flip token (also wins mid for BBB)
+
+				orig.at(3,0).at(0,0), // AAA
+				orig.at(3,0).at(1,0), // BBB
+				orig.at(3,0).at(0,1), // AAA
+				orig.at(3,0).at(1,1), // BBB
+				orig.at(3,0).at(0,2), // AAA
+				orig.at(3,0).at(1,2), // BBB
+				orig.at(3,0).at(0,3), // AAA - wins mid; wins top
+		};
+
+		Token token = Token.PLAYER_AAA;
+		for (Position play : playPositions) {
+
+			Board btmBoard = play.derefBoard();
+
+			BoardTestUtil.forceColWin(btmBoard, 0, token);
+
+			final Board copy = orig.copyDeep();
+			assertEquals("play=[" + play.asPrintable() + "].place(" + token + "): ", orig, copy);
+
+			token = BoardTestUtil.flip(token);
+		}
+		assertEquals("final status: ", Status.WINNER_AAA, orig.getStatus());
 	}
 
 	// ====================================================================================================

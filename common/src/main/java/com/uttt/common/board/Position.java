@@ -33,6 +33,20 @@ public final class Position implements Playable {
 	}
 
 	@Override
+	public int getHeight() {
+		return board.getHeight();
+	}
+
+	@Override
+	public boolean isTop() {
+		return board.isTop();
+	}
+
+	@Override
+	public boolean isBottom() {
+		return board.isBottom();
+	}
+	@Override
 	public Board getTopBoard() {
 		return board.getTopBoard();
 	}
@@ -76,6 +90,15 @@ public final class Position implements Playable {
 
 	//  ====================================================================================================
 
+	public Position at(int subRow, int subCol) {
+
+		if (getHeight() <= 1) {
+			throw new IllegalArgumentException("Position already at a bottom board, can't delve further: [" + this.asPrintable() + "]");
+		}
+
+		return derefBoard().at(subRow, subCol);
+	}
+
 	public Position place(Token t) {
 
 		if (board.getHeight() > 1) {
@@ -88,19 +111,23 @@ public final class Position implements Playable {
 
 		board.updatePosition(t, row, col);
 
-		final Position nextPlay;
-		Position parentPos = board.getPosition();
-		if (parentPos == null) {
-			nextPlay = null;
+		// determine constraint on next play (by opponent)
+
+		final Position constraint;
+		Board parentBoard = board.getParent();
+		if (parentBoard == null) {
+			constraint = null;
 		} else {
+			Position parentPos = new Position(parentBoard, row, col);
+
 			while((parentPos != null) && !parentPos.isPlayable()) {
 				parentPos = parentPos.getBoard().getPosition();
 			}
 
-			nextPlay = parentPos;
+			constraint = parentPos;
 		}
 
-		return nextPlay;
+		return constraint;
 	}
 
 	//  ====================================================================================================

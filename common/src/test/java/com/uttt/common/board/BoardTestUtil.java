@@ -2,9 +2,7 @@ package com.uttt.common.board;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.uttt.common.Foreachable;
@@ -156,9 +154,48 @@ public class BoardTestUtil {
 		assertEquals("h2s3 - forced row win [1]: ", expected, ("\n" + board.fieldAsPrintableString()));
 	}
 
-	@Test @Ignore
-	public void forceRowWin_h3s4() {
-		fail("NYI");
+	@Test
+	public void forceRowWin_h3s2() {
+		final String expected = ("\n" //
+				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+				+ "XXXXXXXXXXXXXXX|||XXXXXXXXXXXXXXX\n" //
+				+ "XXXXXXX||XXXXXX|||XXXXXX||XXXXXXX\n" //
+				+ "XXXx|xX||Xx|xXX|||XXx|xX||Xx|xXXX\n" //
+				+ "XXX---X||X---XX|||XX---X||X---XXX\n" //
+				+ "XXX.|.X||X.|.XX|||XX.|.X||X.|.XXX\n" //
+				+ "XXXXXXX||XXXXXX|||XXXXXX||XXXXXXX\n" //
+				+ "XX------------X|||X------------XX\n" //
+				+ "XX------------X|||X------------XX\n" //
+				+ "XXAAAAA||AAAAAX|||XAAAAA||AAAAAXX\n" //
+				+ "XXA.|.A||A.|.AX|||XA.|.A||A.|.AXX\n" //
+				+ "XXA---A||A---AX|||XA---A||A---AXX\n" //
+				+ "XXA.|.A||A.|.AX|||XA.|.A||A.|.AXX\n" //
+				+ "XXAAAAA||AAAAAX|||XAAAAA||AAAAAXX\n" //
+				+ "XXXXXXXXXXXXXXX|||XXXXXXXXXXXXXXX\n" //
+				+ "X-------------------------------X\n" //
+				+ "X-------------------------------X\n" //
+				+ "X-------------------------------X\n" //
+				+ "XBBBBBBBBBBBBBB|||BBBBBBBBBBBBBBX\n" //
+				+ "XBAAAAA||AAAAAB|||BAAAAA||AAAAABX\n" //
+				+ "XBA.|.A||A.|.AB|||BA.|.A||A.|.ABX\n" //
+				+ "XBA---A||A---AB|||BA---A||A---ABX\n" //
+				+ "XBA.|.A||A.|.AB|||BA.|.A||A.|.ABX\n" //
+				+ "XBAAAAA||AAAAAB|||BAAAAA||AAAAABX\n" //
+				+ "XB------------B|||B------------BX\n" //
+				+ "XB------------B|||B------------BX\n" //
+				+ "XBAAAAA||AAAAAB|||BAAAAA||AAAAABX\n" //
+				+ "XBA.|.A||A.|.AB|||BA.|.A||A.|.ABX\n" //
+				+ "XBA---A||A---AB|||BA---A||A---ABX\n" //
+				+ "XBA.|.A||A.|.AB|||BA.|.A||A.|.ABX\n" //
+				+ "XBAAAAA||AAAAAB|||BAAAAA||AAAAABX\n" //
+				+ "XBBBBBBBBBBBBBB|||BBBBBBBBBBBBBBX\n" //
+				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+				+ "TOP.\n").replaceAll("[ABC]", " ") //
+				;
+
+		Board board = forceRowWin(new Board(3, 2), 0, Token.PLAYER_AAA);
+
+		assertEquals("h3s2 - forced row win [0]: ", expected, ("\n" + board.fieldAsPrintableString()));
 	}
 
 	// ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -219,9 +256,49 @@ public class BoardTestUtil {
 		assertEquals("h2s3 - forced col win [1]: ", expected, ("\n" + board.fieldAsPrintableString()));
 	}
 
-	@Test @Ignore
-	public void forceColWin_h3s4() {
-		fail("NYI");
+	@Test
+	public void forceColWin_h3s2() {
+
+		final String expected = ("\n" //
+				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+				+ "XBBBBBBBBBBBBBB|||XXXXXXXXXXXXXXX\n" //
+				+ "XBAAAAA||AAAAAB|||XAAAAA||XXXXXXX\n" //
+				+ "XBA.|.A||A.|.AB|||XA.|.A||X.|xXXX\n" //
+				+ "XBA---A||A---AB|||XA---A||X---XXX\n" //
+				+ "XBA.|.A||A.|.AB|||XA.|.A||X.|xXXX\n" //
+				+ "XBAAAAA||AAAAAB|||XAAAAA||XXXXXXX\n" //
+				+ "XB------------B|||X------------XX\n" //
+				+ "XB------------B|||X------------XX\n" //
+				+ "XBAAAAA||AAAAAB|||XAAAAA||XXXXXXX\n" //
+				+ "XBA.|.A||A.|.AB|||XA.|.A||X.|xXXX\n" //
+				+ "XBA---A||A---AB|||XA---A||X---XXX\n" //
+				+ "XBA.|.A||A.|.AB|||XA.|.A||X.|xXXX\n" //
+				+ "XBAAAAA||AAAAAB|||XAAAAA||XXXXXXX\n" //
+				+ "XBBBBBBBBBBBBBB|||XXXXXXXXXXXXXXX\n" //
+				+ "X-------------------------------X\n" //
+				+ "X-------------------------------X\n" //
+				+ "X-------------------------------X\n" //
+				+ "XBBBBBBBBBBBBBB|||XXXXXXXXXXXXXXX\n" //
+				+ "XBAAAAA||AAAAAB|||XAAAAA||XXXXXXX\n" //
+				+ "XBA.|.A||A.|.AB|||XA.|.A||X.|xXXX\n" //
+				+ "XBA---A||A---AB|||XA---A||X---XXX\n" //
+				+ "XBA.|.A||A.|.AB|||XA.|.A||X.|xXXX\n" //
+				+ "XBAAAAA||AAAAAB|||XAAAAA||XXXXXXX\n" //
+				+ "XB------------B|||X------------XX\n" //
+				+ "XB------------B|||X------------XX\n" //
+				+ "XBAAAAA||AAAAAB|||XAAAAA||XXXXXXX\n" //
+				+ "XBA.|.A||A.|.AB|||XA.|.A||X.|xXXX\n" //
+				+ "XBA---A||A---AB|||XA---A||X---XXX\n" //
+				+ "XBA.|.A||A.|.AB|||XA.|.A||X.|xXXX\n" //
+				+ "XBAAAAA||AAAAAB|||XAAAAA||XXXXXXX\n" //
+				+ "XBBBBBBBBBBBBBB|||XXXXXXXXXXXXXXX\n" //
+				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+				+ "TOP.\n").replaceAll("[ABC]", " ") //
+				;
+
+		Board board = forceColWin(new Board(3, 2), 1, Token.PLAYER_AAA);
+
+		assertEquals("h3s2 - forced col win [1]: ", expected, ("\n" + board.fieldAsPrintableString()));
 	}
 
 	// ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -334,13 +411,96 @@ public class BoardTestUtil {
 
 			Board board = forceDiagWin(new Board(2, 3), true, Token.PLAYER_BBB);
 
-			assertEquals("h2s3 - forced diag win: ", expected, ("\n" + board.fieldAsPrintableString()));
+			assertEquals("h2s3 - forced inv-diag win: ", expected, ("\n" + board.fieldAsPrintableString()));
 		}
 	}
 
-	@Test @Ignore
-	public void forceDiagWin_h3s4() {
-		fail("NYI");
+	@Test
+	public void forceDiagWin_h3s2() {
+		{
+			final String expected = ("\n" //
+					+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+					+ "XXXXXXXXXXXXXXX|||BBBBBBBBBBBBBBX\n" //
+					+ "XXXXXXX||AAAAAX|||BAAAAA||AAAAABX\n" //
+					+ "XXXx|.X||A.|.AX|||BA.|.A||A.|.ABX\n" //
+					+ "XXX---X||A---AX|||BA---A||A---ABX\n" //
+					+ "XXX.|xX||A.|.AX|||BA.|.A||A.|.ABX\n" //
+					+ "XXXXXXX||AAAAAX|||BAAAAA||AAAAABX\n" //
+					+ "XX------------X|||B------------BX\n" //
+					+ "XX------------X|||B------------BX\n" //
+					+ "XXAAAAA||XXXXXX|||BAAAAA||AAAAABX\n" //
+					+ "XXA.|.A||Xx|.XX|||BA.|.A||A.|.ABX\n" //
+					+ "XXA---A||X---XX|||BA---A||A---ABX\n" //
+					+ "XXA.|.A||X.|xXX|||BA.|.A||A.|.ABX\n" //
+					+ "XXAAAAA||XXXXXX|||BAAAAA||AAAAABX\n" //
+					+ "XXXXXXXXXXXXXXX|||BBBBBBBBBBBBBBX\n" //
+					+ "X-------------------------------X\n" //
+					+ "X-------------------------------X\n" //
+					+ "X-------------------------------X\n" //
+					+ "XBBBBBBBBBBBBBB|||XXXXXXXXXXXXXXX\n" //
+					+ "XBAAAAA||AAAAAB|||XXXXXX||AAAAAXX\n" //
+					+ "XBA.|.A||A.|.AB|||XXx|.X||A.|.AXX\n" //
+					+ "XBA---A||A---AB|||XX---X||A---AXX\n" //
+					+ "XBA.|.A||A.|.AB|||XX.|xX||A.|.AXX\n" //
+					+ "XBAAAAA||AAAAAB|||XXXXXX||AAAAAXX\n" //
+					+ "XB------------B|||X------------XX\n" //
+					+ "XB------------B|||X------------XX\n" //
+					+ "XBAAAAA||AAAAAB|||XAAAAA||XXXXXXX\n" //
+					+ "XBA.|.A||A.|.AB|||XA.|.A||Xx|.XXX\n" //
+					+ "XBA---A||A---AB|||XA---A||X---XXX\n" //
+					+ "XBA.|.A||A.|.AB|||XA.|.A||X.|xXXX\n" //
+					+ "XBAAAAA||AAAAAB|||XAAAAA||XXXXXXX\n" //
+					+ "XBBBBBBBBBBBBBB|||XXXXXXXXXXXXXXX\n" //
+					+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+					+ "TOP.\n").replaceAll("[ABC]", " ") //
+					;
+
+			Board board = forceDiagWin(new Board(3, 2), false, Token.PLAYER_AAA);
+
+			assertEquals("h3s2 - forced diag win: ", expected, ("\n" + board.fieldAsPrintableString()));
+		}
+		{
+			final String expected = ("\n" //
+					+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+					+ "XBBBBBBBBBBBBBB|||XXXXXXXXXXXXXXX\n" //
+					+ "XBAAAAA||AAAAAB|||XAAAAA||XXXXXXX\n" //
+					+ "XBA.|.A||A.|.AB|||XA.|.A||X.|xXXX\n" //
+					+ "XBA---A||A---AB|||XA---A||X---XXX\n" //
+					+ "XBA.|.A||A.|.AB|||XA.|.A||Xx|.XXX\n" //
+					+ "XBAAAAA||AAAAAB|||XAAAAA||XXXXXXX\n" //
+					+ "XB------------B|||X------------XX\n" //
+					+ "XB------------B|||X------------XX\n" //
+					+ "XBAAAAA||AAAAAB|||XXXXXX||AAAAAXX\n" //
+					+ "XBA.|.A||A.|.AB|||XX.|xX||A.|.AXX\n" //
+					+ "XBA---A||A---AB|||XX---X||A---AXX\n" //
+					+ "XBA.|.A||A.|.AB|||XXx|.X||A.|.AXX\n" //
+					+ "XBAAAAA||AAAAAB|||XXXXXX||AAAAAXX\n" //
+					+ "XBBBBBBBBBBBBBB|||XXXXXXXXXXXXXXX\n" //
+					+ "X-------------------------------X\n" //
+					+ "X-------------------------------X\n" //
+					+ "X-------------------------------X\n" //
+					+ "XXXXXXXXXXXXXXX|||BBBBBBBBBBBBBBX\n" //
+					+ "XXAAAAA||XXXXXX|||BAAAAA||AAAAABX\n" //
+					+ "XXA.|.A||X.|xXX|||BA.|.A||A.|.ABX\n" //
+					+ "XXA---A||X---XX|||BA---A||A---ABX\n" //
+					+ "XXA.|.A||Xx|.XX|||BA.|.A||A.|.ABX\n" //
+					+ "XXAAAAA||XXXXXX|||BAAAAA||AAAAABX\n" //
+					+ "XX------------X|||B------------BX\n" //
+					+ "XX------------X|||B------------BX\n" //
+					+ "XXXXXXX||AAAAAX|||BAAAAA||AAAAABX\n" //
+					+ "XXX.|xX||A.|.AX|||BA.|.A||A.|.ABX\n" //
+					+ "XXX---X||A---AX|||BA---A||A---ABX\n" //
+					+ "XXXx|.X||A.|.AX|||BA.|.A||A.|.ABX\n" //
+					+ "XXXXXXX||AAAAAX|||BAAAAA||AAAAABX\n" //
+					+ "XXXXXXXXXXXXXXX|||BBBBBBBBBBBBBBX\n" //
+					+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+					+ "TOP.\n").replaceAll("[ABC]", " ") //
+					;
+
+			Board board = forceDiagWin(new Board(3, 2), true, Token.PLAYER_AAA);
+
+			assertEquals("h3s2 - forced inv-diag win: ", expected, ("\n" + board.fieldAsPrintableString()));
+		}
 	}
 
 	// ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

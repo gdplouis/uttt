@@ -93,7 +93,7 @@ public final class Position implements Playable {
 	public Position at(int subRow, int subCol) {
 
 		if (getHeight() <= 1) {
-			throw new IllegalArgumentException("Position already at a bottom board, can't delve further: [" + this.asPrintable() + "]");
+			throw new IllegalArgumentException("Position already at a bottom board, can't delve further: [" + this.toString() + "]");
 		}
 
 		return derefBoard().at(subRow, subCol);
@@ -102,11 +102,11 @@ public final class Position implements Playable {
 	public Position place(Token t) {
 
 		if (board.getHeight() > 1) {
-			throw new IllegalArgumentException("can't place token: position [" + asPrintable() + "]: remaining height = [" + board.getHeight() + "]");
+			throw new IllegalArgumentException("can't place token: position [" + this.toString() + "]: remaining height = [" + board.getHeight() + "]");
 		}
 
 		if (!isPlayable()) {
-			throw new IllegalArgumentException("not playable lineage: position [" + asPrintable() + "]");
+			throw new IllegalArgumentException("not playable lineage: position [" + this.toString() + "]");
 		}
 
 		board.updatePosition(t, row, col);
@@ -130,7 +130,8 @@ public final class Position implements Playable {
 		return constraint;
 	}
 
-	//  ====================================================================================================
+	// ====================================================================================================
+	// Object overrides...
 
 	private StringBuilder appendTo(StringBuilder sb) {
 		final Position upperPos = board.getPosition();
@@ -144,7 +145,8 @@ public final class Position implements Playable {
 		return sb;
 	}
 
-	public String asPrintable() {
+	@Override
+	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
 		return appendTo(sb).toString();

@@ -96,7 +96,7 @@ public interface PlayableTest {
 		}
 
 		public void place(Position position, Token token, Playable... closures) {
-			final String pfx = token + " at " + position.asPrintable() + ": ";
+			final String pfx = token + " at " + position + ": ";
 			position.place(token);
 
 			checkClosures(pfx, closures);
@@ -105,7 +105,7 @@ public interface PlayableTest {
 		private <T extends Playable> T validate(String pfx, T item, boolean inverted) {
 			if (item.isPlayable() ^ !inverted) {
 				Position position = item.getPosition();
-				String posString  = (position == null ? "TOP." : position.asPrintable());
+				String posString  = (position == null ? "TOP." : position.toString());
 				String msg = pfx + "item is " + (inverted ? "still" : "not") + " playable: " + posString + "\n"
 						+ topBoard.fieldAsPrintableString();
 				org.junit.Assert.fail(msg);

@@ -347,7 +347,7 @@ public class BoardTest extends NodeTest {
 			play.place(token);
 
 			final Board copy = orig.copyDeep();
-			assertEquals("play=[" + play.asPrintable() + "].place(" + token + "): ", orig, copy);
+			assertEquals("play=[" + play + "].place(" + token + "): ", orig, copy);
 
 			token = BoardTestUtil.flip(token);
 		}
@@ -430,7 +430,7 @@ public class BoardTest extends NodeTest {
 			BoardTestUtil.forceColWin(btmBoard, 0, token);
 
 			final Board copy = orig.copyDeep();
-			assertEquals("play=[" + play.asPrintable() + "].place(" + token + "): ", orig, copy);
+			assertEquals("play=[" + play + "].place(" + token + "): ", orig, copy);
 
 			token = BoardTestUtil.flip(token);
 		}

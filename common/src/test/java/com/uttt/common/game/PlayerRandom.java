@@ -33,7 +33,7 @@ public class PlayerRandom implements Player {
 
 	private Move randomMove(String pfx, Board subBoard) {
 
-//		System.out.println(pfx + "randomMove: subBoard.getPosition()=[" + subBoard.getPosition() + "]"); // TODO:DBG:
+//		System.out.println(pfx + "randomMove: subBoard.getPosition()=[" + subBoard.getPosition() + "]"); // TODO:DBG:LOG:
 
 		final List<Position> openPos = new LinkedList<>();
 		for (final int row : Foreachable.until(subBoard.getSize())) {
@@ -48,7 +48,7 @@ public class PlayerRandom implements Player {
 		int      myPlayIdx = random.nextInt(openPos.size());
 		Position myPlayPos = openPos.get(myPlayIdx);
 
-//		System.out.println(pfx // TODO:DBG:
+//		System.out.println(pfx // TODO:DBG:LOG:
 //				+ "openPos.size()=" + openPos.size() + "; " //
 //				+ "myPlayIdx="      + myPlayIdx      + "; " //
 //				+ "myPlayPos="      + myPlayPos      + "; " //
@@ -61,11 +61,11 @@ public class PlayerRandom implements Player {
 			subMove = randomMove(pfx + "|", myPlayPos.derefBoard());
 		}
 		final Move 	myMove = new Move(myPlayPos.getRow(), myPlayPos.getCol(), subMove);
-//		System.out.println(pfx // TODO:DBG:
+//		System.out.println(pfx // TODO:DBG:LOG:
 //				+ "myMove="         + myMove         + "; " //
 //				);
 
-//		System.out.println(pfx + "/"); // TODO:DBG:
+//		System.out.println(pfx + "/"); // TODO:DBG:LOG:
 		return myMove;
 	}
 

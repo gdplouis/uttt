@@ -3,6 +3,7 @@ package com.uttt.common.game;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.uttt.common.board.Board;
@@ -27,7 +28,7 @@ public class PlayerTest {
 
 			player = (player == playerAAA) ? playerBBB : playerAAA;
 
-			System.out.println(board.fieldAsPrintableString());
+//			System.out.println(board.fieldAsPrintableString()); // TODO:DBG:LOG
 		}
 
 		String expected = "" //
@@ -52,16 +53,74 @@ public class PlayerTest {
 
 		Player player = playerAAA;
 		for (int i = 0; board.isPlayable() && (i < 50); ++i) {
-			System.out.println("-------------------------------------------------------------");
+//			System.out.println("-------------------------------------------------------------"); // TODO:DBG:LOG:
+//			System.out.println("#"+i); // TODO:DBG:LOG:
 
 			Move     move       = player.makeMove(board);
-			System.out.println(move.toString() + " by " + player.getToken());
+//			System.out.println(move.toString() + " by " + player.getToken()); // TODO:DBG:LOG:
 
 			Position position   = move.toPosition(board);
 			Position constraint = position.place(player.getToken());
-			System.out.println("Next move constraint (ignored): " + constraint);
+//			System.out.println("Next move constraint (ignored): " + constraint); // TODO:DBG:LOG:
 
-			System.out.println(board.fieldAsPrintableString());
+//			System.out.println(board.fieldAsPrintableString()); // TODO:DBG:LOG:
+
+			player = (player == playerAAA) ? playerBBB : playerAAA;
+		}
+
+		String expected = "" //
+			+ "XXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+			+ "XXXXXXXX||       ||       X\n" //
+			+ "XXo|o|.X|| .|o|x || o|.|o X\n" //
+			+ "XX-----X|| ----- || ----- X\n" //
+			+ "XX.|o|.X|| x|x|o || .|.|x X\n" //
+			+ "XX-----X|| ----- || ----- X\n" //
+			+ "XXx|x|xX|| o|x|o || o|o|. X\n" //
+			+ "XXXXXXXX||       ||       X\n" //
+			+ "X-------------------------X\n" //
+			+ "X-------------------------X\n" //
+			+ "XOOOOOOO||XXXXXXX||       X\n" //
+			+ "XO.|.|oO||X.|.|.X|| .|o|x X\n" //
+			+ "XO-----O||X-----X|| ----- X\n" //
+			+ "XO.|o|oO||Xx|x|xX|| x|x|. X\n" //
+			+ "XO-----O||X-----X|| ----- X\n" //
+			+ "XO.|.|oO||X.|.|.X|| o|.|. X\n" //
+			+ "XOOOOOOO||XXXXXXX||       X\n" //
+			+ "X-------------------------X\n" //
+			+ "X-------------------------X\n" //
+			+ "X       ||       ||XXXXXXXX\n" //
+			+ "X .|.|o || .|x|. ||Xo|.|xXX\n" //
+			+ "X ----- || ----- ||X-----XX\n" //
+			+ "X x|x|. || .|.|o ||Xx|x|xXX\n" //
+			+ "X ----- || ----- ||X-----XX\n" //
+			+ "X x|o|x || x|o|o ||Xo|x|.XX\n" //
+			+ "X       ||       ||XXXXXXXX\n" //
+			+ "XXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+			+ "TOP.\n" //
+			;
+
+		assertEquals(expected, board.fieldAsPrintableString());
+	}
+
+	@Test @Ignore
+	public void random_h2s3_followConstraints() {
+		Board  board     = new Board(2,3);
+		Player playerAAA = PlayerRandom.create(Token.PLAYER_AAA);
+		Player playerBBB = PlayerRandom.create(Token.PLAYER_BBB);
+
+		Player player = playerAAA;
+		for (int i = 0; board.isPlayable() && (i < 50); ++i) {
+			System.out.println("-------------------------------------------------------------"); // TODO:DBG:LOG:
+			System.out.println("#"+i); // TODO:DBG:LOG:
+
+			Move     move       = player.makeMove(board);
+			System.out.println(move.toString() + " by " + player.getToken()); // TODO:DBG:LOG:
+
+			Position position   = move.toPosition(board);
+			Position constraint = position.place(player.getToken());
+			System.out.println("Next move constraint (ignored): " + constraint); // TODO:DBG:LOG:
+
+			System.out.println(board.fieldAsPrintableString()); // TODO:DBG:LOG:
 
 			player = (player == playerAAA) ? playerBBB : playerAAA;
 		}
@@ -108,17 +167,18 @@ public class PlayerTest {
 
 		Player player = playerAAA;
 		for (int i = 0; board.isPlayable() && (i < 50); ++i) {
-			System.out.println("-------------------------------------------------------------");
-			System.out.println("#" + i);
+//			System.out.println("-------------------------------------------------------------"); // TODO:DBG:LOG:
+//			System.out.println("#" + i); // TODO:DBG:LOG:
 
 			Move     move       = player.makeMove(board);
-			System.out.println(move.toString() + " by " + player.getToken());
+//			System.out.println(move.toString() + " by " + player.getToken()); // TODO:DBG:LOG:
 
 			Position position   = move.toPosition(board);
+			@SuppressWarnings("unused")
 			Position constraint = position.place(player.getToken());
-			System.out.println("Next move constraint (ignored): " + constraint);
+//			System.out.println("Next move constraint (ignored): " + constraint); // TODO:DBG:LOG:
 
-			System.out.println(board.fieldAsPrintableString());
+//			System.out.println(board.fieldAsPrintableString()); // TODO:DBG:LOG:
 
 			player = (player == playerAAA) ? playerBBB : playerAAA;
 		}
@@ -162,6 +222,7 @@ public class PlayerTest {
 
 		assertEquals(expected, board.fieldAsPrintableString());
 	}
+
 	@Test
 	public void random_h3s3_ignoreConstraints() {
 		Board  board     = new Board(3,3); // 729 token locations
@@ -170,17 +231,18 @@ public class PlayerTest {
 
 		Player player = playerAAA;
 		for (int i = 0; board.isPlayable() && (i < 800); ++i) {
-//			System.out.println("-------------------------------------------------------------"); // TODO:DBG:
-//			System.out.println("#" + i);
+//			System.out.println("-------------------------------------------------------------"); // TODO:DBG:LOG:
+//			System.out.println("#" + i); // TODO:DBG:LOG:
 
 			Move     move       = player.makeMove(board);
-//			System.out.println(move.toString() + " by " + player.getToken()); // TODO:DBG:
+//			System.out.println(move.toString() + " by " + player.getToken()); // TODO:DBG:LOG:
 
 			Position position   = move.toPosition(board);
+			@SuppressWarnings("unused")
 			Position constraint = position.place(player.getToken());
-//			System.out.println("Next move constraint (ignored): " + constraint); // TODO:DBG:
+//			System.out.println("Next move constraint (ignored): " + constraint); // TODO:DBG:LOG:
 
-//			System.out.println(board.fieldAsPrintableString()); // TODO:DBG:
+//			System.out.println(board.fieldAsPrintableString()); // TODO:DBG:LOG:
 
 			player = (player == playerAAA) ? playerBBB : playerAAA;
 		}

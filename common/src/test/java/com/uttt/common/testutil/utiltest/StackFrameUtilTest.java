@@ -10,7 +10,7 @@ public class StackFrameUtilTest {
 
 	@Test()
 	public void util_whoami() {
-		final String expected   = "[StackFrameUtil.util_whoami]";
+		final String expected   = "[StackFrameUtilTest.util_whoami]";
 		final String determined = StackFrameUtil.whoami();
 
 		assertEquals(expected, determined);

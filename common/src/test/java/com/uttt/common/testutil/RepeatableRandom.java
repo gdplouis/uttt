@@ -36,31 +36,55 @@ public class RepeatableRandom extends Random {
 	 * Return a {@code RepeatableRandom} instance whose seed is deterministically derived from: (1) the caller's
 	 * class and (2) method names.
 	 * <P><B>NOTE:</B> Only the caller's method <i>name</i> is used to derive the seed, not its entire signature.
-	 * Thus, a set overloaded methods will all obtain instances with the same seed. If this is unworkable, then use
-	 * {@link RepeatableRandom#create(T)} with distinct enumeration values for each such create.
+	 * Thus, a group of overloaded methods will all obtain instances with the same seed. If this is unworkable, then use
+	 * {@link RepeatableRandom#create(int, T)} with distinct enumeration values for each such create.
+	 *
 	 */
 	public final static RepeatableRandom create() {
-		RepeatableRandom rval = create(StackFrameUtil.frameAbove(1));
+		return create(1);
+	}
+
+	/**
+	 * Return a {@code RepeatableRandom} instance whose seed is deterministically derived from an active stack frame
+	 * a specified number of frames above the caller's frame. From that frame, the method's class and (simple) method
+	 * name are combined to form the seed.
+	 * <P><B>NOTE:</B> Only the frame's method <i>name</i> is used to derive the seed, not its entire signature.
+	 * Thus, a group of overloaded methods will all obtain instances with the same seed. If this is unworkable, then use
+	 * {@link RepeatableRandom#create(int, T)} with distinct enumeration values for each such create.
+	 *
+	 * @param framesUp the number of frames above the caller to probe for the class & method names
+	 *
+	 * @throws IllegalArgumentException {@code framesUp} is non-positive
+	 */
+	public final static RepeatableRandom create(int framesUp) {
+		if (framesUp < 0) {
+			throw new IllegalArgumentException("framesUp=[" + framesUp + "] must be non-negative");
+		}
+		RepeatableRandom rval = create(StackFrameUtil.frameAbove(1 + framesUp));
 		return rval;
 	}
 
 	/**
-	 * Return a {@code RepeatableRandom} instance whose seed is deterministically derived from: (1) the caller's
-	 * class, (2) method names, (3) the class name and (4) value-string of some (any) enumeration value.
+	 * Return a {@code RepeatableRandom} instance whose seed is deterministically derived from an active stack frame
+	 * a specified number of frames above the caller's frame. From that frame, the method's class and (simple) method
+	 * name are combined, along with the enumeration value's class-name and value-name, to form the seed.
 	 * This allows a single calling method to create distinct {@code RepeatableRandom} instances in a
 	 * controlled manner.
 	 * <P><B>NOTE:</B> Only the caller's method <i>name</i> is used to derive the seed, not its entire signature.
-	 * Thus, a set overloaded methods will all obtain instances with the same seed. If this is unworkable, be sure to
+	 * Thus, a group of overloaded methods will all obtain instances with the same seed. If this is unworkable, be sure to
 	 * use distinct enumeration values for each such create.
 	 *
-	 * @param value Any enumeration value convenient for the caller to distinguish among creations
+	 * @param framesUp the number of frames above the caller to probe for the class & method names
+	 * @param value Any non-null enumeration value convenient for the caller to distinguish among creations
+	 *
+	 * @throws IllegalArgumentException {@code framesUp} is non-positive; {@code value} is null
 	 */
-	public static <T extends Enum<T>> RepeatableRandom create(T value) {
+	public static <T extends Enum<T>> RepeatableRandom create(int framesUp, T value) {
 		if (value == null) {
 			throw new IllegalArgumentException("enum value may not be null");
 		}
 
-		RepeatableRandom rval = create(StackFrameUtil.frameAbove(1), value.getClass().getCanonicalName(), value.toString());
+		RepeatableRandom rval = create(StackFrameUtil.frameAbove(1+framesUp), value.getClass().getCanonicalName(), value.toString());
 		return rval;
 	}
 

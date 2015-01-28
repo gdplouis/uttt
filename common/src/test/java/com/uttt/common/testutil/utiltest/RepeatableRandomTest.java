@@ -10,22 +10,46 @@ import com.uttt.common.testutil.RepeatableRandom;
 
 public class RepeatableRandomTest {
 
-	private enum Foo {
-		BAR, TIZ, NUT
+	private enum Foobar {
+		TIZ, NUT
 	}
 
-	private static RepeatableRandom createAAA(Foo value) {
+	private static RepeatableRandom createAAA(int framesUp, Foobar value) {
 		if (value == null) {
-			return RepeatableRandom.create();
+			return RepeatableRandom.create(framesUp);
 		}
-		return RepeatableRandom.create(value);
+		return RepeatableRandom.create(framesUp, value);
 	}
 
-	private static RepeatableRandom createBBB(Foo value) {
+	private static RepeatableRandom createBBB(int framesUp, Foobar value) {
 		if (value == null) {
-			return RepeatableRandom.create();
+			return RepeatableRandom.create(framesUp);
 		}
-		return RepeatableRandom.create(value);
+		return RepeatableRandom.create(framesUp, value);
+	}
+
+	private static void checkSame(RepeatableRandom randAAA, RepeatableRandom randBBB) {
+
+		for (final int i : Foreachable.until(50)) {
+			double valueAAA = randAAA.nextDouble();
+			double valueBBB = randBBB.nextDouble();
+
+			assertEquals("iteration #" + i + ": ", valueAAA, valueBBB, 0.0);
+		}
+	}
+
+	private static void checkDifferent(RepeatableRandom randAAA, RepeatableRandom randBBB) {
+
+		for (@SuppressWarnings("unused") final int i : Foreachable.until(50)) {
+			double valueAAA = randAAA.nextDouble();
+			double valueBBB = randBBB.nextDouble();
+
+			if (valueAAA != valueBBB) {
+				return;
+			}
+		}
+
+		fail("random sequences expected to be different");
 	}
 
 	@Test(expected=IllegalAccessError.class)
@@ -36,96 +60,66 @@ public class RepeatableRandomTest {
 	}
 
 	@Test
-	public void sameCaller() {
+	public void sameCaller_directCreate() {
 		RepeatableRandom randAAA = RepeatableRandom.create();
 		RepeatableRandom randBBB = RepeatableRandom.create();
 
-		for (final int i : Foreachable.until(50)) {
-			double valueAAA = randAAA.nextDouble();
-			double valueBBB = randBBB.nextDouble();
-
-			assertEquals("iteration #" + i + ": ", valueAAA, valueBBB, 0.0);
-		}
+		checkSame(randAAA, randBBB);
 	}
 
 	@Test
-	public void diffCaller() {
-		RepeatableRandom randAAA = createAAA(null);
-		RepeatableRandom randBBB = createBBB(null);
+	public void diffCaller_helperCreateUp0() {
+		RepeatableRandom randAAA = createAAA(0, null);
+		RepeatableRandom randBBB = createBBB(0, null);
 
-		for (@SuppressWarnings("unused") final int i : Foreachable.until(50)) {
-			double valueAAA = randAAA.nextDouble();
-			double valueBBB = randBBB.nextDouble();
-
-			if (valueAAA != valueBBB) {
-				return;
-			}
-		}
-
-		fail("random sequences expected to be different");
+		checkDifferent(randAAA, randBBB);
 	}
 
 	@Test
-	public void sameCaller_withSameEnum() {
-		RepeatableRandom randAAA = RepeatableRandom.create(Foo.BAR);
-		RepeatableRandom randBBB = RepeatableRandom.create(Foo.BAR);
+	public void sameCaller_directCreate_withSameEnum() {
+		RepeatableRandom randAAA = RepeatableRandom.create(0, Foobar.TIZ);
+		RepeatableRandom randBBB = RepeatableRandom.create(0, Foobar.TIZ);
 
-		for (final int i : Foreachable.until(50)) {
-			double valueAAA = randAAA.nextDouble();
-			double valueBBB = randBBB.nextDouble();
-
-			assertEquals("iteration #" + i + ": ", valueAAA, valueBBB, 0.0);
-		}
+		checkSame(randAAA, randBBB);
 	}
 
 	@Test
-	public void sameCaller_withDiffEnum() {
-		RepeatableRandom randAAA = RepeatableRandom.create(Foo.BAR);
-		RepeatableRandom randBBB = RepeatableRandom.create(Foo.TIZ);
+	public void sameCaller_directCreate_withDiffEnum() {
+		RepeatableRandom randAAA = RepeatableRandom.create(0, Foobar.TIZ);
+		RepeatableRandom randBBB = RepeatableRandom.create(0, Foobar.NUT);
 
-		for (@SuppressWarnings("unused") final int i : Foreachable.until(50)) {
-			double valueAAA = randAAA.nextDouble();
-			double valueBBB = randBBB.nextDouble();
-
-			if (valueAAA != valueBBB) {
-				return;
-			}
-		}
-
-		fail("random sequences expected to be different");
+		checkDifferent(randAAA, randBBB);
 	}
 
 	@Test
-	public void sameCaller_withAndWithoutEnum() {
-		RepeatableRandom randAAA = RepeatableRandom.create(Foo.BAR);
+	public void sameCaller_directCreate_withAndWithoutEnum() {
+		RepeatableRandom randAAA = RepeatableRandom.create(0, Foobar.TIZ);
 		RepeatableRandom randBBB = RepeatableRandom.create();
 
-		for (@SuppressWarnings("unused") final int i : Foreachable.until(50)) {
-			double valueAAA = randAAA.nextDouble();
-			double valueBBB = randBBB.nextDouble();
-
-			if (valueAAA != valueBBB) {
-				return;
-			}
-		}
-
-		fail("random sequences expected to be different");
+		checkDifferent(randAAA, randBBB);
 	}
 
 	@Test
-	public void diffCaller_withSameEnum() {
-		RepeatableRandom randAAA = createAAA(Foo.BAR);
-		RepeatableRandom randBBB = createBBB(Foo.BAR);
+	public void diffCaller_helperCreateUp0_withSameEnum() {
+		RepeatableRandom randAAA = createAAA(0, Foobar.TIZ);
+		RepeatableRandom randBBB = createBBB(0, Foobar.TIZ);
 
-		for (@SuppressWarnings("unused") final int i : Foreachable.until(50)) {
-			double valueAAA = randAAA.nextDouble();
-			double valueBBB = randBBB.nextDouble();
+		checkDifferent(randAAA, randBBB);
+	}
 
-			if (valueAAA != valueBBB) {
-				return;
-			}
-		}
+	@Test
+	public void diffCaller_helperCreateUp1_withSameEnum() {
+		RepeatableRandom randAAA = createAAA(1, Foobar.TIZ);
+		RepeatableRandom randBBB = createBBB(1, Foobar.TIZ);
 
-		fail("random sequences expected to be different");
+		checkSame(randAAA, randBBB);
+	}
+
+	@Test
+	public void diffCaller_helperCreateUp1_withDiffEnum() {
+		RepeatableRandom randAAA = createAAA(1, Foobar.TIZ);
+		RepeatableRandom randBBB = createBBB(1, Foobar.NUT);
+
+		checkDifferent(randAAA, randBBB);
 	}
 }

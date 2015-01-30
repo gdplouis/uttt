@@ -76,6 +76,11 @@ public final class Position implements Playable {
 		return true;
 	}
 
+	public int length() {
+		Position parentPos = board.getPosition();
+		return (parentPos == null) ? 1 : (1 + parentPos.length());
+	}
+
 	public <T extends Node> T deref(Class<T> typeClass) {
 		return board.getSubNode(row, col, typeClass);
 	}

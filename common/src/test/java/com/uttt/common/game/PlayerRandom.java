@@ -3,6 +3,8 @@ package com.uttt.common.game;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.uttt.common.Foreachable;
 import com.uttt.common.board.Board;
 import com.uttt.common.board.Node;
@@ -18,7 +20,7 @@ public class PlayerRandom implements Player {
 
 	private PlayerRandom(Token token) {
 		this.token  = token;
-		this.random = RepeatableRandom.create(token);
+		this.random = RepeatableRandom.create(1, token);
 	}
 
 	public static Player create(Token token) {
@@ -31,47 +33,61 @@ public class PlayerRandom implements Player {
 		return token;
 	}
 
-	private Move randomMove(String pfx, Board subBoard) {
+	private Move randomMove(String pfx, Logger log, Board subBoard, Position constraint) {
 
-//		System.out.println(pfx + "randomMove: subBoard.getPosition()=[" + subBoard.getPosition() + "]"); // TODO:DBG:LOG:
+		log.trace(pfx + "randomMove: " //
+				+ "subBoard.getPosition()=[" + subBoard.getPosition() + "]; " //
+				+ "constraint=["             + constraint             + "]; " //
+				);
 
-		final List<Position> openPos = new LinkedList<>();
-		for (final int row : Foreachable.until(subBoard.getSize())) {
-			for (final int col : Foreachable.until(subBoard.getSize())) {
-				Node node = subBoard.getSubNode(row, col);
-				if (node.getStatus() == Status.OPEN) {
-					openPos.add(subBoard.at(row, col));
+		final Move 	myMove;
+		if (constraint != null) {
+			Move subMove = randomMove(pfx + "|", log, constraint.derefBoard(), null);
+
+			for(Position cursorConstraint = constraint; cursorConstraint != null; cursorConstraint = cursorConstraint.getBoard().getPosition()) {
+				subMove = new Move(cursorConstraint.getRow(), cursorConstraint.getCol(), subMove);
+			}
+			myMove = subMove;
+		} else {
+			final List<Position> openPos = new LinkedList<>();
+			for (final int row : Foreachable.until(subBoard.getSize())) {
+				for (final int col : Foreachable.until(subBoard.getSize())) {
+					Node node = subBoard.getSubNode(row, col);
+					if (node.getStatus() == Status.OPEN) {
+						openPos.add(subBoard.at(row, col));
+					}
 				}
 			}
+
+			int      myPlayIdx = random.nextInt(openPos.size());
+			Position myPlayPos = openPos.get(myPlayIdx);
+
+			log.trace(pfx //
+					+ "openPos.size()=" + openPos.size() + "; " //
+					+ "myPlayIdx="      + myPlayIdx      + "; " //
+					+ "myPlayPos="      + myPlayPos      + "; " //
+					);
+
+			final Move subMove;
+			if (subBoard.isBottom()) {
+				subMove = null;
+			} else {
+				subMove = randomMove(pfx + "|", log, myPlayPos.derefBoard(), null);
+			}
+			myMove = new Move(myPlayPos.getRow(), myPlayPos.getCol(), subMove);
 		}
+		log.trace(pfx //
+				+ "myMove="         + myMove         + "; " //
+				);
 
-		int      myPlayIdx = random.nextInt(openPos.size());
-		Position myPlayPos = openPos.get(myPlayIdx);
-
-//		System.out.println(pfx // TODO:DBG:LOG:
-//				+ "openPos.size()=" + openPos.size() + "; " //
-//				+ "myPlayIdx="      + myPlayIdx      + "; " //
-//				+ "myPlayPos="      + myPlayPos      + "; " //
-//				);
-
-		final Move subMove;
-		if (subBoard.isBottom()) {
-			subMove = null;
-		} else {
-			subMove = randomMove(pfx + "|", myPlayPos.derefBoard());
-		}
-		final Move 	myMove = new Move(myPlayPos.getRow(), myPlayPos.getCol(), subMove);
-//		System.out.println(pfx // TODO:DBG:LOG:
-//				+ "myMove="         + myMove         + "; " //
-//				);
-
-//		System.out.println(pfx + "/"); // TODO:DBG:LOG:
+		log.trace(pfx + "/"); //
 		return myMove;
 	}
 
 	@Override
-	public Move makeMove(Board board) {
-		Move   rval = randomMove("|", board);
+	public Move makeMove(Logger log, Board topBoard, Position constraint) {
+
+		Move   rval = randomMove("|", log, topBoard, constraint);
 		return rval;
 	}
 }

@@ -1,5 +1,7 @@
 package com.uttt.common.testutil;
 
+import org.apache.log4j.Logger;
+
 
 public class StackFrameUtil {
 
@@ -59,5 +61,17 @@ public class StackFrameUtil {
 
 		final String rval = "[" + whoami(frame) + "]";
 		return rval;
+	}
+
+	/**
+	 * Gets the {@code Logger} associated with the calling method. The name of such a logger is the dot-concatenated
+	 * class name and the method name, as provided by the caller's {@code StackTraceElement}.
+	 *
+	 */
+	public final static Logger methodLogger() {
+		final StackTraceElement frame = frameAbove(1);
+		final String loggerName = frame.getClassName() + "." + frame.getMethodName();
+
+		return Logger.getLogger(loggerName);
 	}
 }

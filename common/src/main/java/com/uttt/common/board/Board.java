@@ -164,6 +164,7 @@ public final class Board implements Node, Playable {
 		return new Position(this, row, col);
 	}
 
+	@Override
 	public Board copyDeep() {
 		return new Board(this, getParent(), false);
 	}
@@ -421,6 +422,7 @@ public final class Board implements Node, Playable {
 
 		// top/bottom padding is as wide as the hrule, but is all spaces
 
+		@SuppressWarnings("null")
 		final String topBotPad = hrule.toString().replace('-', padChar);
 		myBuilders.add(0, (new StringBuilder()).append(topBotPad));
 		myBuilders.add((new StringBuilder()).append(topBotPad));

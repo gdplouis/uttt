@@ -650,10 +650,10 @@ public class PositionTest implements PlayableTest {
 		}
 	}
 
-	private Position n(Board b) { return b.at(0, 0); }
-	private Position s(Board b) { return b.at(1, 1); }
-	private Position e(Board b) { return b.at(0, 1); }
-	private Position w(Board b) { return b.at(1, 0); }
+	private static Position n(Board b) { return b.at(0, 0); }
+	private static Position s(Board b) { return b.at(1, 1); }
+	private static Position e(Board b) { return b.at(0, 1); }
+//	private static Position w(Board b) { return b.at(1, 0); }
 
 	@Test
 	public void place_h3s2() {
@@ -661,29 +661,29 @@ public class PositionTest implements PlayableTest {
 		assertEquals("topBoard.getPlayCount(): ", 0, t__Top.getPlayCount());
 
 		final Board tn_Mid = t__Top.getSubBoard(0, 0);
-		final Board ts_Mid = t__Top.getSubBoard(1, 1);
-		final Board te_Mid = t__Top.getSubBoard(0, 1);
-		final Board tw_Mid = t__Top.getSubBoard(1, 0);
+//		final Board ts_Mid = t__Top.getSubBoard(1, 1);
+//		final Board te_Mid = t__Top.getSubBoard(0, 1);
+//		final Board tw_Mid = t__Top.getSubBoard(1, 0);
 
 		final Board tnnBtm = tn_Mid.getSubBoard(0, 0);
 		final Board tnsBtm = tn_Mid.getSubBoard(1, 1);
 		final Board tneBtm = tn_Mid.getSubBoard(0, 1);
 		final Board tnwBtm = tn_Mid.getSubBoard(1, 0);
 
-		final Board tsnBtm = ts_Mid.getSubBoard(0, 0);
-		final Board tssBtm = ts_Mid.getSubBoard(1, 1);
-		final Board tseBtm = ts_Mid.getSubBoard(0, 1);
-		final Board tswBtm = ts_Mid.getSubBoard(1, 0);
+//		final Board tsnBtm = ts_Mid.getSubBoard(0, 0);
+//		final Board tssBtm = ts_Mid.getSubBoard(1, 1);
+//		final Board tseBtm = ts_Mid.getSubBoard(0, 1);
+//		final Board tswBtm = ts_Mid.getSubBoard(1, 0);
 
-		final Board tenBtm = te_Mid.getSubBoard(0, 0);
-		final Board tesBtm = te_Mid.getSubBoard(1, 1);
-		final Board teeBtm = te_Mid.getSubBoard(0, 1);
-		final Board tewBtm = te_Mid.getSubBoard(1, 0);
+//		final Board tenBtm = te_Mid.getSubBoard(0, 0);
+//		final Board tesBtm = te_Mid.getSubBoard(1, 1);
+//		final Board teeBtm = te_Mid.getSubBoard(0, 1);
+//		final Board tewBtm = te_Mid.getSubBoard(1, 0);
 
-		final Board twnBtm = tw_Mid.getSubBoard(0, 0);
-		final Board twsBtm = tw_Mid.getSubBoard(1, 1);
-		final Board tweBtm = tw_Mid.getSubBoard(0, 1);
-		final Board twwBtm = tw_Mid.getSubBoard(1, 0);
+//		final Board twnBtm = tw_Mid.getSubBoard(0, 0);
+//		final Board twsBtm = tw_Mid.getSubBoard(1, 1);
+//		final Board tweBtm = tw_Mid.getSubBoard(0, 1);
+//		final Board twwBtm = tw_Mid.getSubBoard(1, 0);
 
 		{{
 			final Position nnnNpc = n(tnnBtm).place(Token.PLAYER_AAA);

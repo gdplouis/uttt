@@ -3,6 +3,11 @@ package com.uttt.common.game;
 import com.uttt.common.board.Board;
 import com.uttt.common.board.Position;
 
+/**
+ * The {@code Move} class represents actions taken by {@code Player} agents. Because the official game board and
+ * the player agent don't directly share the same board object, the move indication must be made without direct reference
+ * to any board object instance.
+ */
 public class Move {
 
 	public final int  row;
@@ -25,11 +30,17 @@ public class Move {
 
 	// ====================================================================================================
 
-	public Position toPosition(final Board topBoard) {
+	/**
+	 * Convert a {@code Move} sequence into a {@code Position}, relative to some nominal root-board.
+	 *
+	 * @param rootBoard
+	 * @return
+	 */
+	public Position toPosition(final Board rootBoard) {
 
 		Position rval = null;
 
-		Board cursorBoard = topBoard;
+		Board cursorBoard = rootBoard;
 		for (Move cursor = this; cursor != null; cursor = cursor.subMove) {
 			rval = cursorBoard.at(cursor.row, cursor.col);
 

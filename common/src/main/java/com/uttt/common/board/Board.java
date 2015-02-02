@@ -7,6 +7,23 @@ import java.util.List;
 import com.uttt.common.ArgCheck;
 import com.uttt.common.Foreachable;
 
+/**
+ * A board repesents an independent field of play, where that field is (A) square, and (B) where each position in that
+ * field is either a token-spot, or itself a (subordinate) board. This creates a recursive parent<-*>child relationship,
+ * with tokens at the base (the final child-level).
+ *
+ * <P>
+ *
+ * Further, some invariants are guaranteed for all valid boards: <UL>
+ *
+ * <LI>All boards reachable through this relationship must have the same (square) field size.
+ *
+ * <LI>Within each board field, all positions are either all {@code Token} values, or are all {@code Board} instances of
+ * mutually equal height.
+ *
+ * </UL>
+ *
+ */
 public final class Board implements Node, Playable {
 
 	private final Position    position;
@@ -66,25 +83,45 @@ public final class Board implements Node, Playable {
 		this((Position) null, height,  size);
 	}
 
+	/**
+	 * Get the {@link Position} of the board within its parent. If the board is the top-board, then
+	 * return {@code null}.
+	 */
 	@Override
 	public Position getPosition() {
 		return position;
 	}
 
+	/**
+	 * Get this board's parent board, or {@code null} if this is the top-board.
+	 * @return
+	 */
 	public Board getParent() {
 		return (position == null ? null : position.getBoard());
 	}
 
+	/**
+	 * Return {@code true} iff this board has no parent, i.e. is the top-board.
+	 */
 	@Override
 	public boolean isTop() {
 		return (position == null);
 	}
 
+	/**
+	 * Return {@code true} iff this board's positions are token-spots (not sub-boards), i.e. is a
+	 * bottom-board where {@code Token} values can be placed.
+	 */
 	@Override
 	public boolean isBottom() {
 		return (height == 1);
 	}
 
+	/**
+	 * Returns the height of a board, where a board-of-tokens is defined to have a height of 1,
+	 * and where the height of all other boards is one-more-than the (uniform) height of the sub-boards in
+	 * its field.
+	 */
 	@Override
 	public int getHeight() {
 		return height;
@@ -128,8 +165,8 @@ public final class Board implements Node, Playable {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends Node> T getSubNode(int row, int col, Class<T> typeClass) {
-		ArgCheck.rangeClosedOpen("x", row, 0, size);
-		ArgCheck.rangeClosedOpen("y", col, 0, size);
+		ArgCheck.index("row", row, size);
+		ArgCheck.index("col", col, size);
 
 		return (T) field[row][col];
 	}
@@ -160,10 +197,16 @@ public final class Board implements Node, Playable {
 		return topBoard;
 	}
 
+	/**
+	 * A simple {@link Position} factory returning a position within this board, at the given row/col.
+	 */
 	public Position at(int row, int col) {
 		return new Position(this, row, col);
 	}
 
+	/**
+	 * Return a deep-copy (recursive clone) of this board.
+	 */
 	@Override
 	public Board copyDeep() {
 		return new Board(this, getParent(), false);
@@ -252,7 +295,7 @@ public final class Board implements Node, Playable {
 
 	/* pkg */ void updatePosition(Token token, int myRow, int myCol) {
 		if (height > 1) {
-			throw new IllegalArgumentException("board height [" + height + "] too high (>1) to place a token");
+			throw new IllegalArgumentException("board height=[" + height + "] too high (>1) to place a token");
 		}
 
 		// make sure this board lineage is playable
@@ -453,11 +496,11 @@ public final class Board implements Node, Playable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + Arrays.hashCode(field);
 		result = prime * result + height;
 		result = prime * result + playCount;
 		result = prime * result + size;
 		result = prime * result + ((status == null) ? 0 : status.hashCode());
+		result = prime * result + Arrays.hashCode(field);
 		return result;
 	}
 
@@ -466,9 +509,6 @@ public final class Board implements Node, Playable {
 	 * is NOT considered part of the equality test, although any sub-boards of the two boards under comparison
 	 * are compared in a same-position manner. Essentially, this means that the equality test is only sensitive to
 	 * the {@code Token} layout of the bottom boards.
-	 *
-	 * @param obj
-	 * @return
 	 */
 	@Override
 	public boolean equals(Object obj) {

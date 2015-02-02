@@ -438,11 +438,11 @@ public class PlayerTest {
 
 		Player   player     = playerAAA;
 		Position constraint = null;
-		int      length     = 0;
+		int      depth     = 0;
 		for (int i = 0; board.isPlayable() && (i < 800); ++i) {
-			length = (constraint == null) ? 0 : constraint.length();
+			depth = (constraint == null) ? 0 : constraint.depth();
 			log.trace("#" + i);
-			log.trace("Current constraint: [" + constraint + "]; length=["+length+"]");
+			log.trace("Current constraint: [" + constraint + "]; depth=["+depth+"]");
 
 			Move     move       = player.makeMove(log, board, constraint);
 			Position position   = move.toPosition(board);

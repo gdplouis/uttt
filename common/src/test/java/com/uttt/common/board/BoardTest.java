@@ -166,6 +166,77 @@ public class BoardTest extends NodeTest {
 		}
 	}
 
+	@Test
+	public void accessors_playCount_h1s3() {
+
+		Board board = new Board(1, 3);
+		assertEquals("before move #1: ", 0, board.getPlayCount());
+
+		board.at(0, 0).place(Token.PLAYER_AAA);
+		assertEquals("after move #1: ", 1, board.getPlayCount());
+
+		board.at(0, 1).place(Token.PLAYER_AAA);
+		assertEquals("after move #2: ", 2, board.getPlayCount());
+
+		board.at(0, 2).place(Token.PLAYER_AAA);
+		assertEquals("after move #3: ", 3, board.getPlayCount());
+	}
+
+	@Test
+	public void accessors_playCount_h2s3() {
+
+		Board topBoard = new Board(2, 3);
+
+		Board t00Board = topBoard.getSubBoard(0, 0);
+		Board t11Board = topBoard.getSubBoard(1, 1);
+		Board t22Board = topBoard.getSubBoard(2, 2);
+
+		assertEquals("before move #1, topBoard: ", 0, topBoard.getPlayCount());
+		assertEquals("before move #1, t00Board: ", 0, t00Board.getPlayCount());
+		assertEquals("before move #1, t11Board: ", 0, t11Board.getPlayCount());
+		assertEquals("before move #1, t22Board: ", 0, t22Board.getPlayCount());
+
+		//
+
+		t00Board.at(0, 0).place(Token.PLAYER_AAA);
+		assertEquals("after move #1, topBoard: ", 0, topBoard.getPlayCount());
+		assertEquals("after move #1, t00Board: ", 1, t00Board.getPlayCount());
+		assertEquals("after move #1, t11Board: ", 0, t11Board.getPlayCount());
+		assertEquals("after move #1, t22Board: ", 0, t22Board.getPlayCount());
+
+		t00Board.at(0, 1).place(Token.PLAYER_AAA);
+		assertEquals("after move #2, topBoard: ", 0, topBoard.getPlayCount());
+		assertEquals("after move #2, t00Board: ", 2, t00Board.getPlayCount());
+		assertEquals("after move #2, t11Board: ", 0, t11Board.getPlayCount());
+		assertEquals("after move #2, t22Board: ", 0, t22Board.getPlayCount());
+
+		t00Board.at(0, 2).place(Token.PLAYER_AAA);
+		assertEquals("after move #3, topBoard: ", 1, topBoard.getPlayCount());
+		assertEquals("after move #3, t00Board: ", 3, t00Board.getPlayCount());
+		assertEquals("after move #3, t11Board: ", 0, t11Board.getPlayCount());
+		assertEquals("after move #3, t22Board: ", 0, t22Board.getPlayCount());
+
+		//
+
+		t11Board.at(0, 0).place(Token.PLAYER_AAA);
+		assertEquals("after move #1, topBoard: ", 1, topBoard.getPlayCount());
+		assertEquals("after move #1, t00Board: ", 3, t00Board.getPlayCount());
+		assertEquals("after move #1, t11Board: ", 1, t11Board.getPlayCount());
+		assertEquals("after move #1, t22Board: ", 0, t22Board.getPlayCount());
+
+		t11Board.at(1, 0).place(Token.PLAYER_AAA);
+		assertEquals("after move #2, topBoard: ", 1, topBoard.getPlayCount());
+		assertEquals("after move #2, t00Board: ", 3, t00Board.getPlayCount());
+		assertEquals("after move #2, t11Board: ", 2, t11Board.getPlayCount());
+		assertEquals("after move #2, t22Board: ", 0, t22Board.getPlayCount());
+
+		t11Board.at(2, 0).place(Token.PLAYER_AAA);
+		assertEquals("after move #3, topBoard: ", 2, topBoard.getPlayCount());
+		assertEquals("after move #3, t00Board: ", 3, t00Board.getPlayCount());
+		assertEquals("after move #3, t11Board: ", 3, t11Board.getPlayCount());
+		assertEquals("after move #3, t22Board: ", 0, t22Board.getPlayCount());
+	}
+
 	// ====================================================================================================
 
 	@Test

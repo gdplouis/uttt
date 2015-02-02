@@ -1,8 +1,21 @@
 package com.uttt.common;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
-
+/**
+ * The {@code Foreachable} class is designed to simplify the abstraction of looping across a range of {@code int}
+ * values. Rather than loop controls like:
+ *
+ * <PRE> for(final int i = 0; i < size; ++i) {...}</PRE>
+ *
+ * you can write them as:
+ *
+ * <PRE> for(final int i : Foreachable.until(size)) {...}</PRE>
+ *
+ * Further, there are several variations of such factory methods which cover exclusive and inclusive upper bound,
+ * implicit zero vs. explicit lower bound, and implicit step-by-one vs. explicit step value.
+ */
 public final class Foreachable implements Iterable<Integer> {
 
 	public final int start;
@@ -11,7 +24,7 @@ public final class Foreachable implements Iterable<Integer> {
 
 	private Foreachable(int start, int limit, int step) {
 		if (step < 1) {
-			throw new IllegalArgumentException("step [" + step + "] must be positive value");
+			throw new IllegalArgumentException("step[=" + step + "]: must be positive value");
 		}
 
 		this.start = start;
@@ -98,6 +111,10 @@ public final class Foreachable implements Iterable<Integer> {
 
 			@Override
 			public Integer next() {
+				if (!hasNext()) {
+					throw new NoSuchElementException("cursor[=" + cursor + "] already at/beyond limit[=" + limit + "]");
+				}
+
 				int rval = cursor;
 				cursor += step;
 

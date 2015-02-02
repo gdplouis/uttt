@@ -28,8 +28,13 @@ public interface Node {
 	Status   getStatus();
 
 	/**
-	 * @param row
-	 * @param col
+	 * Accessor to retrieve the (row,col) element into this {@code Node}'s field grid.
+	 *
+	 * @param row The row index into the {@code Node}'s field grid.
+	 * @param col The column index into the {@code Node}'s field grid.
+	 *
+	 * @throws RuntimeException If the concrete implementation doesn't have a field grid, i.e. is a {@code Token}, rather
+	 * than a {@code Board}.
 	 */
 	default <T extends Node> T getSubNode(int row, int col, Class<T> typeClass) {
 		throw new RuntimeException(typeClass.getName() + " nodes don't have sub-nodes");

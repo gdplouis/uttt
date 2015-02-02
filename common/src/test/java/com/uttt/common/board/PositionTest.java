@@ -650,10 +650,10 @@ public class PositionTest implements PlayableTest {
 		}
 	}
 
-	private Position n(Board b) { return b.at(0, 0); }
-	private Position s(Board b) { return b.at(1, 1); }
-	private Position e(Board b) { return b.at(0, 1); }
-	private Position w(Board b) { return b.at(1, 0); }
+	private static Position n(Board b) { return b.at(0, 0); }
+	private static Position s(Board b) { return b.at(1, 1); }
+	private static Position e(Board b) { return b.at(0, 1); }
+//	private static Position w(Board b) { return b.at(1, 0); }
 
 	@Test
 	public void place_h3s2() {
@@ -661,96 +661,131 @@ public class PositionTest implements PlayableTest {
 		assertEquals("topBoard.getPlayCount(): ", 0, t__Top.getPlayCount());
 
 		final Board tn_Mid = t__Top.getSubBoard(0, 0);
-		final Board ts_Mid = t__Top.getSubBoard(1, 1);
-		final Board te_Mid = t__Top.getSubBoard(0, 1);
-		final Board tw_Mid = t__Top.getSubBoard(1, 0);
+//		final Board ts_Mid = t__Top.getSubBoard(1, 1);
+//		final Board te_Mid = t__Top.getSubBoard(0, 1);
+//		final Board tw_Mid = t__Top.getSubBoard(1, 0);
 
 		final Board tnnBtm = tn_Mid.getSubBoard(0, 0);
 		final Board tnsBtm = tn_Mid.getSubBoard(1, 1);
 		final Board tneBtm = tn_Mid.getSubBoard(0, 1);
 		final Board tnwBtm = tn_Mid.getSubBoard(1, 0);
 
-		final Board tsnBtm = ts_Mid.getSubBoard(0, 0);
-		final Board tssBtm = ts_Mid.getSubBoard(1, 1);
-		final Board tseBtm = ts_Mid.getSubBoard(0, 1);
-		final Board tswBtm = ts_Mid.getSubBoard(1, 0);
+//		final Board tsnBtm = ts_Mid.getSubBoard(0, 0);
+//		final Board tssBtm = ts_Mid.getSubBoard(1, 1);
+//		final Board tseBtm = ts_Mid.getSubBoard(0, 1);
+//		final Board tswBtm = ts_Mid.getSubBoard(1, 0);
 
-		final Board tenBtm = te_Mid.getSubBoard(0, 0);
-		final Board tesBtm = te_Mid.getSubBoard(1, 1);
-		final Board teeBtm = te_Mid.getSubBoard(0, 1);
-		final Board tewBtm = te_Mid.getSubBoard(1, 0);
+//		final Board tenBtm = te_Mid.getSubBoard(0, 0);
+//		final Board tesBtm = te_Mid.getSubBoard(1, 1);
+//		final Board teeBtm = te_Mid.getSubBoard(0, 1);
+//		final Board tewBtm = te_Mid.getSubBoard(1, 0);
 
-		final Board twnBtm = tw_Mid.getSubBoard(0, 0);
-		final Board twsBtm = tw_Mid.getSubBoard(1, 1);
-		final Board tweBtm = tw_Mid.getSubBoard(0, 1);
-		final Board twwBtm = tw_Mid.getSubBoard(1, 0);
+//		final Board twnBtm = tw_Mid.getSubBoard(0, 0);
+//		final Board twsBtm = tw_Mid.getSubBoard(1, 1);
+//		final Board tweBtm = tw_Mid.getSubBoard(0, 1);
+//		final Board twwBtm = tw_Mid.getSubBoard(1, 0);
 
 		{{
-			final Position nnnNpc = n(tnnBtm).place(Token.PLAYER_AAA);
-			assertNotNull("nnnNpc: ", nnnNpc);
-			assertSame   ("nnnNpc.derefBoard(): ", tnnBtm, (nnnNpc.derefBoard()));
+			final Position nnnNmc = n(tnnBtm).place(Token.PLAYER_AAA);
+			assertNotNull("nnnNmc: ", nnnNmc);
+			assertSame   ("nnnNmc.derefBoard(): ", tnnBtm, (nnnNmc.derefBoard()));
 			assertEquals ("tnnBtm.getPlayCount(): ", 1, tnnBtm.getPlayCount());
+			assertEquals ("tnsBtm.getPlayCount(): ", 0, tnsBtm.getPlayCount());
 			assertEquals ("tneBtm.getPlayCount(): ", 0, tneBtm.getPlayCount());
 			assertEquals ("tneBtm.getPlayCount(): ", 0, tnwBtm.getPlayCount());
 			assertEquals ("tn_Mid.getPlayCount(): ", 0, tn_Mid.getPlayCount());
 			assertEquals ("t__Top.getPlayCount(): ", 0, t__Top.getPlayCount());
+			assertTrue   ("tnnBtm.isPlayable(): ", tnnBtm.isPlayable());
+			assertTrue   ("tnsBtm.isPlayable(): ", tnsBtm.isPlayable());
+			assertTrue   ("tneBtm.isPlayable(): ", tneBtm.isPlayable());
+			assertTrue   ("tnwBtm.isPlayable(): ", tnwBtm.isPlayable());
 		}{
-			final Position nneNpc = e(tnnBtm).place(Token.PLAYER_BBB);
-			assertNotNull("nneNpc: ", nneNpc);
-			assertSame   ("nneNpc.derefBoard(): ", tneBtm, (nneNpc.derefBoard()));
+			final Position nneNmc = e(tnnBtm).place(Token.PLAYER_BBB);
+			assertNotNull("nneNmc: ", nneNmc);
+			assertSame   ("nneNmc.derefBoard(): ", tneBtm, (nneNmc.derefBoard()));
 			assertEquals ("tnnBtm.getPlayCount(): ", 2, tnnBtm.getPlayCount());
+			assertEquals ("tnsBtm.getPlayCount(): ", 0, tnsBtm.getPlayCount());
 			assertEquals ("tneBtm.getPlayCount(): ", 0, tneBtm.getPlayCount());
 			assertEquals ("tneBtm.getPlayCount(): ", 0, tnwBtm.getPlayCount());
 			assertEquals ("tn_Mid.getPlayCount(): ", 0, tn_Mid.getPlayCount());
 			assertEquals ("t__Top.getPlayCount(): ", 0, t__Top.getPlayCount());
+			assertTrue   ("tnnBtm.isPlayable(): ", tnnBtm.isPlayable());
+			assertTrue   ("tnsBtm.isPlayable(): ", tnsBtm.isPlayable());
+			assertTrue   ("tneBtm.isPlayable(): ", tneBtm.isPlayable());
+			assertTrue   ("tnwBtm.isPlayable(): ", tnwBtm.isPlayable());
 		}{
-			final Position nnsNpc = s(tnnBtm).place(Token.PLAYER_AAA);
-			assertNotNull("nnsNpc: ", nnsNpc);
-			assertSame   ("nnsNpc.derefBoard(): ", tnsBtm, (nnsNpc.derefBoard()));
+			final Position nnsNmc = s(tnnBtm).place(Token.PLAYER_AAA);
+			assertNotNull("nnsNmc: ", nnsNmc);
+			assertSame   ("nnsNmc.derefBoard(): ", tnsBtm, (nnsNmc.derefBoard()));
 			assertEquals ("tnnBtm.getPlayCount(): ", 3, tnnBtm.getPlayCount());
+			assertEquals ("tnsBtm.getPlayCount(): ", 0, tnsBtm.getPlayCount());
 			assertEquals ("tneBtm.getPlayCount(): ", 0, tneBtm.getPlayCount());
 			assertEquals ("tneBtm.getPlayCount(): ", 0, tnwBtm.getPlayCount());
 			assertEquals ("tn_Mid.getPlayCount(): ", 1, tn_Mid.getPlayCount());
 			assertEquals ("t__Top.getPlayCount(): ", 0, t__Top.getPlayCount());
+			assertFalse  ("tnnBtm.isPlayable(): ", tnnBtm.isPlayable());
+			assertTrue   ("tnsBtm.isPlayable(): ", tnsBtm.isPlayable());
+			assertTrue   ("tneBtm.isPlayable(): ", tneBtm.isPlayable());
+			assertTrue   ("tnwBtm.isPlayable(): ", tnwBtm.isPlayable());
 		}{
-			final Position nenNpc = n(tneBtm).place(Token.PLAYER_BBB);
-			assertNotNull("nenNpc: ", nenNpc);
-			assertSame   ("nenNpc.derefBoard(): ", tn_Mid, (nenNpc.derefBoard()));
+			final Position nenNmc = n(tneBtm).place(Token.PLAYER_BBB);
+			assertNotNull("nenNmc: ", nenNmc);
+			assertSame   ("nenNmc.derefBoard(): ", tn_Mid, (nenNmc.derefBoard()));
 
 			assertEquals ("tnnBtm.getPlayCount(): ", 3, tnnBtm.getPlayCount());
+			assertEquals ("tnsBtm.getPlayCount(): ", 0, tnsBtm.getPlayCount());
 			assertEquals ("tneBtm.getPlayCount(): ", 1, tneBtm.getPlayCount());
 			assertEquals ("tneBtm.getPlayCount(): ", 0, tnwBtm.getPlayCount());
 			assertEquals ("tn_Mid.getPlayCount(): ", 1, tn_Mid.getPlayCount());
 			assertEquals ("t__Top.getPlayCount(): ", 0, t__Top.getPlayCount());
+			assertFalse  ("tnnBtm.isPlayable(): ", tnnBtm.isPlayable());
+			assertTrue   ("tnsBtm.isPlayable(): ", tnsBtm.isPlayable());
+			assertTrue   ("tneBtm.isPlayable(): ", tneBtm.isPlayable());
+			assertTrue   ("tnwBtm.isPlayable(): ", tnwBtm.isPlayable());
 		}{
-			final Position neeNpc = e(tneBtm).place(Token.PLAYER_BBB);
-			assertNotNull("neeNpc: ", neeNpc);
-			assertSame   ("neeNpc.derefBoard(): ", tn_Mid, (neeNpc.derefBoard()));
+			final Position neeNmc = e(tneBtm).place(Token.PLAYER_BBB);
+			assertNotNull("neeNmc: ", neeNmc);
+			assertSame   ("neeNmc.derefBoard(): ", tn_Mid, (neeNmc.derefBoard()));
 
 			assertEquals ("tnnBtm.getPlayCount(): ", 3, tnnBtm.getPlayCount());
+			assertEquals ("tnsBtm.getPlayCount(): ", 0, tnsBtm.getPlayCount());
 			assertEquals ("tneBtm.getPlayCount(): ", 2, tneBtm.getPlayCount());
 			assertEquals ("tneBtm.getPlayCount(): ", 0, tnwBtm.getPlayCount());
 			assertEquals ("tn_Mid.getPlayCount(): ", 2, tn_Mid.getPlayCount());
 			assertEquals ("t__Top.getPlayCount(): ", 0, t__Top.getPlayCount());
+			assertFalse  ("tnnBtm.isPlayable(): ", tnnBtm.isPlayable());
+			assertTrue   ("tnsBtm.isPlayable(): ", tnsBtm.isPlayable());
+			assertFalse  ("tneBtm.isPlayable(): ", tneBtm.isPlayable());
+			assertTrue   ("tnwBtm.isPlayable(): ", tnwBtm.isPlayable());
 		}{
-			final Position nwnNpc = n(tnwBtm).place(Token.PLAYER_AAA);
-			assertNotNull("nwnNpc: ", nwnNpc);
-			assertSame   ("nwnNpc.derefBoard(): ", tn_Mid, (nwnNpc.derefBoard()));
+			final Position nwnNmc = n(tnwBtm).place(Token.PLAYER_AAA);
+			assertNotNull("nwnNmc: ", nwnNmc);
+			assertSame   ("nwnNmc.derefBoard(): ", tn_Mid, (nwnNmc.derefBoard()));
 
 			assertEquals ("tnnBtm.getPlayCount(): ", 3, tnnBtm.getPlayCount());
+			assertEquals ("tnsBtm.getPlayCount(): ", 0, tnsBtm.getPlayCount());
 			assertEquals ("tneBtm.getPlayCount(): ", 2, tneBtm.getPlayCount());
 			assertEquals ("tneBtm.getPlayCount(): ", 1, tnwBtm.getPlayCount());
 			assertEquals ("tn_Mid.getPlayCount(): ", 2, tn_Mid.getPlayCount());
 			assertEquals ("t__Top.getPlayCount(): ", 0, t__Top.getPlayCount());
+			assertFalse  ("tnnBtm.isPlayable(): ", tnnBtm.isPlayable());
+			assertTrue   ("tnsBtm.isPlayable(): ", tnsBtm.isPlayable());
+			assertFalse  ("tneBtm.isPlayable(): ", tneBtm.isPlayable());
+			assertTrue   ("tnwBtm.isPlayable(): ", tnwBtm.isPlayable());
 		}{
-			final Position nweNpc = e(tnwBtm).place(Token.PLAYER_AAA);
-			assertNull   ("nweNpc: ", nweNpc);
+			final Position nweNmc = e(tnwBtm).place(Token.PLAYER_AAA);
+			assertNull   ("nweNmc: ", nweNmc);
 
 			assertEquals ("tnnBtm.getPlayCount(): ", 3, tnnBtm.getPlayCount());
+			assertEquals ("tnsBtm.getPlayCount(): ", 0, tnsBtm.getPlayCount());
 			assertEquals ("tneBtm.getPlayCount(): ", 2, tneBtm.getPlayCount());
 			assertEquals ("tneBtm.getPlayCount(): ", 2, tnwBtm.getPlayCount());
 			assertEquals ("tn_Mid.getPlayCount(): ", 3, tn_Mid.getPlayCount());
 			assertEquals ("t__Top.getPlayCount(): ", 1, t__Top.getPlayCount());
+			assertFalse  ("tnnBtm.isPlayable(): ", tnnBtm.isPlayable());
+			assertFalse  ("tnsBtm.isPlayable(): ", tnsBtm.isPlayable()); // no moves in this board, but lineage is not playable
+			assertFalse  ("tneBtm.isPlayable(): ", tneBtm.isPlayable());
+			assertFalse  ("tnwBtm.isPlayable(): ", tnwBtm.isPlayable());
 		}}
 	}
 

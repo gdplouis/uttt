@@ -23,15 +23,15 @@
   </logger>
   
   <logger name="com.uttt.common.game.PlayerTest.random_h2s3_followConstraints">
-    <level value="trace"/> 
+    <level value="info"/> 
   </logger>
   
   <logger name="com.uttt.common.game.PlayerTest.random_h3s2_followConstraints">
-    <level value="trace"/> 
+    <level value="info"/> 
   </logger>
   
   <logger name="com.uttt.common.game.PlayerTest.random_h3s3_followConstraints">
-    <level value="debug"/> 
+    <level value="trace"/> 
   </logger>
   
   <root> 

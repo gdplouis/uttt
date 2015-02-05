@@ -14,11 +14,6 @@ public class ArgCheck {
 
 	private ArgCheck() { }
 
-	private static <T> StringBuilder appendNameValue(StringBuilder sb, String name, T value) {
-
-		return sb.append(name).append("=").append(value).append(": ");
-	}
-
 	/**
 	 * Throws {@code IllegalArgumentException} if the supplied value is null.
 	 *
@@ -29,7 +24,7 @@ public class ArgCheck {
 	 */
 	public static void notNull(String name, Object value) {
 		if (value == null) {
-			throw new IllegalArgumentException(name + ": may not be null");
+			throw ExUtil.create(IllegalArgumentException.class).append("may not be mull").build();
 		}
 	}
 
@@ -49,13 +44,11 @@ public class ArgCheck {
 	public static void rangeClosed(String name, int value, int lower, int upper) {
 
 		if ((value < lower) || (value > upper)) {
-			StringBuilder sb = new StringBuilder();
-
-			appendNameValue(sb, name, value)
-					.append("outside of closed range ") //
-					.append("[").append(lower).append(",").append(upper).append("]");
-
-			throw new IllegalArgumentException(sb.toString());
+			throw ExUtil.create(IllegalArgumentException.class)
+				.ident(name, value)
+				.append("outside of closed range")
+				.append(ExUtil.Join.NONE, "[", lower, ",", upper, "]")
+				.build();
 		}
 	}
 
@@ -66,7 +59,7 @@ public class ArgCheck {
 	 * <P>
 	 *
 	 * A very common usecase for this check is to validate an index against a size, as for an array or list. For that
-	 * purpose, however, use {@link com.uttt.common.ArgCheck#index(String, int, int) ArgCheck.index(String, int, int)}
+	 * purpose, however, use {@link com.uttt.common.ArgCheck#index(String, int, int, String) ArgCheck.index(String, int, int)}
 	 * which better represents what the caller is verifying.
 	 *
 	 * @param name
@@ -81,13 +74,11 @@ public class ArgCheck {
 	public static void rangeClosedOpen(String name, int value, int lower, int upper) {
 
 		if ((value < lower) || (value >= upper)) {
-			StringBuilder sb = new StringBuilder();
-
-			appendNameValue(sb, name, value)
-					.append("outside of closed/open range ") //
-					.append("[").append(lower).append(",").append(upper).append(")");
-
-			throw new IllegalArgumentException(sb.toString());
+			throw ExUtil.create(IllegalArgumentException.class)
+				.ident(name, value)
+				.append("outside of closed/open range")
+				.append(ExUtil.Join.NONE, "[", lower, ",", upper, ")")
+				.build();
 		}
 	}
 
@@ -101,17 +92,18 @@ public class ArgCheck {
 	 *            The value being checked.
 	 * @param size
 	 *            The upper exclusive bound of the range
+	 * @param sizeQualifier
+	 *            An optional string that provides "identifier style" context to the {@code size} argument
 	 */
-	public static void index(String name, int value, int size) {
+	public static void index(String name, int value, int size, String sizeQualifier) {
 
 		if ((value < 0) || (value >= size)) {
-			StringBuilder sb = new StringBuilder();
+			final String sizeText = ((sizeQualifier == null ? "[" : (sizeQualifier + "[=")) + size+ "]");
 
-			appendNameValue(sb, name, value)
-					.append("bad index: ") //
-					.append("must be non-negative and less than ").append(size);
-
-			throw new IllegalArgumentException(sb.toString());
+			throw ExUtil.create(IndexOutOfBoundsException.class)
+				.ident(name, value)
+				.append("must be non-negative and less than "+sizeText)
+				.build();
 		}
 	}
 }

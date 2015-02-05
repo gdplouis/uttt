@@ -2,6 +2,8 @@ package com.uttt.common.testutil;
 
 import java.util.Random;
 
+import com.uttt.common.ExUtil;
+
 public class RepeatableRandom extends Random {
 
 	private static final long serialVersionUID = 1L;
@@ -58,7 +60,10 @@ public class RepeatableRandom extends Random {
 	 */
 	public final static RepeatableRandom create(int framesUp) {
 		if (framesUp < 0) {
-			throw new IllegalArgumentException("framesUp=[" + framesUp + "] must be non-negative");
+			throw ExUtil.create(IllegalArgumentException.class)
+				.ident("framesUp", framesUp)
+				.append("must be non-negative")
+				.build();
 		}
 		RepeatableRandom rval = create(StackFrameUtil.frameAbove(1 + framesUp));
 		return rval;
@@ -81,7 +86,9 @@ public class RepeatableRandom extends Random {
 	 */
 	public static <T extends Enum<T>> RepeatableRandom create(int framesUp, T value) {
 		if (value == null) {
-			throw new IllegalArgumentException("enum value may not be null");
+			throw ExUtil.create(NullPointerException.class)
+			.ident("value", value)
+			.build();
 		}
 
 		RepeatableRandom rval = create(StackFrameUtil.frameAbove(1+framesUp), value.getClass().getCanonicalName(), value.toString());
@@ -93,7 +100,9 @@ public class RepeatableRandom extends Random {
 		// super constructor calls (somehow) [#setSeed], so we need to detect first time vs. reset
 
 		if (seed != null) {
-			throw new IllegalAccessError("may not reset seed of a repeatable random sequence");
+			throw ExUtil.create(IllegalAccessError.class)
+				.append("may not reset seed of a repeatable random sequence")
+				.build();
 		}
 
 		super.setSeed(newSeed);

@@ -1,5 +1,7 @@
 package com.uttt.common.game;
 
+import com.uttt.common.ExUtil;
+import com.uttt.common.UtttException;
 import com.uttt.common.board.Board;
 import com.uttt.common.board.Position;
 
@@ -48,7 +50,10 @@ public class Move {
 				cursorBoard = rval.derefBoard();
 			} else {
 				if (cursor.subMove != null) {
-					throw new IllegalArgumentException("move too long for board: " + this.toString());
+					throw ExUtil.create(UtttException.AlreadyAtBottom.class)
+						.ident("<this>", this)
+						.append("move too long for board")
+						.build();
 				}
 			}
 		}

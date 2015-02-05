@@ -5,7 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.uttt.common.ArgCheck;
+import com.uttt.common.ExUtil;
 import com.uttt.common.Foreachable;
+import com.uttt.common.UtttException;
 
 /**
  * A board repesents an independent field of play, where that field is (A) square, and (B) where each position in that
@@ -37,8 +39,14 @@ public final class Board implements Node, Playable {
 	private int         playCount = 0;
 
 	private Board(Position position, int height, int size) {
-		ArgCheck.rangeClosed("height", height, 1, 3);
-		ArgCheck.rangeClosed("size"  , size  , 2, 5);
+		try {
+			ArgCheck.rangeClosed("height", height, 1, 3);
+			ArgCheck.rangeClosed("size"  , size  , 2, 5);
+		} catch (IllegalArgumentException e) {
+			throw ExUtil.create(UtttException.BadBoardConfig.class)
+			    .append(e.getMessage())
+			    .build();
+		}
 
 		this.position  = position;
 		this.height    = height;
@@ -165,15 +173,15 @@ public final class Board implements Node, Playable {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends Node> T getSubNode(int row, int col, Class<T> typeClass) {
-		ArgCheck.index("row", row, size);
-		ArgCheck.index("col", col, size);
+		ArgCheck.index("row", row, size, "board.size");
+		ArgCheck.index("col", col, size, "board.size");
 
 		return (T) field[row][col];
 	}
 
 	public Board getSubBoard(int row, int col) {
 		if (height <= 1) {
-			throw new IllegalArgumentException("no sub-boards, at bottom board");
+			throw ExUtil.create(UtttException.AlreadyAtBottom.class).append("no sub-boards, at bottom board").build();
 		}
 
 		return getSubNode(row, col, Board.class);
@@ -181,7 +189,10 @@ public final class Board implements Node, Playable {
 
 	public Token getSubToken(int row, int col) {
 		if (height > 1) {
-			throw new IllegalArgumentException("no sub-tokens, above bottom board");
+			throw ExUtil.create(UtttException.NotBottomBoard.class)
+				.ident("board height", height)
+				.append("no sub-tokens, not at bottom board")
+				.build();
 		}
 
 		return getSubNode(row, col, Token.class);
@@ -295,14 +306,19 @@ public final class Board implements Node, Playable {
 
 	/* pkg */ void updatePosition(Token token, int myRow, int myCol) {
 		if (height > 1) {
-			throw new IllegalArgumentException("board height=[" + height + "] too high (>1) to place a token");
+			throw ExUtil.create(IllegalArgumentException.class)
+				.ident("board.height", height)
+				.append("too high (>1) to place a token")
+				.build();
 		}
 
 		// make sure this board lineage is playable
 
 		for (Board lineage = this; lineage != null; lineage = lineage.getParent()) {
 			if (!lineage.isPlayable()) {
-				throw new IllegalArgumentException("board lineage is not playable");
+				throw ExUtil.create(UtttException.NotPlayable.class)
+					.ident("lineage.position", lineage.getPosition())
+					.build();
 			}
 		}
 
@@ -310,7 +326,9 @@ public final class Board implements Node, Playable {
 
 		Token inPlace = getSubToken(myRow, myCol);
 		if (inPlace != Token.EMPTY) {
-			throw new IllegalArgumentException("token position already filled");
+			throw ExUtil.create(IllegalArgumentException.class)
+				.append("token position already filled")
+				.build();
 		}
 
 		field[myRow][myCol] = token;

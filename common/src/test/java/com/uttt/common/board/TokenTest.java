@@ -4,12 +4,19 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.uttt.common.TestExceptionValidator;
+
 public class TokenTest extends NodeTest {
 
-	@Test(expected=RuntimeException.class)
+	@Test
 	@Override
 	public void accessors_getSubNode() {
-		Token.EMPTY.getSubNode(99, 99);
+		TestExceptionValidator.validate(RuntimeException.class,
+			"Node subclass[=class com.uttt.common.board.Token]: this class doesn't have sub-nodes",
+			new TestExceptionValidator.Trigger() { @Override public void action() {
+				Token.EMPTY.getSubNode(99, 99);
+			}}
+		);
 	}
 
 	@Override

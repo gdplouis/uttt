@@ -14,36 +14,69 @@ import java.util.Map.Entry;
 
 import org.junit.Test;
 
+import com.uttt.common.TestExceptionValidator;
+import com.uttt.common.UtttException;
+
 public class PositionTest implements PlayableTest {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void construct_boardNull() {
-		@SuppressWarnings("unused")
-		Position x = new Position(null, 0, 0);
+
+		TestExceptionValidator.validate(IllegalArgumentException.class,
+			"may not be mull",
+			new TestExceptionValidator.Trigger() { @Override public void action() {
+				@SuppressWarnings("unused")
+				Position x = new Position(null, 0, 0);
+			}}
+		);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void construct_rowNeg() {
-		@SuppressWarnings("unused")
-		Position x = new Position(new Board(1, 3), -1, 0);
+
+		TestExceptionValidator.validate(IndexOutOfBoundsException.class,
+			"row[=-1]: must be non-negative and less than board.size[=3]",
+			new TestExceptionValidator.Trigger() { @Override public void action() {
+				@SuppressWarnings("unused")
+				Position x = new Position(new Board(1, 3), -1, 0);
+			}}
+		);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void construct_rowTooBig() {
-		@SuppressWarnings("unused")
-		Position x = new Position(new Board(1, 3), 99, 0);
+
+		TestExceptionValidator.validate(IndexOutOfBoundsException.class,
+			"row[=99]: must be non-negative and less than board.size[=3]",
+			new TestExceptionValidator.Trigger() { @Override public void action() {
+				@SuppressWarnings("unused")
+				Position x = new Position(new Board(1, 3), 99, 0);
+			}}
+		);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void construct_colNeg() {
-		@SuppressWarnings("unused")
-		Position x = new Position(new Board(1, 3), 0, -1);
+
+		TestExceptionValidator.validate(IndexOutOfBoundsException.class,
+			"col[=-1]: must be non-negative and less than board.size[=3]",
+			new TestExceptionValidator.Trigger() { @Override public void action() {
+				@SuppressWarnings("unused")
+				Position x = new Position(new Board(1, 3), 0, -1);
+			}}
+		);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void construct_colTooBig() {
-		@SuppressWarnings("unused")
-		Position x = new Position(new Board(1, 3), 0, 99);
+
+		TestExceptionValidator.validate(IndexOutOfBoundsException.class,
+			"col[=99]: must be non-negative and less than board.size[=3]",
+			new TestExceptionValidator.Trigger() { @Override public void action() {
+				@SuppressWarnings("unused")
+				Position x = new Position(new Board(1, 3), 0, 99);
+			}}
+		);
 	}
 
 	// ====================================================================================================
@@ -791,21 +824,31 @@ public class PositionTest implements PlayableTest {
 
 	// ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void at_h1s3_bottom() {
 		final Board    board  = new Board(1,3);
 		final Position t00Pos = board.at(0,0);
 
-		t00Pos.at(1,2);
+		TestExceptionValidator.validate(UtttException.AlreadyAtBottom.class,
+			"<this>[=TOP/h1:~(0,0)]: can't delve further",
+			new TestExceptionValidator.Trigger() { @Override public void action() {
+				t00Pos.at(1,2);
+			}}
+		);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void at_h2s3_bottom() {
 		final Board    board     = new Board(2,3);
 		final Position t00Pos    = board.at(0,0);
 		final Position t00s00Pos = t00Pos.at(0,0);
 
-		t00s00Pos.at(1,2);
+		TestExceptionValidator.validate(UtttException.AlreadyAtBottom.class,
+			"<this>[=TOP/h2:~(0,0)~(0,0)]: can't delve further",
+			new TestExceptionValidator.Trigger() { @Override public void action() {
+				t00s00Pos.at(1,2);
+			}}
+		);
 	}
 
 	@Test

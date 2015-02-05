@@ -7,6 +7,8 @@ import static org.junit.Assert.assertSame;
 import org.junit.Test;
 
 import com.uttt.common.Foreachable;
+import com.uttt.common.TestExceptionValidator;
+import com.uttt.common.UtttException;
 import com.uttt.common.board.Node.Status;
 
 public class BoardTest extends NodeTest {
@@ -25,28 +27,60 @@ public class BoardTest extends NodeTest {
 		assertEquals("bottomNode.getClass(): ", Token.class, bottomNode.getClass());
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void constructor_tooShallow() {
-		@SuppressWarnings("unused")
-		Board board = new Board(0, 999);
+		TestExceptionValidator.validate(UtttException.BadBoardConfig.class,
+				"height[=0]: outside of closed range: [1,3]",
+				new TestExceptionValidator.Trigger() {
+					@Override
+					public void action() {
+						@SuppressWarnings("unused")
+						Board  board = new Board(0, 3);
+					}
+				}
+			);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void constructor_tooTall() {
-		@SuppressWarnings("unused")
-		Board board = new Board(10, 999);
+		TestExceptionValidator.validate(UtttException.BadBoardConfig.class,
+				"height[=10]: outside of closed range: [1,3]",
+				new TestExceptionValidator.Trigger() {
+					@Override
+					public void action() {
+						@SuppressWarnings("unused")
+						Board  board = new Board(10, 3);
+					}
+				}
+			);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void constructor_tooNarrow() {
-		@SuppressWarnings("unused")
-		Board board = new Board(1, 1);
+		TestExceptionValidator.validate(UtttException.BadBoardConfig.class,
+				"size[=1]: outside of closed range: [2,5]",
+				new TestExceptionValidator.Trigger() {
+					@Override
+					public void action() {
+						@SuppressWarnings("unused")
+						Board  board = new Board(1,1);
+					}
+				}
+			);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void constructor_tooWide() {
-		@SuppressWarnings("unused")
-		Board board = new Board(1, 999);
+		TestExceptionValidator.validate(UtttException.BadBoardConfig.class,
+				"size[=9]: outside of closed range: [2,5]",
+				new TestExceptionValidator.Trigger() {
+					@Override
+					public void action() {
+						@SuppressWarnings("unused")
+						Board  board = new Board(1,9);
+					}
+				}
+			);
 	}
 
 	// ====================================================================================================
@@ -73,15 +107,19 @@ public class BoardTest extends NodeTest {
 		}
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void accessors_getSubBoard_atBottom() {
 		final int expectedRow = 1;
 		final int expectedCol = 2;
 
 		Board  board = new Board(2, 3).getSubBoard(expectedRow, expectedCol);
 
-		@SuppressWarnings("unused")
-		Board  subBoard = board.getSubBoard(expectedRow, expectedCol);
+		TestExceptionValidator.validate(UtttException.AlreadyAtBottom.class,
+			"no sub-boards, at bottom board",
+			new TestExceptionValidator.Trigger() { @SuppressWarnings("unused") @Override public void action() {
+				Board  subBoard = board.getSubBoard(expectedRow, expectedCol);
+			}}
+		);
 	}
 
 	@Test
@@ -99,15 +137,19 @@ public class BoardTest extends NodeTest {
 		assertEquals("subPos.getCol(): "  , expectedCol, subPos.getCol());
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void accessors_getSubToken_aboveBottom() {
 		final int expectedRow = 1;
 		final int expectedCol = 2;
 
 		Board  board = new Board(2, 3);
 
-		@SuppressWarnings("unused")
-		Token  subToken = board.getSubToken(expectedRow, expectedCol);
+		TestExceptionValidator.validate(UtttException.NotBottomBoard.class,
+			"board height[=2]: no sub-tokens, not at bottom board",
+			new TestExceptionValidator.Trigger() { @SuppressWarnings("unused") @Override public void action() {
+				Token  subToken = board.getSubToken(expectedRow, expectedCol);
+			}}
+		);
 	}
 
 	@Test
@@ -249,23 +291,35 @@ public class BoardTest extends NodeTest {
 		assertNull("contraint", contraint);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void place_h1s3_alreadyFilled() {
 		Board board = new Board(1, 3);
 
 		board.at(1, 2).place(Token.PLAYER_AAA);
-		board.at(1, 2).place(Token.PLAYER_AAA);
+
+		TestExceptionValidator.validate(UtttException.NotPlayable.class,
+			"<this>[=TOP/h1:~(1,2)]",
+			new TestExceptionValidator.Trigger() { @Override public void action() {
+				board.at(1, 2).place(Token.PLAYER_AAA);
+			}}
+		);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void place_h2s2_alreadyFilled() {
 		Board board = new Board(2,2);
 
-		board.getSubBoard(0,0).at(1, 2).place(Token.PLAYER_AAA);
-		board.getSubBoard(0,0).at(1, 2).place(Token.PLAYER_AAA);
+		board.getSubBoard(0,0).at(1, 1).place(Token.PLAYER_AAA);
+
+		TestExceptionValidator.validate(UtttException.NotPlayable.class,
+			"<this>[=TOP/h2:~(0,0)~(1,1)]",
+			new TestExceptionValidator.Trigger() { @Override public void action() {
+				board.getSubBoard(0,0).at(1, 1).place(Token.PLAYER_AAA);
+			}}
+		);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void place_h2s3_alreadyWonAtLevel1() {
 		Board board    = new Board(2, 3);
 
@@ -275,10 +329,15 @@ public class BoardTest extends NodeTest {
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		board.getSubBoard(0,0).at(2, 2).place(Token.PLAYER_BBB);
+		TestExceptionValidator.validate(UtttException.NotPlayable.class,
+			"<this>[=TOP/h2:~(0,0)~(2,2)]",
+			new TestExceptionValidator.Trigger() { @Override public void action() {
+				board.getSubBoard(0,0).at(2, 2).place(Token.PLAYER_BBB);
+			}}
+		);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void place_h3s3_alreadyWonAtLevel2() {
 		Board board    = new Board(3, 3);
 
@@ -298,7 +357,12 @@ public class BoardTest extends NodeTest {
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-		level2winner.getSubBoard(2, 2).at(2, 1).place(Token.PLAYER_BBB);
+		TestExceptionValidator.validate(UtttException.NotPlayable.class,
+			"lineage.position[=TOP/h3:~(0,0)~(2,2)]",
+			new TestExceptionValidator.Trigger() { @Override public void action() {
+				level2winner.getSubBoard(2, 2).at(2, 1).place(Token.PLAYER_BBB);
+			}}
+		);
 	}
 
 	// ====================================================================================================
@@ -1170,13 +1234,5 @@ public class BoardTest extends NodeTest {
 		Board board = new Board(3, 3);
 
 		assertEquals("empty d3-s3: ", expected, ("\n" + board.fieldAsPrintableString()));
-	}
-
-	@Test(expected=IllegalArgumentException.class)
-	public void printableField_heightTooLarge() {
-
-		Board board = new Board(4, 3);
-
-		board.fieldAsPrintableString();
 	}
 }

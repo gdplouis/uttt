@@ -6,16 +6,26 @@ import org.junit.Test;
 
 public class ForeachableTest {
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void construct_zeroStep() {
-		@SuppressWarnings("unused")
-		Foreachable x = Foreachable.until(0, 10, 0);
+		TestExceptionValidator.validate(IllegalArgumentException.class,
+			"step[=0]: must be positive value",
+			new TestExceptionValidator.Trigger() { @Override public void action() {
+				@SuppressWarnings("unused")
+				Foreachable x = Foreachable.until(0, 10, 0);
+			}}
+		);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void construct_negativeStep() {
-		@SuppressWarnings("unused")
-		Foreachable x = Foreachable.until(0, 10, -2);
+		TestExceptionValidator.validate(IllegalArgumentException.class,
+			"step[=-2]: must be positive value",
+			new TestExceptionValidator.Trigger() { @Override public void action() {
+				@SuppressWarnings("unused")
+				Foreachable x = Foreachable.until(0, 10, -2);
+			}}
+		);
 	}
 
 	private static void validateCycle(int refStart, int refLimit, int refStep) {

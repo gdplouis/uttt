@@ -1,6 +1,9 @@
 package com.uttt.common.board;
 
-@Deprecated // in favor of [Position]
+/**
+ * An early idea of what became {@code Position}. Might be reworked for some other purpose, so keeping for now...
+ */
+@Deprecated
 public class Coordinates {
 
 	private final int row;

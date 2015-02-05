@@ -24,7 +24,10 @@ public final class Foreachable implements Iterable<Integer> {
 
 	private Foreachable(int start, int limit, int step) {
 		if (step < 1) {
-			throw new IllegalArgumentException("step[=" + step + "]: must be positive value");
+			throw ExUtil.create(IllegalArgumentException.class)
+				.ident("step", step)
+				.append("must be positive value")
+				.build();
 		}
 
 		this.start = start;
@@ -112,7 +115,10 @@ public final class Foreachable implements Iterable<Integer> {
 			@Override
 			public Integer next() {
 				if (!hasNext()) {
-					throw new NoSuchElementException("cursor[=" + cursor + "] already at/beyond limit[=" + limit + "]");
+					throw ExUtil.create(NoSuchElementException.class)
+						.ident("cursor", cursor)
+						.append("already at/beyond limit[=", limit, "]")
+						.build();
 				}
 
 				int rval = cursor;

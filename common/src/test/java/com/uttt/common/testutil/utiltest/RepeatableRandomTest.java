@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 
 import com.uttt.common.Foreachable;
+import com.uttt.common.TestExceptionValidator;
 import com.uttt.common.testutil.RepeatableRandom;
 
 public class RepeatableRandomTest {
@@ -52,11 +53,16 @@ public class RepeatableRandomTest {
 		fail("random sequences expected to be different");
 	}
 
-	@Test(expected=IllegalAccessError.class)
+	@Test
 	public void setSeed() {
 		RepeatableRandom randAAA = RepeatableRandom.create();
 
-		randAAA.setSeed(0);
+		TestExceptionValidator.validate(IllegalAccessError.class,
+			"may not reset seed of a repeatable random sequence",
+			new TestExceptionValidator.Trigger() { @Override public void action() {
+				randAAA.setSeed(0);
+			}}
+		);
 	}
 
 	@Test

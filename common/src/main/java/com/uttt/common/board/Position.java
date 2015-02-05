@@ -1,6 +1,8 @@
 package com.uttt.common.board;
 
 import com.uttt.common.ArgCheck;
+import com.uttt.common.ExUtil;
+import com.uttt.common.UtttException;
 
 /**
  * A {@code Position} represents a (row,col) location within a specific board.
@@ -20,8 +22,8 @@ public final class Position implements Playable {
 		super();
 
 		ArgCheck.notNull("board", board);
-		ArgCheck.index("row", row, board.getSize());
-		ArgCheck.index("col", col, board.getSize());
+		ArgCheck.index("row", row, board.getSize(), "board.size");
+		ArgCheck.index("col", col, board.getSize(), "board.size");
 
 		this.row   = row;
 		this.col   = col;
@@ -147,7 +149,10 @@ public final class Position implements Playable {
 	public Position at(int subRow, int subCol) throws IllegalArgumentException {
 
 		if (getHeight() <= 1) {
-			throw new IllegalArgumentException("Position already at a bottom board, can't delve further: [" + this.toString() + "]");
+			throw ExUtil.create(UtttException.AlreadyAtBottom.class)
+				.ident("<this>", this)
+				.append("can't delve further")
+				.build();
 		}
 
 		return derefBoard().at(subRow, subCol);
@@ -182,11 +187,17 @@ public final class Position implements Playable {
 	public Position place(Token t) throws IllegalArgumentException {
 
 		if (board.getHeight() > 1) {
-			throw new IllegalArgumentException("can't place token: position [" + this.toString() + "]: remaining height = [" + board.getHeight() + "]");
+			throw ExUtil.create(UtttException.NotBottomBoard.class)
+				.ident("<this>", this)
+				.append("can't place token")
+				.append("remaining height = [" + board.getHeight() + "]")
+				.build();
 		}
 
 		if (!isPlayable()) {
-			throw new IllegalArgumentException("not playable lineage: position [" + this.toString() + "]");
+			throw ExUtil.create(UtttException.NotPlayable.class)
+				.ident("<this>", this)
+				.build();
 		}
 
 		board.updatePosition(t, row, col);

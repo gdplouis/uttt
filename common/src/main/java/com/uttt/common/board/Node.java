@@ -1,5 +1,7 @@
 package com.uttt.common.board;
 
+import com.uttt.common.ExUtil;
+
 public interface Node {
 
 	enum Status {
@@ -32,12 +34,16 @@ public interface Node {
 	 *
 	 * @param row The row index into the {@code Node}'s field grid.
 	 * @param col The column index into the {@code Node}'s field grid.
+	 * @param typeClass
 	 *
 	 * @throws RuntimeException If the concrete implementation doesn't have a field grid, i.e. is a {@code Token}, rather
 	 * than a {@code Board}.
 	 */
 	default <T extends Node> T getSubNode(int row, int col, Class<T> typeClass) {
-		throw new RuntimeException(typeClass.getName() + " nodes don't have sub-nodes");
+		throw ExUtil.create(RuntimeException.class)
+			.ident("Node subclass", this.getClass())
+			.append("this class doesn't have sub-nodes")
+			.build();
 	}
 
 	default Node getSubNode(int x, int y) {

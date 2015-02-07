@@ -1,10 +1,10 @@
-package com.uttt.common.testutil.utiltest;
+package com.uttt.common;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.uttt.common.testutil.StackFrameUtil;
+import com.uttt.common.StackFrameUtil;
 
 public class StackFrameUtilTest {
 

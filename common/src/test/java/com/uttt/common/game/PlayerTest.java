@@ -3,25 +3,408 @@ package com.uttt.common.game;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
+import com.uttt.common.StackFrameUtil;
 import com.uttt.common.board.Board;
 import com.uttt.common.board.Position;
 import com.uttt.common.board.Token;
-import com.uttt.common.testutil.StackFrameUtil;
 
 public class PlayerTest {
 
 	@Test
 	public void random_h1s3() {
 
+		final Board board = random_h1s3Board();
+		final String expected = "" //
+				+ "OOOOOOO\n" //
+				+ "Ox|x|oO\n" //
+				+ "O-----O\n" //
+				+ "O.|o|.O\n" //
+				+ "O-----O\n" //
+				+ "Oo|.|xO\n" //
+				+ "OOOOOOO\n" //
+				+ "TOP.\n" //
+			;
+
+		assertEquals(expected, board.fieldAsPrintableString());
+	}
+	
+	@Test
+	public void random_h2s3_ignoreConstraints() {
+
+		final Board board = random_h2s3_ignoreConstraintsBoard();
+		final String expected = "" //
+				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+				+ "X       ||       ||OOOOOOOX\n" //
+				+ "X .|x|x || x|o|. ||Oo|.|.OX\n" //
+				+ "X ----- || ----- ||O-----OX\n" //
+				+ "X x|.|x || .|o|. ||O.|o|.OX\n" //
+				+ "X ----- || ----- ||O-----OX\n" //
+				+ "X x|o|. || o|.|. ||Oo|x|oOX\n" //
+				+ "X       ||       ||OOOOOOOX\n" //
+				+ "X-------------------------X\n" //
+				+ "X-------------------------X\n" //
+				+ "XXXXXXXX||OOOOOOO||       X\n" //
+				+ "XX.|.|.X||O.|o|oO|| o|.|x X\n" //
+				+ "XX-----X||O-----O|| ----- X\n" //
+				+ "XXx|x|xX||O.|.|.O|| .|o|. X\n" //
+				+ "XX-----X||O-----O|| ----- X\n" //
+				+ "XX.|.|.X||Oo|o|oO|| o|x|. X\n" //
+				+ "XXXXXXXX||OOOOOOO||       X\n" //
+				+ "X-------------------------X\n" //
+				+ "X-------------------------X\n" //
+				+ "XXXXXXXX||XXXXXXX||XXXXXXXX\n" //
+				+ "XXo|x|oX||Xo|x|xX||Xx|x|oXX\n" //
+				+ "XX-----X||X-----X||X-----XX\n" //
+				+ "XXo|x|xX||X.|.|xX||X.|x|.XX\n" //
+				+ "XX-----X||X-----X||X-----XX\n" //
+				+ "XXx|x|oX||Xo|o|xX||Xx|x|oXX\n" //
+				+ "XXXXXXXX||XXXXXXX||XXXXXXXX\n" //
+				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+				+ "TOP.\n" //
+			;
+
+		assertEquals(expected, board.fieldAsPrintableString());
+	}
+
+	@Test
+	public void random_h2s3_followConstraints() {
+
+		final Board board = random_h2s3_followConstraintsBoard();
+		final String expected = "" //
+				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+				+ "XXXXXXXX||       ||OOOOOOOX\n" //
+				+ "XXx|x|.X|| o|.|. ||Oo|x|xOX\n" //
+				+ "XX-----X|| ----- ||O-----OX\n" //
+				+ "XXo|x|oX|| x|.|x ||O.|.|xOX\n" //
+				+ "XX-----X|| ----- ||O-----OX\n" //
+				+ "XXx|x|.X|| .|o|x ||Oo|o|oOX\n" //
+				+ "XXXXXXXX||       ||OOOOOOOX\n" //
+				+ "X-------------------------X\n" //
+				+ "X-------------------------X\n" //
+				+ "XXXXXXXX||       ||OOOOOOOX\n" //
+				+ "XXo|o|.X|| .|o|o ||Oo|.|oOX\n" //
+				+ "XX-----X|| ----- ||O-----OX\n" //
+				+ "XXo|x|oX|| o|.|x ||Ox|o|xOX\n" //
+				+ "XX-----X|| ----- ||O-----OX\n" //
+				+ "XXx|x|xX|| .|.|o ||Oo|o|.OX\n" //
+				+ "XXXXXXXX||       ||OOOOOOOX\n" //
+				+ "X-------------------------X\n" //
+				+ "X-------------------------X\n" //
+				+ "XXXXXXXX||OOOOOOO||       X\n" //
+				+ "XX.|o|oX||Oo|.|xO|| .|.|x X\n" //
+				+ "XX-----X||O-----O|| ----- X\n" //
+				+ "XXx|x|xX||Oo|x|xO|| .|.|x X\n" //
+				+ "XX-----X||O-----O|| ----- X\n" //
+				+ "XXx|.|.X||Oo|x|.O|| o|x|o X\n" //
+				+ "XXXXXXXX||OOOOOOO||       X\n" //
+				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+				+ "TOP.\n" //
+			;
+
+		assertEquals(expected, board.fieldAsPrintableString());
+	}
+
+	@Test
+	public void random_h3s2_ignoreConstraints() {
+
+		final Board board = random_h3s2_ignoreConstraintsBoard();
+		final String expected = "" //
+				+ "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\n" //
+				+ "OXXXXXXXXXXXXXX|||              O\n" //
+				+ "OXXXXXX||     X|||      ||XXXXX O\n" //
+				+ "OXXx|.X|| .|. X|||  x|. ||X.|xX O\n" //
+				+ "OXX---X|| --- X|||  --- ||X---X O\n" //
+				+ "OXXx|.X|| .|. X|||  .|. ||Xx|.X O\n" //
+				+ "OXXXXXX||     X|||      ||XXXXX O\n" //
+				+ "OX------------X||| ------------ O\n" //
+				+ "OX------------X||| ------------ O\n" //
+				+ "OXOOOOO||XXXXXX|||      ||      O\n" //
+				+ "OXOo|.O||Xx|xXX|||  .|. || x|.  O\n" //
+				+ "OXO---O||X---XX|||  --- || ---  O\n" //
+				+ "OXO.|oO||X.|.XX|||  .|o || o|.  O\n" //
+				+ "OXOOOOO||XXXXXX|||      ||      O\n" //
+				+ "OXXXXXXXXXXXXXX|||              O\n" //
+				+ "O-------------------------------O\n" //
+				+ "O-------------------------------O\n" //
+				+ "O-------------------------------O\n" //
+				+ "OOOOOOOOOOOOOOO|||OOOOOOOOOOOOOOO\n" //
+				+ "OOOOOOO||OOOOOO|||O     ||OOOOOOO\n" //
+				+ "OOOo|xO||O.|.OO|||O o|. ||O.|oOOO\n" //
+				+ "OOO---O||O---OO|||O --- ||O---OOO\n" //
+				+ "OOOo|.O||Oo|oOO|||O .|. ||Ox|oOOO\n" //
+				+ "OOOOOOO||OOOOOO|||O     ||OOOOOOO\n" //
+				+ "OO------------O|||O------------OO\n" //
+				+ "OO------------O|||O------------OO\n" //
+				+ "OOXXXXX||     O|||OXXXXX||OOOOOOO\n" //
+				+ "OOXx|.X|| .|. O|||OXo|xX||Ox|oOOO\n" //
+				+ "OOX---X|| --- O|||OX---X||O---OOO\n" //
+				+ "OOXx|.X|| .|o O|||OXx|.X||Oo|.OOO\n" //
+				+ "OOXXXXX||     O|||OXXXXX||OOOOOOO\n" //
+				+ "OOOOOOOOOOOOOOO|||OOOOOOOOOOOOOOO\n" //
+				+ "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\n" //
+				+ "TOP.\n" //
+			;
+
+		assertEquals(expected, board.fieldAsPrintableString());
+	}
+
+	@Test
+	public void random_h3s2_followConstraints() {
+
+		final Board board = random_h3s2_followConstraintsBoard();
+		final String expected = "" //
+				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+				+ "X              |||XXXXXXXXXXXXXXX\n" //
+				+ "X      ||      |||XXXXXX||     XX\n" //
+				+ "X  .|. || .|.  |||XXx|.X|| x|. XX\n" //
+				+ "X  --- || ---  |||XX---X|| --- XX\n" //
+				+ "X  .|. || .|.  |||XXx|oX|| .|. XX\n" //
+				+ "X      ||      |||XXXXXX||     XX\n" //
+				+ "X ------------ |||X------------XX\n" //
+				+ "X ------------ |||X------------XX\n" //
+				+ "X      ||      |||XOOOOO||XXXXXXX\n" //
+				+ "X  .|. || .|.  |||XOo|oO||Xo|xXXX\n" //
+				+ "X  --- || ---  |||XO---O||X---XXX\n" //
+				+ "X  .|. || .|.  |||XO.|.O||Xx|.XXX\n" //
+				+ "X      ||      |||XOOOOO||XXXXXXX\n" //
+				+ "X              |||XXXXXXXXXXXXXXX\n" //
+				+ "X-------------------------------X\n" //
+				+ "X-------------------------------X\n" //
+				+ "X-------------------------------X\n" //
+				+ "X              |||XXXXXXXXXXXXXXX\n" //
+				+ "X      ||      |||X     ||XXXXXXX\n" //
+				+ "X  .|. || .|.  |||X .|o ||X.|xXXX\n" //
+				+ "X  --- || ---  |||X --- ||X---XXX\n" //
+				+ "X  .|. || .|.  |||X .|. ||X.|xXXX\n" //
+				+ "X      ||      |||X     ||XXXXXXX\n" //
+				+ "X ------------ |||X------------XX\n" //
+				+ "X ------------ |||X------------XX\n" //
+				+ "X      ||      |||XXXXXX||OOOOOXX\n" //
+				+ "X  .|. || .|.  |||XXx|.X||O.|oOXX\n" //
+				+ "X  --- || ---  |||XX---X||O---OXX\n" //
+				+ "X  .|. || .|.  |||XXo|xX||Oo|.OXX\n" //
+				+ "X      ||      |||XXXXXX||OOOOOXX\n" //
+				+ "X              |||XXXXXXXXXXXXXXX\n" //
+				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+				+ "TOP.\n" //
+			;
+
+		assertEquals(expected, board.fieldAsPrintableString());
+	}
+
+	@Test
+	public void random_h3s3_ignoreConstraints() {
+
+		final Board board = random_h3s3_ignoreConstraintsBoard();
+		final String expected = "" //
+				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXX|||XXXXXXXXXXXXXXXXXXXXXXXXXXX|||OOOOOOOOOOOOOOOOOOOOOOOOOOOX\n" //
+				+ "XXOOOOOOO||XXXXXXX||XXXXXXXX|||XXXXXXXX||       ||XXXXXXXX|||O       ||XXXXXXX||OOOOOOOOX\n" //
+				+ "XXOo|o|.O||Xo|.|.X||X.|o|xXX|||XXx|x|xX|| .|.|. ||Xx|.|.XX|||O x|.|. ||X.|x|.X||Oo|.|.OOX\n" //
+				+ "XXO-----O||X-----X||X-----XX|||XX-----X|| ----- ||X-----XX|||O ----- ||X-----X||O-----OOX\n" //
+				+ "XXOo|.|oO||Xo|x|xX||Xx|.|xXX|||XX.|.|oX|| x|.|. ||Xx|o|.XX|||O o|o|. ||X.|x|.X||Oo|x|.OOX\n" //
+				+ "XXO-----O||X-----X||X-----XX|||XX-----X|| ----- ||X-----XX|||O ----- ||X-----X||O-----OOX\n" //
+				+ "XXOo|o|.O||Xx|x|xX||Xx|o|xXX|||XX.|o|.X|| .|x|. ||Xx|.|xXX|||O x|.|x ||X.|x|.X||Oo|.|xOOX\n" //
+				+ "XXOOOOOOO||XXXXXXX||XXXXXXXX|||XXXXXXXX||       ||XXXXXXXX|||O       ||XXXXXXX||OOOOOOOOX\n" //
+				+ "XX-------------------------X|||X-------------------------X|||O-------------------------OX\n" //
+				+ "XX-------------------------X|||X-------------------------X|||O-------------------------OX\n" //
+				+ "XX       ||XXXXXXX||       X|||X       ||XXXXXXX||       X|||OXXXXXXX||OOOOOOO||OOOOOOOOX\n" //
+				+ "XX .|o|o ||Xx|.|oX|| .|.|. X|||X .|o|. ||X.|o|xX|| o|x|o X|||OX.|x|.X||O.|.|.O||Oo|x|oOOX\n" //
+				+ "XX ----- ||X-----X|| ----- X|||X ----- ||X-----X|| ----- X|||OX-----X||O-----O||O-----OOX\n" //
+				+ "XX .|.|. ||Xx|x|xX|| o|x|. X|||X o|o|. ||Xo|x|.X|| .|o|. X|||OXx|x|.X||Oo|o|oO||O.|o|xOOX\n" //
+				+ "XX ----- ||X-----X|| ----- X|||X ----- ||X-----X|| ----- X|||OX-----X||O-----O||O-----OOX\n" //
+				+ "XX x|o|o ||Xo|o|.X|| .|.|o X|||X o|.|. ||Xx|x|.X|| .|x|x X|||OXo|x|xX||O.|x|oO||Oo|x|xOOX\n" //
+				+ "XX       ||XXXXXXX||       X|||X       ||XXXXXXX||       X|||OXXXXXXX||OOOOOOO||OOOOOOOOX\n" //
+				+ "XX-------------------------X|||X-------------------------X|||O-------------------------OX\n" //
+				+ "XX-------------------------X|||X-------------------------X|||O-------------------------OX\n" //
+				+ "XX???????||XXXXXXX||XXXXXXXX|||X       ||       ||XXXXXXXX|||OOOOOOOO||OOOOOOO||XXXXXXXOX\n" //
+				+ "XX?o|x|x?||Xo|x|.X||Xx|x|oXX|||X .|.|x || x|.|x ||X.|.|xXX|||OOo|o|oO||Ox|o|xO||Xo|x|xXOX\n" //
+				+ "XX?-----?||X-----X||X-----XX|||X ----- || ----- ||X-----XX|||OO-----O||O-----O||X-----XOX\n" //
+				+ "XX?x|x|o?||Xo|.|xX||Xx|.|.XX|||X .|x|. || .|.|. ||X.|x|.XX|||OO.|x|.O||Oo|o|xO||Xx|x|oXOX\n" //
+				+ "XX?-----?||X-----X||X-----XX|||X ----- || ----- ||X-----XX|||OO-----O||O-----O||X-----XOX\n" //
+				+ "XX?o|o|x?||Xx|x|xX||Xx|.|.XX|||X o|x|. || o|.|. ||Xx|.|.XX|||OOo|x|oO||O.|o|oO||X.|x|oXOX\n" //
+				+ "XX???????||XXXXXXX||XXXXXXXX|||X       ||       ||XXXXXXXX|||OOOOOOOO||OOOOOOO||XXXXXXXOX\n" //
+				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXX|||XXXXXXXXXXXXXXXXXXXXXXXXXXX|||OOOOOOOOOOOOOOOOOOOOOOOOOOOX\n" //
+				+ "X---------------------------------------------------------------------------------------X\n" //
+				+ "X---------------------------------------------------------------------------------------X\n" //
+				+ "X---------------------------------------------------------------------------------------X\n" //
+				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXX|||OOOOOOOOOOOOOOOOOOOOOOOOOOO|||                           X\n" //
+				+ "XXXXXXXXX||OOOOOOO||XXXXXXXX|||OOOOOOOO||OOOOOOO||       O|||        ||       ||        X\n" //
+				+ "XXXx|x|.X||O.|x|xO||Xo|.|oXX|||OOx|o|.O||Oo|.|oO|| x|.|. O|||  .|.|. || x|o|. || .|o|o  X\n" //
+				+ "XXX-----X||O-----O||X-----XX|||OO-----O||O-----O|| ----- O|||  ----- || ----- || -----  X\n" //
+				+ "XXXo|x|oX||Ox|o|xO||X.|.|.XX|||OOx|o|.O||O.|.|oO|| o|.|x O|||  .|o|o || .|.|x || o|x|o  X\n" //
+				+ "XXX-----X||O-----O||X-----XX|||OO-----O||O-----O|| ----- O|||  ----- || ----- || -----  X\n" //
+				+ "XXXo|x|oX||Oo|o|oO||Xx|x|xXX|||OOo|o|xO||O.|o|oO|| o|x|x O|||  .|x|o || x|.|. || .|.|.  X\n" //
+				+ "XXXXXXXXX||OOOOOOO||XXXXXXXX|||OOOOOOOO||OOOOOOO||       O|||        ||       ||        X\n" //
+				+ "XX-------------------------X|||O-------------------------O||| ------------------------- X\n" //
+				+ "XX-------------------------X|||O-------------------------O||| ------------------------- X\n" //
+				+ "XXXXXXXXX||OOOOOOO||       X|||O       ||OOOOOOO||       O|||        ||OOOOOOO||        X\n" //
+				+ "XXXx|x|.X||Oo|.|.O|| o|o|x X|||O o|.|x ||Ox|x|oO|| .|o|. O|||  .|o|. ||Oo|x|oO|| o|x|o  X\n" //
+				+ "XXX-----X||O-----O|| ----- X|||O ----- ||O-----O|| ----- O|||  ----- ||O-----O|| -----  X\n" //
+				+ "XXXx|x|xX||Oo|.|oO|| o|.|o X|||O .|.|. ||Ox|o|.O|| .|o|x O|||  .|.|. ||Ox|o|.O|| .|.|x  X\n" //
+				+ "XXX-----X||O-----O|| ----- X|||O ----- ||O-----O|| ----- O|||  ----- ||O-----O|| -----  X\n" //
+				+ "XXX.|.|.X||Oo|.|.O|| x|o|x X|||O o|.|. ||Oo|x|oO|| o|x|o O|||  .|.|o ||Oo|.|xO|| .|x|x  X\n" //
+				+ "XXXXXXXXX||OOOOOOO||       X|||O       ||OOOOOOO||       O|||        ||OOOOOOO||        X\n" //
+				+ "XX-------------------------X|||O-------------------------O||| ------------------------- X\n" //
+				+ "XX-------------------------X|||O-------------------------O||| ------------------------- X\n" //
+				+ "XXXXXXXXX||       ||OOOOOOOX|||O       ||       ||OOOOOOOO|||        ||       ||XXXXXXX X\n" //
+				+ "XXXo|.|xX|| .|.|. ||O.|.|.OX|||O o|x|x || .|x|o ||Oo|o|xOO|||  o|.|o || .|.|o ||X.|.|xX X\n" //
+				+ "XXX-----X|| ----- ||O-----OX|||O ----- || ----- ||O-----OO|||  ----- || ----- ||X-----X X\n" //
+				+ "XXXo|.|xX|| o|x|x ||Ox|o|.OX|||O o|o|. || .|o|x ||Ox|o|oOO|||  .|x|x || .|.|. ||Xo|x|.X X\n" //
+				+ "XXX-----X|| ----- ||O-----OX|||O ----- || ----- ||O-----OO|||  ----- || ----- ||X-----X X\n" //
+				+ "XXX.|x|xX|| o|x|o ||Oo|o|oOX|||O .|.|x || .|o|. ||Ox|o|xOO|||  x|.|x || x|.|. ||Xx|.|.X X\n" //
+				+ "XXXXXXXXX||       ||OOOOOOOX|||O       ||       ||OOOOOOOO|||        ||       ||XXXXXXX X\n" //
+				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXX|||OOOOOOOOOOOOOOOOOOOOOOOOOOO|||                           X\n" //
+				+ "X---------------------------------------------------------------------------------------X\n" //
+				+ "X---------------------------------------------------------------------------------------X\n" //
+				+ "X---------------------------------------------------------------------------------------X\n" //
+				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXX|||XXXXXXXXXXXXXXXXXXXXXXXXXXX|||OOOOOOOOOOOOOOOOOOOOOOOOOOOX\n" //
+				+ "XX       ||       ||XXXXXXXX|||X       ||XXXXXXX||XXXXXXXX|||OOOOOOOO||XXXXXXX||OOOOOOOOX\n" //
+				+ "XX .|.|o || .|.|. ||X.|o|.XX|||X o|x|o ||Xo|o|xX||Xx|o|oXX|||OOo|.|.O||Xo|o|xX||Oo|x|oOOX\n" //
+				+ "XX ----- || ----- ||X-----XX|||X ----- ||X-----X||X-----XX|||OO-----O||X-----X||O-----OOX\n" //
+				+ "XX .|x|. || .|x|. ||Xx|x|xXX|||X .|x|. ||Xx|x|xX||Xx|.|oXX|||OO.|o|.O||X.|x|xX||Oo|o|oOOX\n" //
+				+ "XX ----- || ----- ||X-----XX|||X ----- ||X-----X||X-----XX|||OO-----O||X-----X||O-----OOX\n" //
+				+ "XX x|o|o || .|.|o ||X.|o|.XX|||X .|o|o ||X.|x|oX||Xx|x|.XX|||OO.|.|oO||Xo|x|xX||Ox|o|.OOX\n" //
+				+ "XX       ||       ||XXXXXXXX|||X       ||XXXXXXX||XXXXXXXX|||OOOOOOOO||XXXXXXX||OOOOOOOOX\n" //
+				+ "XX-------------------------X|||X-------------------------X|||O-------------------------OX\n" //
+				+ "XX-------------------------X|||X-------------------------X|||O-------------------------OX\n" //
+				+ "XX       ||       ||XXXXXXXX|||XXXXXXXX||XXXXXXX||OOOOOOOX|||OOOOOOOO||OOOOOOO||OOOOOOOOX\n" //
+				+ "XX .|o|x || .|.|. ||Xx|o|.XX|||XX.|.|oX||Xx|x|oX||Oo|.|oOX|||OOx|x|oO||Ox|.|.O||Oo|x|xOOX\n" //
+				+ "XX ----- || ----- ||X-----XX|||XX-----X||X-----X||O-----OX|||OO-----O||O-----O||O-----OOX\n" //
+				+ "XX o|.|. || .|.|. ||Xx|.|.XX|||XXo|x|.X||Xo|x|xX||Ox|.|oOX|||OOo|o|xO||Ox|x|oO||Oo|o|.OOX\n" //
+				+ "XX ----- || ----- ||X-----XX|||XX-----X||X-----X||O-----OX|||OO-----O||O-----O||O-----OOX\n" //
+				+ "XX x|.|. || o|.|. ||Xx|x|.XX|||XXx|x|xX||Xo|x|oX||O.|.|oOX|||OOo|o|oO||Oo|o|oO||Ox|o|oOOX\n" //
+				+ "XX       ||       ||XXXXXXXX|||XXXXXXXX||XXXXXXX||OOOOOOOX|||OOOOOOOO||OOOOOOO||OOOOOOOOX\n" //
+				+ "XX-------------------------X|||X-------------------------X|||O-------------------------OX\n" //
+				+ "XX-------------------------X|||X-------------------------X|||O-------------------------OX\n" //
+				+ "XXOOOOOOO||       ||XXXXXXXX|||XXXXXXXX||OOOOOOO||       X|||OXXXXXXX||       ||XXXXXXXOX\n" //
+				+ "XXO.|.|oO|| .|x|o ||Xo|x|oXX|||XXx|o|xX||O.|.|.O|| o|x|. X|||OX.|.|.X|| o|.|. ||Xx|x|oXOX\n" //
+				+ "XXO-----O|| ----- ||X-----XX|||XX-----X||O-----O|| ----- X|||OX-----X|| ----- ||X-----XOX\n" //
+				+ "XXO.|.|oO|| .|.|. ||Xx|.|xXX|||XXo|x|.X||O.|.|oO|| .|o|o X|||OX.|x|.X|| .|.|x ||Xo|x|.XOX\n" //
+				+ "XXO-----O|| ----- ||X-----XX|||XX-----X||O-----O|| ----- X|||OX-----X|| ----- ||X-----XOX\n" //
+				+ "XXO.|.|oO|| x|.|o ||Xx|x|xXX|||XXx|x|.X||Oo|o|oO|| x|o|x X|||OXx|x|xX|| o|.|. ||Xx|o|xXOX\n" //
+				+ "XXOOOOOOO||       ||XXXXXXXX|||XXXXXXXX||OOOOOOO||       X|||OXXXXXXX||       ||XXXXXXXOX\n" //
+				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXX|||XXXXXXXXXXXXXXXXXXXXXXXXXXX|||OOOOOOOOOOOOOOOOOOOOOOOOOOOX\n" //
+				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
+				+ "TOP.\n" //
+			;
+
+		assertEquals(expected, board.fieldAsPrintableString());
+	}
+
+	@Test
+	public void random_h3s3_followConstraints() {
+
+		final Board board = random_h3s3_followConstraintsBoard();
+		final String expected = "" //
+				+ "?????????????????????????????????????????????????????????????????????????????????????????\n" //
+				+ "?XXXXXXXXXXXXXXXXXXXXXXXXXXX|||???????????????????????????|||XXXXXXXXXXXXXXXXXXXXXXXXXXX?\n" //
+				+ "?XXXXXXXX||XXXXXXX||XXXXXXXX|||?OOOOOOO||XXXXXXX||XXXXXXX?|||XOOOOOOO||XXXXXXX||???????X?\n" //
+				+ "?XX.|o|.X||Xx|x|xX||Xx|o|.XX|||?O.|x|oO||X.|o|.X||Xo|.|xX?|||XOx|o|xO||Xx|o|.X||?x|x|o?X?\n" //
+				+ "?XX-----X||X-----X||X-----XX|||?O-----O||X-----X||X-----X?|||XO-----O||X-----X||?-----?X?\n" //
+				+ "?XXx|x|xX||X.|.|oX||Xo|x|oXX|||?O.|o|xO||Xx|x|xX||Xx|.|xX?|||XOx|o|.O||Xx|o|oX||?o|x|x?X?\n" //
+				+ "?XX-----X||X-----X||X-----XX|||?O-----O||X-----X||X-----X?|||XO-----O||X-----X||?-----?X?\n" //
+				+ "?XX.|o|.X||Xx|x|oX||Xx|.|xXX|||?Oo|x|xO||Xx|x|oX||Xx|o|xX?|||XO.|o|oO||Xx|.|xX||?x|o|o?X?\n" //
+				+ "?XXXXXXXX||XXXXXXX||XXXXXXXX|||?OOOOOOO||XXXXXXX||XXXXXXX?|||XOOOOOOO||XXXXXXX||???????X?\n" //
+				+ "?X-------------------------X|||?-------------------------?|||X-------------------------X?\n" //
+				+ "?X-------------------------X|||?-------------------------?|||X-------------------------X?\n" //
+				+ "?XXXXXXXX||       ||OOOOOOOX|||????????||XXXXXXX||OOOOOOO?|||XXXXXXXX||OOOOOOO||XXXXXXXX?\n" //
+				+ "?XX.|.|xX|| o|o|. ||O.|o|oOX|||??o|x|o?||Xx|o|xX||Ox|o|oO?|||XXx|x|oX||Oo|.|oO||Xo|.|oXX?\n" //
+				+ "?XX-----X|| ----- ||O-----OX|||??-----?||X-----X||O-----O?|||XX-----X||O-----O||X-----XX?\n" //
+				+ "?XXo|.|xX|| o|o|x ||O.|o|.OX|||??o|x|x?||Xx|.|oX||Ox|o|oO?|||XXo|x|xX||Oo|x|oO||Xx|x|xXX?\n" //
+				+ "?XX-----X|| ----- ||O-----OX|||??-----?||X-----X||O-----O?|||XX-----X||O-----O||X-----XX?\n" //
+				+ "?XX.|o|xX|| .|x|. ||Oo|.|oOX|||??x|o|o?||Xx|o|oX||Oo|x|xO?|||XX.|x|oX||Oo|x|xO||X.|o|oXX?\n" //
+				+ "?XXXXXXXX||       ||OOOOOOOX|||????????||XXXXXXX||OOOOOOO?|||XXXXXXXX||OOOOOOO||XXXXXXXX?\n" //
+				+ "?X-------------------------X|||?-------------------------?|||X-------------------------X?\n" //
+				+ "?X-------------------------X|||?-------------------------?|||X-------------------------X?\n" //
+				+ "?X       ||       ||       X|||?OOOOOOO||OOOOOOO||XXXXXXX?|||XXXXXXXX||XXXXXXX||XXXXXXXX?\n" //
+				+ "?X o|x|o || .|.|. || x|x|. X|||?Ox|x|.O||Oo|o|oO||Xo|o|.X?|||XXx|o|xX||Xx|.|oX||X.|x|xXX?\n" //
+				+ "?X ----- || ----- || ----- X|||?O-----O||O-----O||X-----X?|||XX-----X||X-----X||X-----XX?\n" //
+				+ "?X .|x|o || .|x|x || x|.|x X|||?Oo|.|oO||Ox|.|xO||X.|.|oX?|||XXx|o|oX||Xo|x|xX||Xo|o|xXX?\n" //
+				+ "?X ----- || ----- || ----- X|||?O-----O||O-----O||X-----X?|||XX-----X||X-----X||X-----XX?\n" //
+				+ "?X .|.|. || x|o|o || o|.|o X|||?Oo|o|oO||Oo|x|.O||Xx|x|xX?|||XXx|x|oX||Xo|o|xX||Xo|o|xXX?\n" //
+				+ "?X       ||       ||       X|||?OOOOOOO||OOOOOOO||XXXXXXX?|||XXXXXXXX||XXXXXXX||XXXXXXXX?\n" //
+				+ "?XXXXXXXXXXXXXXXXXXXXXXXXXXX|||???????????????????????????|||XXXXXXXXXXXXXXXXXXXXXXXXXXX?\n" //
+				+ "?---------------------------------------------------------------------------------------?\n" //
+				+ "?---------------------------------------------------------------------------------------?\n" //
+				+ "?---------------------------------------------------------------------------------------?\n" //
+				+ "?OOOOOOOOOOOOOOOOOOOOOOOOOOO|||OOOOOOOOOOOOOOOOOOOOOOOOOOO|||????????????????????????????\n" //
+				+ "?OOOOOOOO||XXXXXXX||XXXXXXXO|||O       ||       ||OOOOOOOO|||?XXXXXXX||OOOOOOO||XXXXXXX??\n" //
+				+ "?OOx|o|xO||Xx|o|.X||Xx|x|oXO|||O .|o|x || x|.|x ||Ox|o|oOO|||?X.|x|oX||Oo|o|xO||X.|.|.X??\n" //
+				+ "?OO-----O||X-----X||X-----XO|||O ----- || ----- ||O-----OO|||?X-----X||O-----O||X-----X??\n" //
+				+ "?OOx|o|oO||X.|x|.X||Xx|o|xXO|||O o|.|o || x|o|o ||Oo|o|.OO|||?Xx|x|xX||Oo|x|xO||Xx|x|xX??\n" //
+				+ "?OO-----O||X-----X||X-----XO|||O ----- || ----- ||O-----OO|||?X-----X||O-----O||X-----X??\n" //
+				+ "?OO.|o|oO||X.|x|xX||Xx|o|oXO|||O x|o|x || o|.|o ||Oo|.|.OO|||?Xx|o|.X||Oo|x|oO||Xx|o|.X??\n" //
+				+ "?OOOOOOOO||XXXXXXX||XXXXXXXO|||O       ||       ||OOOOOOOO|||?XXXXXXX||OOOOOOO||XXXXXXX??\n" //
+				+ "?O-------------------------O|||O-------------------------O|||?-------------------------??\n" //
+				+ "?O-------------------------O|||O-------------------------O|||?-------------------------??\n" //
+				+ "?OOOOOOOO||OOOOOOO||       O|||O       ||XXXXXXX||OOOOOOOO|||????????||OOOOOOO||XXXXXXX??\n" //
+				+ "?OOo|.|xO||O.|.|oO|| .|o|x O|||O o|o|x ||X.|x|xX||Ox|x|oOO|||??x|x|o?||Oo|o|oO||Xx|.|.X??\n" //
+				+ "?OO-----O||O-----O|| ----- O|||O ----- ||X-----X||O-----OO|||??-----?||O-----O||X-----X??\n" //
+				+ "?OO.|o|.O||O.|.|oO|| x|x|o O|||O o|.|x ||X.|.|xX||Ox|o|xOO|||??o|x|x?||Ox|o|oO||Xo|x|.X??\n" //
+				+ "?OO-----O||O-----O|| ----- O|||O ----- ||X-----X||O-----OO|||??-----?||O-----O||X-----X??\n" //
+				+ "?OO.|.|oO||O.|.|oO|| .|x|x O|||O x|x|. ||Xx|x|xX||Oo|x|oOO|||??x|o|o?||O.|x|xO||Xx|.|xX??\n" //
+				+ "?OOOOOOOO||OOOOOOO||       O|||O       ||XXXXXXX||OOOOOOOO|||????????||OOOOOOO||XXXXXXX??\n" //
+				+ "?O-------------------------O|||O-------------------------O|||?-------------------------??\n" //
+				+ "?O-------------------------O|||O-------------------------O|||?-------------------------??\n" //
+				+ "?OOOOOOOO||       ||XXXXXXXO|||O       ||XXXXXXX||OOOOOOOO|||?OOOOOOO||???????||OOOOOOO??\n" //
+				+ "?OOo|o|.O|| .|o|o ||Xx|.|.XO|||O o|x|o ||Xo|.|xX||O.|x|xOO|||?Oo|.|oO||?o|x|o?||Oo|.|oO??\n" //
+				+ "?OO-----O|| ----- ||X-----XO|||O ----- ||X-----X||O-----OO|||?O-----O||?-----?||O-----O??\n" //
+				+ "?OO.|o|.O|| o|.|x ||Xx|.|.XO|||O x|o|o ||X.|o|xX||Oo|o|oOO|||?Oo|o|oO||?x|x|o?||O.|o|.O??\n" //
+				+ "?OO-----O|| ----- ||X-----XO|||O ----- ||X-----X||O-----OO|||?O-----O||?-----?||O-----O??\n" //
+				+ "?OO.|.|oO|| x|.|x ||Xx|.|.XO|||O x|x|. ||Xo|o|xX||O.|o|.OO|||?Ox|.|xO||?o|o|x?||Oo|.|xO??\n" //
+				+ "?OOOOOOOO||       ||XXXXXXXO|||O       ||XXXXXXX||OOOOOOOO|||?OOOOOOO||???????||OOOOOOO??\n" //
+				+ "?OOOOOOOOOOOOOOOOOOOOOOOOOOO|||OOOOOOOOOOOOOOOOOOOOOOOOOOO|||????????????????????????????\n" //
+				+ "?---------------------------------------------------------------------------------------?\n" //
+				+ "?---------------------------------------------------------------------------------------?\n" //
+				+ "?---------------------------------------------------------------------------------------?\n" //
+				+ "????????????????????????????|||OOOOOOOOOOOOOOOOOOOOOOOOOOO|||????????????????????????????\n" //
+				+ "??XXXXXXX||XXXXXXX||OOOOOOO?|||OOOOOOOO||OOOOOOO||XXXXXXXO|||?OOOOOOO||OOOOOOO||?????????\n" //
+				+ "??Xx|o|xX||X.|o|xX||Oo|o|oO?|||OO.|.|xO||O.|.|oO||Xo|x|oXO|||?O.|.|xO||Ox|x|oO||?x|o|x???\n" //
+				+ "??X-----X||X-----X||O-----O?|||OO-----O||O-----O||X-----XO|||?O-----O||O-----O||?-----???\n" //
+				+ "??Xx|x|xX||X.|.|xX||Oo|x|.O?|||OO.|x|oO||O.|o|oO||Xo|x|xXO|||?O.|.|.O||O.|o|.O||?x|o|x???\n" //
+				+ "??X-----X||X-----X||O-----O?|||OO-----O||O-----O||X-----XO|||?O-----O||O-----O||?-----???\n" //
+				+ "??X.|o|oX||Xx|.|xX||Oo|x|xO?|||OOo|o|oO||Oo|x|xO||Xx|x|oXO|||?Oo|o|oO||Oo|x|xO||?o|x|o???\n" //
+				+ "??XXXXXXX||XXXXXXX||OOOOOOO?|||OOOOOOOO||OOOOOOO||XXXXXXXO|||?OOOOOOO||OOOOOOO||?????????\n" //
+				+ "??-------------------------?|||O-------------------------O|||?-------------------------??\n" //
+				+ "??-------------------------?|||O-------------------------O|||?-------------------------??\n" //
+				+ "??OOOOOOO||OOOOOOO||XXXXXXX?|||OXXXXXXX||OOOOOOO||OOOOOOOO|||?XXXXXXX||XXXXXXX||OOOOOOO??\n" //
+				+ "??Ox|.|oO||O.|x|oO||X.|o|xX?|||OXo|.|xX||Ox|x|oO||Ox|o|oOO|||?X.|x|.X||Xx|.|xX||Oo|o|.O??\n" //
+				+ "??O-----O||O-----O||X-----X?|||OX-----X||O-----O||O-----OO|||?X-----X||X-----X||O-----O??\n" //
+				+ "??Ox|o|.O||Ox|o|xO||Xo|x|.X?|||OX.|x|xX||Oo|o|xO||O.|o|xOO|||?X.|x|.X||Xo|x|.X||Oo|x|oO??\n" //
+				+ "??O-----O||O-----O||X-----X?|||OX-----X||O-----O||O-----OO|||?X-----X||X-----X||O-----O??\n" //
+				+ "??Oo|.|.O||Oo|o|.O||Xx|x|oX?|||OXx|.|.X||Oo|x|xO||O.|o|.OO|||?X.|x|.X||Xo|.|xX||Oo|.|xO??\n" //
+				+ "??OOOOOOO||OOOOOOO||XXXXXXX?|||OXXXXXXX||OOOOOOO||OOOOOOOO|||?XXXXXXX||XXXXXXX||OOOOOOO??\n" //
+				+ "??-------------------------?|||O-------------------------O|||?-------------------------??\n" //
+				+ "??-------------------------?|||O-------------------------O|||?-------------------------??\n" //
+				+ "??XXXXXXX||OOOOOOO||OOOOOOO?|||OXXXXXXX||XXXXXXX||OOOOOOOO|||?XXXXXXX||OOOOOOO||OOOOOOO??\n" //
+				+ "??Xx|o|.X||Oo|x|xO||Oo|o|xO?|||OX.|o|xX||Xx|x|oX||Oo|.|xOO|||?X.|x|oX||Oo|o|oO||Oo|o|oO??\n" //
+				+ "??X-----X||O-----O||O-----O?|||OX-----X||X-----X||O-----OO|||?X-----X||O-----O||O-----O??\n" //
+				+ "??X.|o|.X||Oo|.|oO||Ox|o|.O?|||OXx|x|xX||Xo|x|oX||Ox|o|oOO|||?Xo|x|xX||Oo|o|xO||O.|o|xO??\n" //
+				+ "??X-----X||O-----O||O-----O?|||OX-----X||X-----X||O-----OO|||?X-----X||O-----O||O-----O??\n" //
+				+ "??Xx|x|xX||Oo|.|oO||Oo|x|oO?|||OXo|x|oX||Xo|o|xX||Ox|x|oOO|||?Xx|x|xX||O.|.|xO||Oo|x|.O??\n" //
+				+ "??XXXXXXX||OOOOOOO||OOOOOOO?|||OXXXXXXX||XXXXXXX||OOOOOOOO|||?XXXXXXX||OOOOOOO||OOOOOOO??\n" //
+				+ "????????????????????????????|||OOOOOOOOOOOOOOOOOOOOOOOOOOO|||????????????????????????????\n" //
+				+ "?????????????????????????????????????????????????????????????????????????????????????????\n" //
+				+ "TOP.\n" //
+			;
+
+		assertEquals(expected, board.fieldAsPrintableString());
+	}
+
+	public static Board random_h1s3Board() {
 		final Logger log = StackFrameUtil.methodLogger();
 		log.trace("-------------------------------------------------------------");
 
 		Board  board     = new Board(1,3);
-		Player playerAAA = PlayerRandom.create(Token.PLAYER_AAA);
-		Player playerBBB = PlayerRandom.create(Token.PLAYER_BBB);
+		Player playerAAA = PlayerPredictable.create(Token.PLAYER_AAA);
+		Player playerBBB = PlayerPredictable.create(Token.PLAYER_BBB);
 
 		Player player = playerAAA;
 		while (board.isPlayable()) {
@@ -36,29 +419,16 @@ public class PlayerTest {
 			log.trace("after placing:\n" + board.fieldAsPrintableString());
 		}
 
-		String expected = "" //
-			+ "XXXXXXX\n" //
-			+ "Xx|.|oX\n" //
-			+ "X-----X\n" //
-			+ "X.|x|oX\n" //
-			+ "X-----X\n" //
-			+ "X.|.|xX\n" //
-			+ "XXXXXXX\n" //
-			+ "TOP.\n" //
-			;
-
-		assertEquals(expected, board.fieldAsPrintableString());
+		return board;
 	}
 
-	@Test
-	public void random_h2s3_ignoreConstraints() {
-
+	public static Board random_h2s3_ignoreConstraintsBoard() {
 		final Logger log = StackFrameUtil.methodLogger();
 		log.trace("-------------------------------------------------------------");
 
 		Board  board     = new Board(2,3); // 81 token positions
-		Player playerAAA = PlayerRandom.create(Token.PLAYER_AAA);
-		Player playerBBB = PlayerRandom.create(Token.PLAYER_BBB);
+		Player playerAAA = PlayerPredictable.create(Token.PLAYER_AAA);
+		Player playerBBB = PlayerPredictable.create(Token.PLAYER_BBB);
 
 		Player player = playerAAA;
 		for (int i = 0; board.isPlayable() && (i < 100); ++i) {
@@ -76,49 +446,17 @@ public class PlayerTest {
 			player = (player == playerAAA) ? playerBBB : playerAAA;
 		}
 
-		String expected = "" //
-			+ "XXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
-			+ "XXXXXXXX||OOOOOOO||OOOOOOOX\n" //
-			+ "XX.|.|xX||Ox|.|oO||Oo|o|xOX\n" //
-			+ "XX-----X||O-----O||O-----OX\n" //
-			+ "XXo|x|oX||Ox|.|xO||Oo|o|.OX\n" //
-			+ "XX-----X||O-----O||O-----OX\n" //
-			+ "XXx|o|.X||Oo|o|oO||Oo|.|xOX\n" //
-			+ "XXXXXXXX||OOOOOOO||OOOOOOOX\n" //
-			+ "X-------------------------X\n" //
-			+ "X-------------------------X\n" //
-			+ "XXXXXXXX||XXXXXXX||OOOOOOOX\n" //
-			+ "XXx|x|xX||Xx|o|xX||Oo|o|oOX\n" //
-			+ "XX-----X||X-----X||O-----OX\n" //
-			+ "XXo|.|xX||Xx|.|oX||O.|.|.OX\n" //
-			+ "XX-----X||X-----X||O-----OX\n" //
-			+ "XXo|x|.X||Xx|x|.X||O.|.|.OX\n" //
-			+ "XXXXXXXX||XXXXXXX||OOOOOOOX\n" //
-			+ "X-------------------------X\n" //
-			+ "X-------------------------X\n" //
-			+ "XXXXXXXX||       ||XXXXXXXX\n" //
-			+ "XXx|.|xX|| x|o|o ||Xx|.|xXX\n" //
-			+ "XX-----X|| ----- ||X-----XX\n" //
-			+ "XX.|.|xX|| o|.|o ||Xo|x|oXX\n" //
-			+ "XX-----X|| ----- ||X-----XX\n" //
-			+ "XXo|o|xX|| x|.|. ||Xo|x|xXX\n" //
-			+ "XXXXXXXX||       ||XXXXXXXX\n" //
-			+ "XXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
-			+ "TOP.\n" //
-			;
-
-		assertEquals(expected, board.fieldAsPrintableString());
+		return board;
 	}
 
-	@Test
-	public void random_h2s3_followConstraints() {
+	public static Board random_h2s3_followConstraintsBoard() {
 
 		final Logger log = StackFrameUtil.methodLogger();
 		log.trace("-------------------------------------------------------------");
 
 		Board  board     = new Board(2,3); // 81 token positions
-		Player playerAAA = PlayerRandom.create(Token.PLAYER_AAA);
-		Player playerBBB = PlayerRandom.create(Token.PLAYER_BBB);
+		Player playerAAA = PlayerPredictable.create(Token.PLAYER_AAA);
+		Player playerBBB = PlayerPredictable.create(Token.PLAYER_BBB);
 
 		Player player = playerAAA;
 		Position constraint = null;
@@ -137,49 +475,17 @@ public class PlayerTest {
 			player = (player == playerAAA) ? playerBBB : playerAAA;
 		}
 
-		String expected = "" //
-			+ "XXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
-			+ "X       ||XXXXXXX||XXXXXXXX\n" //
-			+ "X .|o|. ||Xx|x|oX||X.|x|xXX\n" //
-			+ "X ----- ||X-----X||X-----XX\n" //
-			+ "X o|x|x ||Xx|o|.X||Xo|x|oXX\n" //
-			+ "X ----- ||X-----X||X-----XX\n" //
-			+ "X o|.|x ||Xx|.|oX||X.|x|oXX\n" //
-			+ "X       ||XXXXXXX||XXXXXXXX\n" //
-			+ "X-------------------------X\n" //
-			+ "X-------------------------X\n" //
-			+ "XOOOOOOO||XXXXXXX||       X\n" //
-			+ "XOo|.|oO||X.|.|xX|| o|.|o X\n" //
-			+ "XO-----O||X-----X|| ----- X\n" //
-			+ "XOo|x|xO||Xo|o|xX|| x|x|o X\n" //
-			+ "XO-----O||X-----X|| ----- X\n" //
-			+ "XOo|.|.O||X.|o|xX|| .|x|x X\n" //
-			+ "XOOOOOOO||XXXXXXX||       X\n" //
-			+ "X-------------------------X\n" //
-			+ "X-------------------------X\n" //
-			+ "XXXXXXXX||       ||OOOOOOOX\n" //
-			+ "XXx|x|oX|| x|.|x ||O.|.|oOX\n" //
-			+ "XX-----X|| ----- ||O-----OX\n" //
-			+ "XXx|o|.X|| .|o|o ||Ox|x|oOX\n" //
-			+ "XX-----X|| ----- ||O-----OX\n" //
-			+ "XXx|.|xX|| .|.|. ||Oo|o|oOX\n" //
-			+ "XXXXXXXX||       ||OOOOOOOX\n" //
-			+ "XXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
-			+ "TOP.\n" //
-			;
-
-		assertEquals(expected, board.fieldAsPrintableString());
+		return board;
 	}
 
-	@Test
-	public void random_h3s2_ignoreConstraints() {
+	public static Board random_h3s2_ignoreConstraintsBoard() {
 
 		final Logger log = StackFrameUtil.methodLogger();
 		log.trace("-------------------------------------------------------------");
 
 		Board  board     = new Board(3,2); // 64 token positions
-		Player playerAAA = PlayerRandom.create(Token.PLAYER_AAA);
-		Player playerBBB = PlayerRandom.create(Token.PLAYER_BBB);
+		Player playerAAA = PlayerPredictable.create(Token.PLAYER_AAA);
+		Player playerBBB = PlayerPredictable.create(Token.PLAYER_BBB);
 
 		Player player = playerAAA;
 		for (int i = 0; board.isPlayable() && (i < 70); ++i) {
@@ -197,55 +503,17 @@ public class PlayerTest {
 			player = (player == playerAAA) ? playerBBB : playerAAA;
 		}
 
-		String expected = "" //
-			+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
-			+ "X              |||XXXXXXXXXXXXXXX\n" //
-			+ "X      ||      |||X     ||XXXXXXX\n" //
-			+ "X  .|. || .|.  |||X .|. ||Xx|oXXX\n" //
-			+ "X  --- || ---  |||X --- ||X---XXX\n" //
-			+ "X  x|. || .|x  |||X .|o ||Xx|.XXX\n" //
-			+ "X      ||      |||X     ||XXXXXXX\n" //
-			+ "X ------------ |||X------------XX\n" //
-			+ "X ------------ |||X------------XX\n" //
-			+ "X      ||OOOOO |||XXXXXX||OOOOOXX\n" //
-			+ "X  o|. ||O.|oO |||XX.|oX||O.|oOXX\n" //
-			+ "X  --- ||O---O |||XX---X||O---OXX\n" //
-			+ "X  x|. ||O.|oO |||XXx|xX||Oo|.OXX\n" //
-			+ "X      ||OOOOO |||XXXXXX||OOOOOXX\n" //
-			+ "X              |||XXXXXXXXXXXXXXX\n" //
-			+ "X-------------------------------X\n" //
-			+ "X-------------------------------X\n" //
-			+ "X-------------------------------X\n" //
-			+ "X              |||XXXXXXXXXXXXXXX\n" //
-			+ "X      ||      |||XOOOOO||XXXXXXX\n" //
-			+ "X  .|. || .|o  |||XO.|xO||Xx|.XXX\n" //
-			+ "X  --- || ---  |||XO---O||X---XXX\n" //
-			+ "X  x|. || .|.  |||XOo|oO||X.|xXXX\n" //
-			+ "X      ||      |||XOOOOO||XXXXXXX\n" //
-			+ "X ------------ |||X------------XX\n" //
-			+ "X ------------ |||X------------XX\n" //
-			+ "X OOOOO||      |||X     ||XXXXXXX\n" //
-			+ "X Oo|.O|| o|x  |||X .|. ||X.|.XXX\n" //
-			+ "X O---O|| ---  |||X --- ||X---XXX\n" //
-			+ "X Ox|oO|| .|.  |||X .|. ||Xx|xXXX\n" //
-			+ "X OOOOO||      |||X     ||XXXXXXX\n" //
-			+ "X              |||XXXXXXXXXXXXXXX\n" //
-			+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
-			+ "TOP.\n" //
-			;
-
-		assertEquals(expected, board.fieldAsPrintableString());
+		return board;
 	}
 
-	@Test
-	public void random_h3s2_followConstraints() {
+	public static Board random_h3s2_followConstraintsBoard() {
 
 		final Logger log = StackFrameUtil.methodLogger();
 		log.trace("-------------------------------------------------------------");
 
 		Board  board     = new Board(3,2); // 64 token positions
-		Player playerAAA = PlayerRandom.create(Token.PLAYER_AAA);
-		Player playerBBB = PlayerRandom.create(Token.PLAYER_BBB);
+		Player playerAAA = PlayerPredictable.create(Token.PLAYER_AAA);
+		Player playerBBB = PlayerPredictable.create(Token.PLAYER_BBB);
 
 		Player player = playerAAA;
 		Position constraint = null;
@@ -265,55 +533,17 @@ public class PlayerTest {
 			player = (player == playerAAA) ? playerBBB : playerAAA;
 		}
 
-		String expected = "" //
-			+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
-			+ "XOOOOOOOOOOOOOO|||XXXXXXXXXXXXXXX\n" //
-			+ "XOOOOOO||     O|||XOOOOO||     XX\n" //
-			+ "XOOx|.O|| .|. O|||XO.|.O|| .|. XX\n" //
-			+ "XOO---O|| --- O|||XO---O|| --- XX\n" //
-			+ "XOOo|oO|| o|x O|||XOo|oO|| .|. XX\n" //
-			+ "XOOOOOO||     O|||XOOOOO||     XX\n" //
-			+ "XO------------O|||X------------XX\n" //
-			+ "XO------------O|||X------------XX\n" //
-			+ "XOXXXXX||OOOOOO|||XXXXXX||XXXXXXX\n" //
-			+ "XOXx|oX||Oo|xOO|||XXx|.X||Xx|.XXX\n" //
-			+ "XOX---X||O---OO|||XX---X||X---XXX\n" //
-			+ "XOX.|xX||O.|oOO|||XXx|oX||X.|xXXX\n" //
-			+ "XOXXXXX||OOOOOO|||XXXXXX||XXXXXXX\n" //
-			+ "XOOOOOOOOOOOOOO|||XXXXXXXXXXXXXXX\n" //
-			+ "X-------------------------------X\n" //
-			+ "X-------------------------------X\n" //
-			+ "X-------------------------------X\n" //
-			+ "XXXXXXXXXXXXXXX|||              X\n" //
-			+ "XXXXXXX||XXXXXX|||      ||      X\n" //
-			+ "XXXx|.X||Xo|xXX|||  .|. || .|.  X\n" //
-			+ "XXX---X||X---XX|||  --- || ---  X\n" //
-			+ "XXXx|.X||X.|xXX|||  .|. || .|.  X\n" //
-			+ "XXXXXXX||XXXXXX|||      ||      X\n" //
-			+ "XX------------X||| ------------ X\n" //
-			+ "XX------------X||| ------------ X\n" //
-			+ "XX     ||     X|||      ||      X\n" //
-			+ "XX .|o || .|o X|||  .|. || .|.  X\n" //
-			+ "XX --- || --- X|||  --- || ---  X\n" //
-			+ "XX .|. || .|. X|||  .|. || .|.  X\n" //
-			+ "XX     ||     X|||      ||      X\n" //
-			+ "XXXXXXXXXXXXXXX|||              X\n" //
-			+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
-			+ "TOP.\n" //
-			;
-
-		assertEquals(expected, board.fieldAsPrintableString());
+		return board;
 	}
 
-	@Test
-	public void random_h3s3_ignoreConstraints() {
+	public static Board random_h3s3_ignoreConstraintsBoard() {
 
 		final Logger log = StackFrameUtil.methodLogger();
 		log.trace("-------------------------------------------------------------");
 
 		Board  board     = new Board(3,3); // 729 token locations
-		Player playerAAA = PlayerRandom.create(Token.PLAYER_AAA);
-		Player playerBBB = PlayerRandom.create(Token.PLAYER_BBB);
+		Player playerAAA = PlayerPredictable.create(Token.PLAYER_AAA);
+		Player playerBBB = PlayerPredictable.create(Token.PLAYER_BBB);
 
 		Player player = playerAAA;
 		for (int i = 0; board.isPlayable() && (i < 800); ++i) {
@@ -331,110 +561,17 @@ public class PlayerTest {
 			player = (player == playerAAA) ? playerBBB : playerAAA;
 		}
 
-		String expected = "" //
-				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
-				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXX|||XXXXXXXXXXXXXXXXXXXXXXXXXXX|||XXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
-				+ "XXOOOOOOO||       ||OOOOOOOX|||X       ||???????||       X|||X       ||OOOOOOO||XXXXXXXXX\n" //
-				+ "XXO.|o|.O|| .|.|. ||Oo|o|oOX|||X .|.|x ||?o|x|o?|| x|.|o X|||X o|x|x ||O.|o|oO||Xo|x|.XXX\n" //
-				+ "XXO-----O|| ----- ||O-----OX|||X ----- ||?-----?|| ----- X|||X ----- ||O-----O||X-----XXX\n" //
-				+ "XXOo|o|oO|| .|o|o ||Ox|.|xOX|||X .|.|o ||?o|o|x?|| .|.|. X|||X .|.|o ||O.|x|oO||Xx|x|xXXX\n" //
-				+ "XXO-----O|| ----- ||O-----OX|||X ----- ||?-----?|| ----- X|||X ----- ||O-----O||X-----XXX\n" //
-				+ "XXOx|.|.O|| x|o|. ||O.|o|oOX|||X o|o|. ||?x|o|x?|| x|.|o X|||X .|.|. ||O.|x|oO||Xx|.|xXXX\n" //
-				+ "XXOOOOOOO||       ||OOOOOOOX|||X       ||???????||       X|||X       ||OOOOOOO||XXXXXXXXX\n" //
-				+ "XX-------------------------X|||X-------------------------X|||X-------------------------XX\n" //
-				+ "XX-------------------------X|||X-------------------------X|||X-------------------------XX\n" //
-				+ "XXXXXXXXX||XXXXXXX||XXXXXXXX|||X       ||       ||XXXXXXXX|||XXXXXXXX||XXXXXXX||XXXXXXXXX\n" //
-				+ "XXXx|x|xX||Xx|o|oX||Xo|o|xXX|||X .|x|. || o|o|x ||X.|.|xXX|||XXx|x|oX||Xx|o|xX||X.|.|xXXX\n" //
-				+ "XXX-----X||X-----X||X-----XX|||X ----- || ----- ||X-----XX|||XX-----X||X-----X||X-----XXX\n" //
-				+ "XXX.|o|oX||Xx|x|oX||Xx|x|oXX|||X o|o|x || x|.|o ||Xx|o|.XX|||XXo|x|xX||Xo|x|xX||Xx|x|xXXX\n" //
-				+ "XXX-----X||X-----X||X-----XX|||X ----- || ----- ||X-----XX|||XX-----X||X-----X||X-----XXX\n" //
-				+ "XXX.|x|xX||Xo|o|xX||Xx|x|.XX|||X x|x|o || .|.|x ||Xx|x|xXX|||XXx|o|xX||Xx|.|oX||X.|x|.XXX\n" //
-				+ "XXXXXXXXX||XXXXXXX||XXXXXXXX|||X       ||       ||XXXXXXXX|||XXXXXXXX||XXXXXXX||XXXXXXXXX\n" //
-				+ "XX-------------------------X|||X-------------------------X|||X-------------------------XX\n" //
-				+ "XX-------------------------X|||X-------------------------X|||X-------------------------XX\n" //
-				+ "XX       ||       ||       X|||XXXXXXXX||XXXXXXX||XXXXXXXX|||X???????||XXXXXXX||OOOOOOOXX\n" //
-				+ "XX .|.|o || o|o|x || o|x|o X|||XXx|x|oX||Xx|.|.X||Xo|o|xXX|||X?x|o|x?||Xx|.|oX||O.|.|oOXX\n" //
-				+ "XX ----- || ----- || ----- X|||XX-----X||X-----X||X-----XX|||X?-----?||X-----X||O-----OXX\n" //
-				+ "XX o|.|o || .|.|o || x|x|. X|||XXx|.|.X||Xx|.|oX||X.|x|oXX|||X?x|x|o?||Xx|.|.X||O.|o|.OXX\n" //
-				+ "XX ----- || ----- || ----- X|||XX-----X||X-----X||X-----XX|||X?-----?||X-----X||O-----OXX\n" //
-				+ "XX o|.|. || o|o|x || x|o|x X|||XXx|x|oX||Xx|.|xX||Xx|x|xXX|||X?o|x|o?||Xx|.|.X||Oo|.|.OXX\n" //
-				+ "XX       ||       ||       X|||XXXXXXXX||XXXXXXX||XXXXXXXX|||X???????||XXXXXXX||OOOOOOOXX\n" //
-				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXX|||XXXXXXXXXXXXXXXXXXXXXXXXXXX|||XXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
-				+ "X---------------------------------------------------------------------------------------X\n" //
-				+ "X---------------------------------------------------------------------------------------X\n" //
-				+ "X---------------------------------------------------------------------------------------X\n" //
-				+ "X???????????????????????????|||                           |||                           X\n" //
-				+ "X?OOOOOOO||OOOOOOO||XXXXXXX?||| OOOOOOO||XXXXXXX||OOOOOOO ||| XXXXXXX||       ||OOOOOOO X\n" //
-				+ "X?Oo|.|oO||O.|.|oO||Xx|.|oX?||| Oo|o|oO||X.|x|xX||Oo|x|.O ||| Xo|.|oX|| x|.|x ||Ox|.|.O X\n" //
-				+ "X?O-----O||O-----O||X-----X?||| O-----O||X-----X||O-----O ||| X-----X|| ----- ||O-----O X\n" //
-				+ "X?Ox|o|.O||Ox|o|oO||X.|x|xX?||| Oo|.|.O||Xx|x|oX||Ox|o|xO ||| Xx|x|xX|| o|.|. ||Ox|o|oO X\n" //
-				+ "X?O-----O||O-----O||X-----X?||| O-----O||X-----X||O-----O ||| X-----X|| ----- ||O-----O X\n" //
-				+ "X?Oo|.|.O||Oo|.|xO||Xo|o|xX?||| O.|.|.O||Xo|x|oX||Oo|x|oO ||| Xx|.|oX|| o|o|. ||Oo|o|oO X\n" //
-				+ "X?OOOOOOO||OOOOOOO||XXXXXXX?||| OOOOOOO||XXXXXXX||OOOOOOO ||| XXXXXXX||       ||OOOOOOO X\n" //
-				+ "X?-------------------------?||| ------------------------- ||| ------------------------- X\n" //
-				+ "X?-------------------------?||| ------------------------- ||| ------------------------- X\n" //
-				+ "X?OOOOOOO||XXXXXXX||XXXXXXX?|||        ||OOOOOOO||        ||| OOOOOOO||       ||OOOOOOO X\n" //
-				+ "X?Oo|.|xO||Xo|o|xX||Xx|.|oX?|||  .|.|x ||Oo|o|xO|| o|x|.  ||| Ox|o|oO|| .|.|o ||Oo|.|.O X\n" //
-				+ "X?O-----O||X-----X||X-----X?|||  ----- ||O-----O|| -----  ||| O-----O|| ----- ||O-----O X\n" //
-				+ "X?Oo|o|.O||Xx|x|oX||Xo|x|oX?|||  o|.|o ||Oo|o|oO|| .|.|x  ||| Ox|.|oO|| o|x|x ||Oo|.|oO X\n" //
-				+ "X?O-----O||X-----X||X-----X?|||  ----- ||O-----O|| -----  ||| O-----O|| ----- ||O-----O X\n" //
-				+ "X?Oo|o|.O||Xx|o|xX||Xx|.|xX?|||  .|o|. ||Ox|.|xO|| o|x|.  ||| O.|.|oO|| x|o|o ||Oo|x|.O X\n" //
-				+ "X?OOOOOOO||XXXXXXX||XXXXXXX?|||        ||OOOOOOO||        ||| OOOOOOO||       ||OOOOOOO X\n" //
-				+ "X?-------------------------?||| ------------------------- ||| ------------------------- X\n" //
-				+ "X?-------------------------?||| ------------------------- ||| ------------------------- X\n" //
-				+ "X????????||XXXXXXX||OOOOOOO?||| XXXXXXX||       ||        ||| OOOOOOO||XXXXXXX||        X\n" //
-				+ "X??x|x|o?||Xx|.|xX||Ox|o|.O?||| Xo|o|xX|| .|x|. || .|x|o  ||| O.|.|.O||X.|.|xX|| x|o|.  X\n" //
-				+ "X??-----?||X-----X||O-----O?||| X-----X|| ----- || -----  ||| O-----O||X-----X|| -----  X\n" //
-				+ "X??o|x|x?||X.|x|.X||Ox|o|.O?||| Xx|.|xX|| o|.|. || o|.|o  ||| O.|o|.O||X.|o|.X|| o|.|x  X\n" //
-				+ "X??-----?||X-----X||O-----O?||| X-----X|| ----- || -----  ||| O-----O||X-----X|| -----  X\n" //
-				+ "X??x|o|o?||Xx|.|.X||Oo|o|xO?||| Xx|o|xX|| o|o|. || o|o|x  ||| Oo|o|oO||Xx|x|xX|| o|x|x  X\n" //
-				+ "X????????||XXXXXXX||OOOOOOO?||| XXXXXXX||       ||        ||| OOOOOOO||XXXXXXX||        X\n" //
-				+ "X???????????????????????????|||                           |||                           X\n" //
-				+ "X---------------------------------------------------------------------------------------X\n" //
-				+ "X---------------------------------------------------------------------------------------X\n" //
-				+ "X---------------------------------------------------------------------------------------X\n" //
-				+ "X                           |||                           |||XXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
-				+ "X        ||XXXXXXX||XXXXXXX |||        ||XXXXXXX||        |||XXXXXXXX||       ||XXXXXXXXX\n" //
-				+ "X  x|o|x ||Xo|o|.X||Xo|x|xX |||  x|.|o ||Xx|o|oX|| .|.|x  |||XXx|.|.X|| o|x|. ||Xo|.|xXXX\n" //
-				+ "X  ----- ||X-----X||X-----X |||  ----- ||X-----X|| -----  |||XX-----X|| ----- ||X-----XXX\n" //
-				+ "X  o|.|. ||Xx|x|xX||X.|x|xX |||  o|x|. ||Xx|x|xX|| .|o|x  |||XXo|x|.X|| x|.|o ||X.|.|xXXX\n" //
-				+ "X  ----- ||X-----X||X-----X |||  ----- ||X-----X|| -----  |||XX-----X|| ----- ||X-----XXX\n" //
-				+ "X  x|.|o ||X.|x|oX||Xx|o|.X |||  x|o|o ||X.|o|oX|| x|x|o  |||XX.|.|xX|| .|x|x ||Xo|.|xXXX\n" //
-				+ "X        ||XXXXXXX||XXXXXXX |||        ||XXXXXXX||        |||XXXXXXXX||       ||XXXXXXXXX\n" //
-				+ "X ------------------------- ||| ------------------------- |||X-------------------------XX\n" //
-				+ "X ------------------------- ||| ------------------------- |||X-------------------------XX\n" //
-				+ "X OOOOOOO||       ||        |||        ||       ||        |||XOOOOOOO||       ||XXXXXXXXX\n" //
-				+ "X Oo|x|oO|| o|x|o || o|.|x  |||  .|x|. || .|o|o || .|o|x  |||XOx|x|.O|| o|x|o ||Xo|x|oXXX\n" //
-				+ "X O-----O|| ----- || -----  |||  ----- || ----- || -----  |||XO-----O|| ----- ||X-----XXX\n" //
-				+ "X Oo|o|xO|| .|x|. || o|.|.  |||  .|.|. || .|x|x || o|x|x  |||XO.|.|xO|| .|o|x ||X.|.|oXXX\n" //
-				+ "X O-----O|| ----- || -----  |||  ----- || ----- || -----  |||XO-----O|| ----- ||X-----XXX\n" //
-				+ "X Ox|x|oO|| .|o|. || .|x|o  |||  .|x|o || .|o|o || .|o|.  |||XOo|o|oO|| x|.|x ||Xx|x|xXXX\n" //
-				+ "X OOOOOOO||       ||        |||        ||       ||        |||XOOOOOOO||       ||XXXXXXXXX\n" //
-				+ "X ------------------------- ||| ------------------------- |||X-------------------------XX\n" //
-				+ "X ------------------------- ||| ------------------------- |||X-------------------------XX\n" //
-				+ "X OOOOOOO||OOOOOOO||XXXXXXX ||| OOOOOOO||       ||        |||X       ||       ||XXXXXXXXX\n" //
-				+ "X O.|x|oO||O.|.|.O||X.|x|xX ||| Oo|.|xO|| x|o|x || .|.|x  |||X .|.|x || .|.|x ||Xo|.|.XXX\n" //
-				+ "X O-----O||O-----O||X-----X ||| O-----O|| ----- || -----  |||X ----- || ----- ||X-----XXX\n" //
-				+ "X Ox|o|oO||Oo|o|oO||Xx|x|xX ||| Oo|o|xO|| o|.|x || .|x|o  |||X o|.|o || .|o|. ||Xo|.|oXXX\n" //
-				+ "X O-----O||O-----O||X-----X ||| O-----O|| ----- || -----  |||X ----- || ----- ||X-----XXX\n" //
-				+ "X Oo|o|xO||Ox|o|.O||Xx|x|oX ||| Ox|x|oO|| .|o|. || o|o|.  |||X o|x|. || .|o|. ||Xx|x|xXXX\n" //
-				+ "X OOOOOOO||OOOOOOO||XXXXXXX ||| OOOOOOO||       ||        |||X       ||       ||XXXXXXXXX\n" //
-				+ "X                           |||                           |||XXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
-				+ "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" //
-				+ "TOP.\n" //
-			;
-
-		assertEquals(expected, board.fieldAsPrintableString());
+		return board;
 	}
-	@Test
-	public void random_h3s3_followConstraints() {
+
+	public static Board random_h3s3_followConstraintsBoard() {
 
 		final Logger log = StackFrameUtil.methodLogger();
 		log.trace("-------------------------------------------------------------");
 
 		Board  board     = new Board(3,3); // 729 token locations
-		Player playerAAA = PlayerRandom.create(Token.PLAYER_AAA);
-		Player playerBBB = PlayerRandom.create(Token.PLAYER_BBB);
+		Player playerAAA = PlayerPredictable.create(Token.PLAYER_AAA);
+		Player playerBBB = PlayerPredictable.create(Token.PLAYER_BBB);
 
 		Player   player     = playerAAA;
 		Position constraint = null;
@@ -457,99 +594,24 @@ public class PlayerTest {
 			player = (player == playerAAA) ? playerBBB : playerAAA;
 		}
 
-		String expected = "" //
-				+ "?????????????????????????????????????????????????????????????????????????????????????????\n" //
-				+ "?XXXXXXXXXXXXXXXXXXXXXXXXXXX|||XXXXXXXXXXXXXXXXXXXXXXXXXXX|||????????????????????????????\n" //
-				+ "?XXXXXXXX||XXXXXXX||XXXXXXXX|||XOOOOOOO||XXXXXXX||OOOOOOOX|||?OOOOOOO||XXXXXXX||XXXXXXX??\n" //
-				+ "?XXo|o|xX||Xx|o|oX||X.|.|.XX|||XOo|.|.O||Xx|o|xX||Oo|o|xOX|||?Ox|o|.O||Xo|x|oX||Xx|.|xX??\n" //
-				+ "?XX-----X||X-----X||X-----XX|||XO-----O||X-----X||O-----OX|||?O-----O||X-----X||X-----X??\n" //
-				+ "?XX.|o|xX||Xo|x|oX||Xx|x|xXX|||XOx|o|oO||X.|x|xX||O.|.|.OX|||?Oo|o|oO||Xx|x|.X||Xo|o|.X??\n" //
-				+ "?XX-----X||X-----X||X-----XX|||XO-----O||X-----X||O-----OX|||?O-----O||X-----X||X-----X??\n" //
-				+ "?XXo|x|xX||Xo|x|xX||X.|x|.XX|||XO.|x|oO||Xx|x|oX||Oo|o|oOX|||?O.|o|.O||Xx|x|oX||Xx|x|xX??\n" //
-				+ "?XXXXXXXX||XXXXXXX||XXXXXXXX|||XOOOOOOO||XXXXXXX||OOOOOOOX|||?OOOOOOO||XXXXXXX||XXXXXXX??\n" //
-				+ "?X-------------------------X|||X-------------------------X|||?-------------------------??\n" //
-				+ "?X-------------------------X|||X-------------------------X|||?-------------------------??\n" //
-				+ "?X???????||OOOOOOO||XXXXXXXX|||XOOOOOOO||OOOOOOO||XXXXXXXX|||?XXXXXXX||XXXXXXX||OOOOOOO??\n" //
-				+ "?X?o|x|x?||O.|.|oO||Xx|x|xXX|||XO.|x|xO||O.|.|oO||X.|.|xXX|||?Xx|.|oX||X.|x|oX||Ox|.|oO??\n" //
-				+ "?X?-----?||O-----O||X-----XX|||XO-----O||O-----O||X-----XX|||?X-----X||X-----X||O-----O??\n" //
-				+ "?X?x|o|o?||Oo|x|oO||Xx|o|.XX|||XOo|x|oO||Oo|.|oO||Xx|x|xXX|||?Xo|x|.X||X.|x|oX||Oo|x|oO??\n" //
-				+ "?X?-----?||O-----O||X-----XX|||XO-----O||O-----O||X-----XX|||?X-----X||X-----X||O-----O??\n" //
-				+ "?X?o|o|x?||Oo|x|oO||X.|x|.XX|||XOo|o|oO||O.|o|oO||Xo|.|oXX|||?Xo|.|xX||Xx|x|.X||Ox|x|oO??\n" //
-				+ "?X???????||OOOOOOO||XXXXXXXX|||XOOOOOOO||OOOOOOO||XXXXXXXX|||?XXXXXXX||XXXXXXX||OOOOOOO??\n" //
-				+ "?X-------------------------X|||X-------------------------X|||?-------------------------??\n" //
-				+ "?X-------------------------X|||X-------------------------X|||?-------------------------??\n" //
-				+ "?XXXXXXXX||OOOOOOO||OOOOOOOX|||XXXXXXXX||XXXXXXX||XXXXXXXX|||?OOOOOOO||OOOOOOO||XXXXXXX??\n" //
-				+ "?XXx|x|.X||Oo|x|oO||O.|o|oOX|||XXx|o|xX||X.|o|xX||Xx|x|xXX|||?Ox|o|oO||Ox|o|.O||Xx|.|xX??\n" //
-				+ "?XX-----X||O-----O||O-----OX|||XX-----X||X-----X||X-----XX|||?O-----O||O-----O||X-----X??\n" //
-				+ "?XX.|x|.X||Oo|x|oO||O.|x|oOX|||XXx|x|.X||Xo|x|oX||X.|.|.XX|||?O.|.|xO||Oo|o|.O||Xx|o|.X??\n" //
-				+ "?XX-----X||O-----O||O-----OX|||XX-----X||X-----X||X-----XX|||?O-----O||O-----O||X-----X??\n" //
-				+ "?XX.|.|xX||Oo|o|xO||Ox|o|oOX|||XXo|x|xX||Xx|.|xX||X.|o|xXX|||?Oo|o|oO||O.|o|xO||Xx|o|oX??\n" //
-				+ "?XXXXXXXX||OOOOOOO||OOOOOOOX|||XXXXXXXX||XXXXXXX||XXXXXXXX|||?OOOOOOO||OOOOOOO||XXXXXXX??\n" //
-				+ "?XXXXXXXXXXXXXXXXXXXXXXXXXXX|||XXXXXXXXXXXXXXXXXXXXXXXXXXX|||????????????????????????????\n" //
-				+ "?---------------------------------------------------------------------------------------?\n" //
-				+ "?---------------------------------------------------------------------------------------?\n" //
-				+ "?---------------------------------------------------------------------------------------?\n" //
-				+ "????????????????????????????|||XXXXXXXXXXXXXXXXXXXXXXXXXXX|||????????????????????????????\n" //
-				+ "??OOOOOOO||XXXXXXX||XXXXXXX?|||XXXXXXXX||XXXXXXX||XXXXXXXX|||????????||???????||OOOOOOO??\n" //
-				+ "??O.|.|oO||X.|o|xX||Xx|o|xX?|||XX.|.|oX||X.|.|oX||Xx|x|oXX|||??o|x|x?||?o|x|x?||Oo|o|oO??\n" //
-				+ "??O-----O||X-----X||X-----X?|||XX-----X||X-----X||X-----XX|||??-----?||?-----?||O-----O??\n" //
-				+ "??Oo|x|oO||Xo|o|xX||Xo|x|xX?|||XX.|.|oX||Xx|x|xX||Xx|x|xXX|||??x|x|o?||?x|x|o?||Ox|.|.O??\n" //
-				+ "??O-----O||X-----X||X-----X?|||XX-----X||X-----X||X-----XX|||??-----?||?-----?||O-----O??\n" //
-				+ "??Oo|.|oO||Xo|.|xX||Xx|x|oX?|||XXx|x|xX||Xo|o|.X||X.|.|xXX|||??o|o|x?||?o|o|x?||Oo|x|.O??\n" //
-				+ "??OOOOOOO||XXXXXXX||XXXXXXX?|||XXXXXXXX||XXXXXXX||XXXXXXXX|||????????||???????||OOOOOOO??\n" //
-				+ "??-------------------------?|||X-------------------------X|||?-------------------------??\n" //
-				+ "??-------------------------?|||X-------------------------X|||?-------------------------??\n" //
-				+ "??XXXXXXX||OOOOOOO||????????|||X       ||       ||       X|||?OOOOOOO||OOOOOOO||?????????\n" //
-				+ "??Xx|x|xX||Ox|x|oO||?x|o|o??|||X x|x|o || .|o|. || o|x|. X|||?Oo|x|oO||Oo|o|oO||?x|o|x???\n" //
-				+ "??X-----X||O-----O||?-----??|||X ----- || ----- || ----- X|||?O-----O||O-----O||?-----???\n" //
-				+ "??Xx|o|xX||Oo|x|oO||?o|o|x??|||X o|.|o || x|.|. || o|.|. X|||?Ox|.|xO||O.|x|oO||?o|x|x???\n" //
-				+ "??X-----X||O-----O||?-----??|||X ----- || ----- || ----- X|||?O-----O||O-----O||?-----???\n" //
-				+ "??Xx|x|oX||Ox|o|oO||?x|x|o??|||X .|x|x || o|.|. || x|x|. X|||?Oo|o|oO||Oo|o|.O||?o|x|o???\n" //
-				+ "??XXXXXXX||OOOOOOO||????????|||X       ||       ||       X|||?OOOOOOO||OOOOOOO||?????????\n" //
-				+ "??-------------------------?|||X-------------------------X|||?-------------------------??\n" //
-				+ "??-------------------------?|||X-------------------------X|||?-------------------------??\n" //
-				+ "??OOOOOOO||OOOOOOO||XXXXXXX?|||X       ||       ||       X|||?XXXXXXX||XXXXXXX||?????????\n" //
-				+ "??O.|.|oO||Oo|.|oO||X.|.|xX?|||X o|.|o || x|o|x || o|o|. X|||?Xx|.|xX||Xo|x|xX||?x|o|x???\n" //
-				+ "??O-----O||O-----O||X-----X?|||X ----- || ----- || ----- X|||?X-----X||X-----X||?-----???\n" //
-				+ "??O.|.|oO||O.|x|oO||Xx|x|.X?|||X .|.|o || o|o|. || o|.|. X|||?Xo|x|xX||Xo|x|oX||?x|o|x???\n" //
-				+ "??O-----O||O-----O||X-----X?|||X ----- || ----- || ----- X|||?X-----X||X-----X||?-----???\n" //
-				+ "??Ox|.|oO||Oo|.|oO||Xx|.|.X?|||X x|.|x || .|.|. || .|o|. X|||?Xx|x|oX||Xx|o|xX||?o|x|o???\n" //
-				+ "??OOOOOOO||OOOOOOO||XXXXXXX?|||X       ||       ||       X|||?XXXXXXX||XXXXXXX||?????????\n" //
-				+ "????????????????????????????|||XXXXXXXXXXXXXXXXXXXXXXXXXXX|||????????????????????????????\n" //
-				+ "?---------------------------------------------------------------------------------------?\n" //
-				+ "?---------------------------------------------------------------------------------------?\n" //
-				+ "?---------------------------------------------------------------------------------------?\n" //
-				+ "?OOOOOOOOOOOOOOOOOOOOOOOOOOO|||OOOOOOOOOOOOOOOOOOOOOOOOOOO|||????????????????????????????\n" //
-				+ "?OOOOOOOO||XXXXXXX||XXXXXXXO|||OOOOOOOO||XXXXXXX||OOOOOOOO|||?XXXXXXX||OOOOOOO||OOOOOOO??\n" //
-				+ "?OOo|o|oO||Xx|o|xX||Xx|x|oXO|||OO.|.|oO||Xx|o|.X||Oo|o|xOO|||?Xx|o|xX||Ox|x|oO||O.|o|oO??\n" //
-				+ "?OO-----O||X-----X||X-----XO|||OO-----O||X-----X||O-----OO|||?X-----X||O-----O||O-----O??\n" //
-				+ "?OOo|x|.O||X.|x|xX||Xo|.|xXO|||OO.|x|oO||X.|x|xX||Oo|x|oOO|||?Xo|o|xX||Ox|o|oO||Ox|o|oO??\n" //
-				+ "?OO-----O||X-----X||X-----XO|||OO-----O||X-----X||O-----OO|||?X-----X||O-----O||O-----O??\n" //
-				+ "?OO.|x|xO||Xx|x|oX||Xx|x|xXO|||OO.|.|oO||Xx|.|xX||Oo|.|oOO|||?Xo|x|xX||Oo|o|xO||Oo|x|oO??\n" //
-				+ "?OOOOOOOO||XXXXXXX||XXXXXXXO|||OOOOOOOO||XXXXXXX||OOOOOOOO|||?XXXXXXX||OOOOOOO||OOOOOOO??\n" //
-				+ "?O-------------------------O|||O-------------------------O|||?-------------------------??\n" //
-				+ "?O-------------------------O|||O-------------------------O|||?-------------------------??\n" //
-				+ "?OXXXXXXX||OOOOOOO||OOOOOOOO|||O       ||OOOOOOO||XXXXXXXO|||????????||XXXXXXX||XXXXXXX??\n" //
-				+ "?OXx|.|.X||Oo|o|oO||Oo|.|xOO|||O o|.|x ||Ox|.|.O||X.|.|xXO|||??o|o|x?||Xx|x|xX||X.|.|xX??\n" //
-				+ "?OX-----X||O-----O||O-----OO|||O ----- ||O-----O||X-----XO|||??-----?||X-----X||X-----X??\n" //
-				+ "?OX.|.|xX||Oo|x|oO||Oo|o|.OO|||O .|o|o ||O.|.|oO||X.|x|oXO|||??x|x|o?||Xx|o|.X||Xo|.|xX??\n" //
-				+ "?OX-----X||O-----O||O-----OO|||O ----- ||O-----O||X-----XO|||??-----?||X-----X||X-----X??\n" //
-				+ "?OXx|x|xX||Ox|x|.O||Oo|.|xOO|||O .|.|. ||Oo|o|oO||Xx|.|xXO|||??o|o|x?||Xx|.|.X||Xo|o|xX??\n" //
-				+ "?OXXXXXXX||OOOOOOO||OOOOOOOO|||O       ||OOOOOOO||XXXXXXXO|||????????||XXXXXXX||XXXXXXX??\n" //
-				+ "?O-------------------------O|||O-------------------------O|||?-------------------------??\n" //
-				+ "?O-------------------------O|||O-------------------------O|||?-------------------------??\n" //
-				+ "?OOOOOOOO||OOOOOOO||OOOOOOOO|||OOOOOOOO||XXXXXXX||XXXXXXXO|||?XXXXXXX||OOOOOOO||OOOOOOO??\n" //
-				+ "?OO.|.|oO||O.|o|oO||Oo|x|oOO|||OOx|o|xO||X.|.|xX||Xx|x|.XO|||?Xo|x|xX||Ox|x|oO||Oo|o|.O??\n" //
-				+ "?OO-----O||O-----O||O-----OO|||OO-----O||X-----X||X-----XO|||?X-----X||O-----O||O-----O??\n" //
-				+ "?OOo|o|oO||Oo|o|.O||Oo|o|xOO|||OO.|o|oO||X.|x|xX||Xx|x|oXO|||?Xx|o|xX||Oo|o|xO||Ox|o|oO??\n" //
-				+ "?OO-----O||O-----O||O-----OO|||OO-----O||X-----X||X-----XO|||?X-----X||O-----O||O-----O??\n" //
-				+ "?OO.|.|.O||Oo|x|.O||Ox|x|oOO|||OO.|o|.O||Xx|.|.X||Xx|o|oXO|||?Xx|o|xX||Oo|x|xO||Ox|.|oO??\n" //
-				+ "?OOOOOOOO||OOOOOOO||OOOOOOOO|||OOOOOOOO||XXXXXXX||XXXXXXXO|||?XXXXXXX||OOOOOOO||OOOOOOO??\n" //
-				+ "?OOOOOOOOOOOOOOOOOOOOOOOOOOO|||OOOOOOOOOOOOOOOOOOOOOOOOOOO|||????????????????????????????\n" //
-				+ "?????????????????????????????????????????????????????????????????????????????????????????\n" //
-				+ "TOP.\n" //
-			;
+		return board;
+	}
 
-		assertEquals(expected, board.fieldAsPrintableString());
+	public static void main(String[] args) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		
+		final Method[] methods = PlayerTest.class.getMethods();
+		for (Method method : methods) {
+			if (method.getReturnType().equals(Board.class)) {
+			    final Object o = method.invoke(null);
+			    final String[] fieldString = ((Board) o).fieldAsPrintableString().split("\n");
+			    System.out.println("for " + method.getName());
+			    System.out.println("final String expected = \"\" //");
+			    for (String line : fieldString) {
+			    	System.out.println(String.format("\t+ \"%s\\n\" //", line));
+			    }
+			    System.out.println(";");
+			    System.out.println();
+			}
+		}
 	}
 }

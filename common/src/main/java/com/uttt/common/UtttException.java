@@ -49,4 +49,28 @@ public class UtttException extends RuntimeException {
 		public QQQ(Throwable cause)                    { super(cause);          }
 		public QQQ(String message, Throwable cause)    { super(message, cause); }
 	}
+
+	public static class UnuniquePlayers extends UtttException {
+
+		public UnuniquePlayers()                                   { super();               }
+		public UnuniquePlayers(String message)                     { super(message);        }
+		public UnuniquePlayers(Throwable cause)                    { super(cause);          }
+		public UnuniquePlayers(String message, Throwable cause)    { super(message, cause); }
+	}
+
+	public static class UnuseableToken extends UtttException {
+
+		public UnuseableToken()                                   { super();               }
+		public UnuseableToken(String message)                     { super(message);        }
+		public UnuseableToken(Throwable cause)                    { super(cause);          }
+		public UnuseableToken(String message, Throwable cause)    { super(message, cause); }
+	}
+
+	public static class PlayerTimeout extends UtttException {
+
+		public PlayerTimeout()                                   { super();               }
+		public PlayerTimeout(String message)                     { super(message);        }
+		public PlayerTimeout(Throwable cause)                    { super(cause);          }
+		public PlayerTimeout(String message, Throwable cause)    { super(message, cause); }
+	}
 }

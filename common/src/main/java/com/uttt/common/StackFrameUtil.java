@@ -1,4 +1,4 @@
-package com.uttt.common.testutil;
+package com.uttt.common;
 
 import org.apache.log4j.Logger;
 

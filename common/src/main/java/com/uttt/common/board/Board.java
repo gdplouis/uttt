@@ -10,7 +10,7 @@ import com.uttt.common.Foreachable;
 import com.uttt.common.UtttException;
 
 /**
- * A board repesents an independent field of play, where that field is (A) square, and (B) where each position in that
+ * A board represents an independent field of play, where that field is (A) square, and (B) where each position in that
  * field is either a token-spot, or itself a (subordinate) board. This creates a recursive parent<-*>child relationship,
  * with tokens at the base (the final child-level).
  *

@@ -1,8 +1,6 @@
-package com.uttt.common.testutil;
+package com.uttt.common;
 
 import java.util.Random;
-
-import com.uttt.common.ExUtil;
 
 public class RepeatableRandom extends Random {
 

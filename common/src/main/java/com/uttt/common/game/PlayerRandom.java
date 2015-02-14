@@ -2,6 +2,7 @@ package com.uttt.common.game;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.log4j.Logger;
 
@@ -11,21 +12,15 @@ import com.uttt.common.board.Node;
 import com.uttt.common.board.Node.Status;
 import com.uttt.common.board.Position;
 import com.uttt.common.board.Token;
-import com.uttt.common.testutil.RepeatableRandom;
 
-public class PlayerRandom implements Player {
+public abstract class PlayerRandom implements Player {
 
-	private final Token            token;
-	private final RepeatableRandom random;
+	private final Token  token;
+	private final Random random;
 
-	private PlayerRandom(Token token) {
+	protected PlayerRandom(Token token, Random random) {
 		this.token  = token;
-		this.random = RepeatableRandom.create(1, token);
-	}
-
-	public static Player create(Token token) {
-		Player rval = new PlayerRandom(token);
-		return rval;
+		this.random = random;
 	}
 
 	@Override

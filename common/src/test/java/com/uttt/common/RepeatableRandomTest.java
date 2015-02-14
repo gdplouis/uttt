@@ -1,4 +1,4 @@
-package com.uttt.common.testutil.utiltest;
+package com.uttt.common;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -6,8 +6,7 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 
 import com.uttt.common.Foreachable;
-import com.uttt.common.TestExceptionValidator;
-import com.uttt.common.testutil.RepeatableRandom;
+import com.uttt.common.RepeatableRandom;
 
 public class RepeatableRandomTest {
 

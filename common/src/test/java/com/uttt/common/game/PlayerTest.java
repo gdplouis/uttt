@@ -403,8 +403,8 @@ public class PlayerTest {
 		log.trace("-------------------------------------------------------------");
 
 		Board  board     = new Board(1,3);
-		Player playerAAA = PlayerPredictable.create(Token.PLAYER_AAA);
-		Player playerBBB = PlayerPredictable.create(Token.PLAYER_BBB);
+		Player playerAAA = Player.create(PlayerPredictable.class, Token.PLAYER_AAA);
+		Player playerBBB = Player.create(PlayerPredictable.class, Token.PLAYER_BBB);
 
 		Player player = playerAAA;
 		while (board.isPlayable()) {
@@ -427,8 +427,8 @@ public class PlayerTest {
 		log.trace("-------------------------------------------------------------");
 
 		Board  board     = new Board(2,3); // 81 token positions
-		Player playerAAA = PlayerPredictable.create(Token.PLAYER_AAA);
-		Player playerBBB = PlayerPredictable.create(Token.PLAYER_BBB);
+		Player playerAAA = Player.create(PlayerPredictable.class, Token.PLAYER_AAA);
+		Player playerBBB = Player.create(PlayerPredictable.class, Token.PLAYER_BBB);
 
 		Player player = playerAAA;
 		for (int i = 0; board.isPlayable() && (i < 100); ++i) {
@@ -455,8 +455,8 @@ public class PlayerTest {
 		log.trace("-------------------------------------------------------------");
 
 		Board  board     = new Board(2,3); // 81 token positions
-		Player playerAAA = PlayerPredictable.create(Token.PLAYER_AAA);
-		Player playerBBB = PlayerPredictable.create(Token.PLAYER_BBB);
+		Player playerAAA = Player.create(PlayerPredictable.class, Token.PLAYER_AAA);
+		Player playerBBB = Player.create(PlayerPredictable.class, Token.PLAYER_BBB);
 
 		Player player = playerAAA;
 		Position constraint = null;
@@ -484,8 +484,8 @@ public class PlayerTest {
 		log.trace("-------------------------------------------------------------");
 
 		Board  board     = new Board(3,2); // 64 token positions
-		Player playerAAA = PlayerPredictable.create(Token.PLAYER_AAA);
-		Player playerBBB = PlayerPredictable.create(Token.PLAYER_BBB);
+		Player playerAAA = Player.create(PlayerPredictable.class, Token.PLAYER_AAA);
+		Player playerBBB = Player.create(PlayerPredictable.class, Token.PLAYER_BBB);
 
 		Player player = playerAAA;
 		for (int i = 0; board.isPlayable() && (i < 70); ++i) {
@@ -512,8 +512,8 @@ public class PlayerTest {
 		log.trace("-------------------------------------------------------------");
 
 		Board  board     = new Board(3,2); // 64 token positions
-		Player playerAAA = PlayerPredictable.create(Token.PLAYER_AAA);
-		Player playerBBB = PlayerPredictable.create(Token.PLAYER_BBB);
+		Player playerAAA = Player.create(PlayerPredictable.class, Token.PLAYER_AAA);
+		Player playerBBB = Player.create(PlayerPredictable.class, Token.PLAYER_BBB);
 
 		Player player = playerAAA;
 		Position constraint = null;
@@ -542,8 +542,8 @@ public class PlayerTest {
 		log.trace("-------------------------------------------------------------");
 
 		Board  board     = new Board(3,3); // 729 token locations
-		Player playerAAA = PlayerPredictable.create(Token.PLAYER_AAA);
-		Player playerBBB = PlayerPredictable.create(Token.PLAYER_BBB);
+		Player playerAAA = Player.create(PlayerPredictable.class, Token.PLAYER_AAA);
+		Player playerBBB = Player.create(PlayerPredictable.class, Token.PLAYER_BBB);
 
 		Player player = playerAAA;
 		for (int i = 0; board.isPlayable() && (i < 800); ++i) {
@@ -570,8 +570,8 @@ public class PlayerTest {
 		log.trace("-------------------------------------------------------------");
 
 		Board  board     = new Board(3,3); // 729 token locations
-		Player playerAAA = PlayerPredictable.create(Token.PLAYER_AAA);
-		Player playerBBB = PlayerPredictable.create(Token.PLAYER_BBB);
+		Player playerAAA = Player.create(PlayerPredictable.class, Token.PLAYER_AAA);
+		Player playerBBB = Player.create(PlayerPredictable.class, Token.PLAYER_BBB);
 
 		Player   player     = playerAAA;
 		Position constraint = null;

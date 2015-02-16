@@ -5,11 +5,7 @@ import com.uttt.common.board.Token;
 
 public class PlayerPredictable extends PlayerRandom {
 
-	private PlayerPredictable(Token token) {
+	public PlayerPredictable(Token token) {
 		super(token, RepeatableRandom.create(2, token));
-	}
-	
-	public static Player create(Token token) {
-		return new PlayerPredictable(token);
 	}
 }

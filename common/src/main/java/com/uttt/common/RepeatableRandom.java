@@ -93,6 +93,33 @@ public class RepeatableRandom extends Random {
 		return rval;
 	}
 
+	/**
+	 * Return a {@code RepeatableRandom} instance whose seed is deterministically derived from an active stack frame
+	 * a specified number of frames above the caller's frame. From that frame, the method's class and (simple) method
+	 * name are combined, along with the enumeration value's class-name and value-name, to form the seed.
+	 * This allows a single calling method to create distinct {@code RepeatableRandom} instances in a
+	 * controlled manner.
+	 * <P><B>NOTE:</B> Only the caller's method <i>name</i> is used to derive the seed, not its entire signature.
+	 * Thus, a group of overloaded methods will all obtain instances with the same seed. If this is unworkable, be sure to
+	 * use distinct enumeration values for each such create.
+	 *
+	 * @param className the class name
+	 * @param methodName the method name
+	 * @param value Any non-null enumeration value convenient for the caller to distinguish among creations
+	 *
+	 * @throws IllegalArgumentException {@code framesUp} is non-positive; {@code value} is null
+	 */
+	public static <T extends Enum<T>> RepeatableRandom create(String className, String methodName, T value) {
+		if (value == null) {
+			throw ExUtil.create(NullPointerException.class)
+			.ident("value", value)
+			.build();
+		}
+
+		RepeatableRandom rval = create(StackFrameUtil.findFrame(className, methodName, -1), value.getClass().getCanonicalName(), value.toString());
+		return rval;
+	}
+
 	@Override
 	public synchronized void setSeed(long newSeed) {
 		// super constructor calls (somehow) [#setSeed], so we need to detect first time vs. reset

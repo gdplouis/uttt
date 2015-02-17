@@ -1,5 +1,6 @@
 package com.uttt.common;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 
@@ -35,6 +36,60 @@ public class StackFrameUtil {
 		StackTraceElement rval = frames[Math.min((levelsUp + 2), (frames.length - 1))];
 
 		return rval;
+	}
+
+	/**
+	 * Return the {@code StackTraceElement} of the running thread's call stack associated with the
+	 * stack frame a given className and method name of caller. Will return null if unfound or
+	 * invalid strings given.
+	 *
+	 * @param className
+	 * @param methodName
+	 * @return
+	 */
+	public final static StackTraceElement findFrame(String className, String methodName) {
+		return findFrame(className, methodName, 0);
+	}
+
+	/**
+	 * Return the {@code StackTraceElement} of the running thread's call stack associated with the
+	 * stack frame a given className and method name of caller with an offset. Will return null if
+	 * unfound or invalid strings given.
+	 *
+	 * @param className
+	 * @param methodName
+	 * @param offset
+	 * @return
+	 */
+	public final static StackTraceElement findFrame(String className, String methodName, int offset) {
+
+		if (StringUtils.isEmpty(className) || StringUtils.isEmpty(methodName)) {
+			return null;
+		}
+		
+		// probe the stack
+
+		final StackTraceElement[] frames = Thread.currentThread().getStackTrace();
+
+		if (frames == null) {
+			return null;
+		}
+
+		Integer index = null;
+		for (int i=0; i<frames.length; i++) {
+			final String[] who = whoami(frames[i]).split("\\.");
+			if (who[0].equals(className) && who[1].equals(methodName)) {
+				index = i;
+			}
+		}
+		if (index == null) {
+			return null;
+		}
+		index += offset;
+		if (index < 0) {
+			return null;
+		}
+		return frames[Math.min(index, frames.length-1)];
 	}
 
 	private final static String whoami(StackTraceElement frame) {

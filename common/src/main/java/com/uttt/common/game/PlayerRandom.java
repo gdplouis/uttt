@@ -13,19 +13,13 @@ import com.uttt.common.board.Node.Status;
 import com.uttt.common.board.Position;
 import com.uttt.common.board.Token;
 
-public abstract class PlayerRandom implements Player {
+public abstract class PlayerRandom extends Player {
 
-	private final Token  token;
 	private final Random random;
 
 	protected PlayerRandom(Token token, Random random) {
-		this.token  = token;
+		super(token);
 		this.random = random;
-	}
-
-	@Override
-	public Token getToken() {
-		return token;
 	}
 
 	private Move randomMove(String pfx, Logger log, Board subBoard, Position constraint) {

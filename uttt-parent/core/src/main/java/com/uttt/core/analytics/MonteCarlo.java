@@ -13,9 +13,9 @@ import org.joda.time.format.PeriodFormatterBuilder;
 
 import com.uttt.common.StackFrameUtil;
 import com.uttt.core.game.Game;
-import com.uttt.core.game.PlayerUnpredictable;
-import com.uttt.core.game.PlayerWeight;
 import com.uttt.core.game.Game.GameStatus;
+import com.uttt.core.game.prebuilt.PlayerUnpredictable;
+import com.uttt.core.game.prebuilt.PlayerWeight;
 import com.uttt.core.player.Player;
 
 public class MonteCarlo {

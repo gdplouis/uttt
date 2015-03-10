@@ -30,6 +30,10 @@ public class Move {
 		return new Move(thenRow, thenCol, this);
 	}
 
+    public static Move newMove(int row, int col) {
+        return new Move(row, col);
+    }
+
 	// ====================================================================================================
 
 	/**

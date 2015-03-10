@@ -1,4 +1,4 @@
-package com.uttt.core.game;
+package com.uttt.core.game.prebuilt;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -12,6 +12,7 @@ import com.uttt.core.board.Node;
 import com.uttt.core.board.Position;
 import com.uttt.core.board.Token;
 import com.uttt.core.board.Node.Status;
+import com.uttt.core.game.Move;
 import com.uttt.core.player.Player;
 
 public abstract class PlayerRandom extends Player {
@@ -35,7 +36,7 @@ public abstract class PlayerRandom extends Player {
 			Move subMove = randomMove(pfx + "|", log, constraint.derefBoard(), null);
 
 			for(Position cursorConstraint = constraint; cursorConstraint != null; cursorConstraint = cursorConstraint.getBoard().getPosition()) {
-				subMove = new Move(cursorConstraint.getRow(), cursorConstraint.getCol(), subMove);
+			    subMove = subMove.within(cursorConstraint.getRow(), cursorConstraint.getCol());
 			}
 			myMove = subMove;
 		} else {
@@ -58,13 +59,11 @@ public abstract class PlayerRandom extends Player {
 					+ "myPlayPos="      + myPlayPos      + "; " //
 					);
 
-			final Move subMove;
 			if (subBoard.isBottom()) {
-				subMove = null;
+			    myMove = Move.newMove(myPlayPos.getRow(), myPlayPos.getCol());
 			} else {
-				subMove = randomMove(pfx + "|", log, myPlayPos.derefBoard(), null);
+			    myMove = randomMove(pfx + "|", log, myPlayPos.derefBoard(), null).within(myPlayPos.getRow(), myPlayPos.getCol());
 			}
-			myMove = new Move(myPlayPos.getRow(), myPlayPos.getCol(), subMove);
 		}
 		log.trace(pfx //
 				+ "myMove="         + myMove         + "; " //

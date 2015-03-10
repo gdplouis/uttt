@@ -14,7 +14,7 @@ import com.uttt.core.board.Board;
 import com.uttt.core.board.Position;
 import com.uttt.core.board.Token;
 import com.uttt.core.game.Move;
-import com.uttt.core.game.PlayerPredictable;
+import com.uttt.core.game.prebuilt.PlayerPredictable;
 import com.uttt.core.player.Player;
 
 public class PlayerTest {

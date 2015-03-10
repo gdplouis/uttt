@@ -11,6 +11,8 @@ import com.uttt.common.UtttException;
 import com.uttt.core.board.Board;
 import com.uttt.core.board.Position;
 import com.uttt.core.board.Token;
+import com.uttt.core.game.prebuilt.PlayerUnpredictable;
+import com.uttt.core.game.prebuilt.PlayerWeight;
 import com.uttt.core.player.Player;
 
 public class Game {

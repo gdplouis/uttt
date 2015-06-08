@@ -1,5 +1,7 @@
 package com.uttt.core.player;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.apache.log4j.Logger;
 
 import com.uttt.core.board.Board;
@@ -10,6 +12,8 @@ import com.uttt.core.game.Move;
 public abstract class Player {
 
 	private final Token token;
+
+	public abstract Move makeMove(Logger log, Board board, Position constraint);
 
 	public Player(Token token) {
 		this.token = token;
@@ -29,13 +33,16 @@ public abstract class Player {
 	 *            the token.
 	 * @return a new player
 	 */
-	public static Player create(Class<? extends Player> klass, Token token) {
-		try {
-			return (Player) klass.getConstructors()[0].newInstance(token);
-		} catch (Exception e) {
-			throw new RuntimeException("Tried to reflectively construct new player", e);
-		}
-	}
+    public static Player create(Class<? extends Player> klass, Token token) {
+        try {
+            return (Player) klass.getConstructors()[0].newInstance(token);
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
+            throw new RuntimeException("Tried to reflectively construct new player", e);
+        }
+    }
 
-	public abstract Move makeMove(Logger log, Board board, Position constraint);
+	@Override
+	public String toString() {
+	    return getClass().getSimpleName();
+	}
 }

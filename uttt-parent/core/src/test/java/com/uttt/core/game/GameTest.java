@@ -8,8 +8,8 @@ import org.junit.Test;
 import com.uttt.common.UtttException;
 import com.uttt.core.board.Token;
 import com.uttt.core.game.Game;
-import com.uttt.core.game.prebuilt.PlayerPredictable;
 import com.uttt.core.player.Player;
+import com.uttt.core.player.impl.prebuilt.PlayerPredictable;
 
 public class GameTest {
 

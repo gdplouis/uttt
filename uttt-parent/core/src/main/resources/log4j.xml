@@ -22,7 +22,11 @@
   <logger name="com.uttt.core.game.PlayerPredictable">
     <level value="info"/> 
   </logger>
-  
+
+  <logger name="org.reflections.Reflections">
+    <level value="off"/> 
+  </logger>
+
   <root> 
     <priority value ="debug" /> 
     <appender-ref ref="console" /> 

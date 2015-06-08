@@ -30,11 +30,11 @@
  * <LI>Capture - Winning a board might yield points by way of number of opponents tokens "taken." Points might be scaled
  * by the height of the winning board.
  *
- * <LI>Non-Empty Start - Possilbly to handicap a better player, or just to see what happens, the starting configuration
+ * <LI>Non-Empty Start - Possibly to handicap a better player, or just to see what happens, the starting configuration
  * might not be empty. This might be a scatter of "extra" starting tokens either randomly or in a well-defined pattern,
  * or just a particular partial game that has been discovered to be "interesting" to continue.
  *
- * <LI>Limited Tokens - Something closer to checkers, with players limitted to a maximum number of tokens. After the max
+ * <LI>Limited Tokens - Something closer to checkers, with players limited to a maximum number of tokens. After the max
  * is reached, a placement would require the removal of token somewhere else to maintain balance. Such removal might be
  * unrestricted, or somehow be tied into the placement constraint.
  *
@@ -62,7 +62,7 @@
  * open positions on a given board, etc.
  *
  * <P><I><B>NOTE:</B> The game <B>should not</B> provide derived information about the board state that is of direct aid
- * in forming a player's move strategy. Thus, providing a list of open spots is fine, but not one of "reccommended"
+ * in forming a player's move strategy. Thus, providing a list of open spots is fine, but not one of "recommended"
  * positions, or "best next move" (even if limited to the scope of a single board's positions).</I>
  *
  * <P><B>Node:</B>
@@ -145,12 +145,12 @@
  *
  * <NL>
  *
- * <LI>A contraint may be null, meaning that a player may choose freely from all avalailable spots
+ * <LI>A constraint may be null, meaning that a player may choose freely from all available spots
  *
  * <LI>It may, at most, specify one less (row,col) pairs than the height of the game.
  *
  * <LI>All boards reach through the (row,col) sequence must be open (playable). Although not strictly required, the
- * normal way this would be acheived is by examining a putative constraint for playability, if needed, successively
+ * normal way this would be achieved is by examining a putative constraint for playability, if needed, successively
  * truncating it until it is playable or becomes the null constraint. Such behavior could, of course, be modified by
  * rule variation. Until such a variant is established, "truncation-until-playable" is the normative approach.
  *
@@ -178,7 +178,7 @@
  *
  * Total set of all token spots across all bottom-boards in a given game. The number of such spots may be calculated by
  * <NOBR>[size ^ (2 * height)]</NOBR>. For "h1s3" (the classic), this gives 9. For the "basic UTTT" with "h2s3" we get
- * 81. For a montrous game like "h4s5" there would be 390,625 token spots, while for the smaller sized "h4s3" we have
+ * 81. For a monstrous game like "h4s5" there would be 390,625 token spots, while for the smaller sized "h4s3" we have
  * something more workable with a mere 6,561 token spots.
  *
  * <P><B>Win Conditions:</B>

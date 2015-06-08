@@ -1,4 +1,4 @@
-package com.uttt.core.game.prebuilt;
+package com.uttt.core.player.impl.prebuilt;
 
 import java.util.Random;
 

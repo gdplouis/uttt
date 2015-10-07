@@ -32,4 +32,14 @@ public enum Token implements Node {
 	public Token copyDeep() {
 		return this;
 	}
+
+	public Token opponent() {
+		switch(this) {
+			case EMPTY     : return EMPTY;
+			case PLAYER_AAA: return PLAYER_BBB;
+			case PLAYER_BBB: return PLAYER_AAA;
+
+			default: return null;
+		}
+	}
 }

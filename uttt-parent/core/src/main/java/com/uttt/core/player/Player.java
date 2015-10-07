@@ -11,7 +11,7 @@ import com.uttt.core.game.Move;
 
 public abstract class Player {
 
-	private final Token token;
+	protected final Token token;
 
 	public abstract Move makeMove(Logger log, Board board, Position constraint);
 
@@ -26,7 +26,7 @@ public abstract class Player {
 	/**
 	 * Constructs a new player. Assumes the first available constructor of klass
 	 * is public and requires one Token arg.
-	 * 
+	 *
 	 * @param klass
 	 *            the class of the Player implementation.
 	 * @param token

@@ -6,6 +6,6 @@ import com.uttt.core.board.Token;
 public class PlayerPredictable extends PlayerRandom {
 
 	public PlayerPredictable(Token token) {
-		super(token, RepeatableRandom.create("NativeMethodAccessorImpl", "invoke0", token));
+		super(token, RepeatableRandom.create("PlayerPredictable", "<init>", token));
 	}
 }

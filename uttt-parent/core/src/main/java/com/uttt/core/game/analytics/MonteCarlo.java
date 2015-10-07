@@ -19,6 +19,7 @@ import org.joda.time.Duration;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
+import com.uttt.common.Foreachable;
 import com.uttt.common.StackFrameUtil;
 import com.uttt.core.game.Game;
 import com.uttt.core.game.Game.GameStatus;
@@ -62,8 +63,8 @@ public class MonteCarlo {
         numCompletedGames = new AtomicInteger(0);
     }
 
-    public static MonteCarlo init(String player1, String player2, int height, int size) {
-        return init(player1, player2, genNumRuns(height, size), height, size);
+    public static MonteCarlo init(int runCount, String player1, String player2, int height, int size) {
+        return init(player1, player2, runCount, height, size);
     }
 
     public static MonteCarlo init(String player1, String player2, int runs, int height, int size) {
@@ -177,6 +178,10 @@ public class MonteCarlo {
         return formatter.print(duration.toPeriod());
     }
 
+    /**
+	 * @param height
+	 * @param size (unused)
+	 */
     private static int genNumRuns(int height, int size) {
         // Probably sufficient for Monte Carlo...?
         switch (height) {
@@ -205,22 +210,29 @@ public class MonteCarlo {
                 .withArgName("HEIGHT").create());
         options.addOption(OptionBuilder.withLongOpt("s").withDescription("Max board size [default: 5]").hasArg()
                 .withArgName("SIZE").create());
+        options.addOption(OptionBuilder.withLongOpt("n").withDescription("Number of game runs to execute").hasArg()
+                .withArgName("NUMRUNS").create());
 
         final String p1String;
         final String p2String;
         final int maxHeight;
         final int maxSize;
+        final int runCount;
         try {
             CommandLine line = new BasicParser().parse(options, args);
+
             p1String = line.getOptionValue("1", "PlayerUnpredictable");
             p2String = line.getOptionValue("2", "PlayerUnpredictable");
-            maxHeight = Integer.valueOf(line.getOptionValue("h", "1"));
-            maxSize = Integer.valueOf(line.getOptionValue("s", "3"));
 
-        } catch (ParseException exp) {
+            maxHeight = Integer.valueOf(line.getOptionValue("h", "1"));
+            maxSize   = Integer.valueOf(line.getOptionValue("s", "3"));
+
+            runCount = Integer.valueOf(line.getOptionValue("n", (""+genNumRuns(maxHeight, maxSize))));
+        }
+        catch (ParseException exp) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.setOptionComparator(new Comparator<Option>() {
-                private static final String OPTS_ORDER = "xorhs";
+                private static final String OPTS_ORDER = "12hsn";
 
                 @Override
                 public int compare(Option o1, Option o2) {
@@ -243,10 +255,10 @@ public class MonteCarlo {
         log.info("Max Height: " + maxHeight);
         log.info("Max Size  : " + maxSize);
 
-        for (int height = 1; height <= 3; height++) {
-            for (int size = 2; size <= 5; size++) {
+        for (int height : Foreachable.to(1, maxHeight)) {
+            for (int size : Foreachable.to(2, maxSize)) {
                 System.gc();
-                MonteCarlo.init(p1String, p2String, height, size).run();
+                MonteCarlo.init(runCount, p1String, p2String, height, size).run();
             }
         }
     }
